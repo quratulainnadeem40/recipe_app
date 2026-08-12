@@ -5,9 +5,7 @@ import 'app_colors.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  // ==============================
   // Headings
-  // ==============================
 
   static const TextStyle headingLarge = TextStyle(
     fontSize: 28,
@@ -27,9 +25,7 @@ class AppTextStyles {
     color: AppColors.textPrimary,
   );
 
-  // ==============================
   // Body Text
-  // ==============================
 
   static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
@@ -49,9 +45,7 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
 
-  // ==============================
   // Labels
-  // ==============================
 
   static const TextStyle labelLarge = TextStyle(
     fontSize: 16,
@@ -71,9 +65,7 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
 
-  // ==============================
   // Button Text
-  // ==============================
 
   static const TextStyle button = TextStyle(
     fontSize: 16,
@@ -81,9 +73,7 @@ class AppTextStyles {
     color: AppColors.white,
   );
 
-  // ==============================
   // Recipe Card
-  // ==============================
 
   static const TextStyle recipeTitle = TextStyle(
     fontSize: 16,
