@@ -18,7 +18,7 @@ class SplashScreen extends StatelessWidget {
 
             // COOKmate splash image
             Image.asset(
-              "assets\Cookmate.png",
+              " assets/Cooking_image.png",
               fit: BoxFit.cover,
             ),
 
