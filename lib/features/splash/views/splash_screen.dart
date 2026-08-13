@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:recipe_app/controllers/splash_controller.dart';
+import 'package:recipe_app/features/splash/controllers/splash_controller.dart';
 
 class SplashScreen extends StatelessWidget {
   SplashScreen({super.key});
@@ -18,7 +18,7 @@ class SplashScreen extends StatelessWidget {
 
             // COOKmate splash image
             Image.asset(
-              " assets/Cooking_image.png",
+              "assets\Cookmate.png",
               fit: BoxFit.cover,
             ),
 
