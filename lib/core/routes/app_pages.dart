@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:recipe_app/features/auth/bindings/auth_binding.dart';
+import 'package:recipe_app/features/auth/verification/email_verification.dart';
 import 'package:recipe_app/features/auth/views/forgot_password_screen.dart';
 import 'package:recipe_app/features/auth/views/login_screen.dart';
 import 'package:recipe_app/features/auth/views/signup_screen.dart';
@@ -51,5 +52,10 @@ class AppPages {
       page: () => const ForgotPasswordScreen(),
       binding: AuthBinding(),
     ),
+    GetPage(
+  name: AppRoutes.verifyEmail,
+  page: () => const VerifyEmailScreen(),
+  binding: AuthBinding(),
+),
   ];
 }

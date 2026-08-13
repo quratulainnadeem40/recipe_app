@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:recipe_app/core/theme/app_colors.dart';
-import 'package:recipe_app/core/theme/app_text_styles.dart';
-import 'package:recipe_app/features/splash/controllers/splash_controller.dart';
 
+import 'package:recipe_app/core/theme/app_colors.dart';
+import 'package:recipe_app/features/splash/controllers/splash_controller.dart';
 
 class SplashScreen extends GetView<SplashController> {
   const SplashScreen({super.key});
@@ -15,121 +14,52 @@ class SplashScreen extends GetView<SplashController> {
     return Scaffold(
       backgroundColor: AppColors.primary,
 
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
+      body: SizedBox.expand(
+        child: Stack(
+          children: [
+            // ==============================
+            // BACKGROUND IMAGE
+            // ==============================
 
-          // =====================================================
-          // BACKGROUND IMAGE
-          // =====================================================
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0, // Side distance
+              right: 0, // Side distance
+              child: Image.asset(
+                'assets/imagefolder/image.png',
+                fit: BoxFit.contain,
+              ),
+            ),
 
-          Image.asset(
-           "assets/image.png",
-            fit: BoxFit.cover,
-          ),
+            // ==============================
+            // LOADING
+            // ==============================
 
-          // =====================================================
-          // COOKMATE TEXT
-          // =====================================================
-
-          Positioned(
-            top: screenHeight * 0.505,
-            left: 0,
-            right: 0,
-
-            child: Center(
-              child: RichText(
-                textAlign: TextAlign.center,
-
-                text: TextSpan(
-                  children: [
-
-                    // COOK
-                    TextSpan(
-                      text: 'Cook',
-                      style: AppTextStyles.headingLarge.copyWith(
-                        fontSize: 58,
-                        fontWeight: FontWeight.w700,
-                        fontStyle: FontStyle.italic,
-                        color: AppColors.white,
-                        shadows: const [
-                          Shadow(
-                            color: AppColors.black,
-                            blurRadius: 4,
-                            offset: Offset(1, 2),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // MATE
-                    TextSpan(
-                      text: 'mate',
-                      style: AppTextStyles.headingLarge.copyWith(
-                        fontSize: 58,
-                        fontWeight: FontWeight.w700,
-                        fontStyle: FontStyle.italic,
+            Positioned(
+              bottom: screenHeight * 0.075,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Obx(
+                  () {
+                    return SizedBox(
+                      width: 25,
+                      height: 25,
+                      child: CircularProgressIndicator(
+                        value: controller.progress.value,
+                        strokeWidth: 2,
                         color: AppColors.orange,
-                        shadows: const [
-                          Shadow(
-                            color: AppColors.black,
-                            blurRadius: 4,
-                            offset: Offset(1, 2),
-                          ),
-                        ],
+                        backgroundColor:
+                            AppColors.white.withOpacity(0.25),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
-          ),
-
-          // =====================================================
-          // TAGLINE
-          // =====================================================
-
-          Positioned(
-            top: screenHeight * 0.705,
-            left: 0,
-            right: 0,
-
-            child: Center(
-              child: Text(
-                'COOK  •  SHARE  •  INSPIRE',
-
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 3.0,
-                ),
-              ),
-            ),
-          ),
-
-          // =====================================================
-          // LOADING INDICATOR
-          // =====================================================
-
-          Positioned(
-            bottom: screenHeight * 0.075,
-            left: 0,
-            right: 0,
-
-            child: const Center(
-              child: SizedBox(
-                width: 25,
-                height: 25,
-
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.orange,
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

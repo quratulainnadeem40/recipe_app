@@ -10,5 +10,7 @@ abstract class AppRoutes {
   static const String search = '/search';
   static const String recipeDetails = '/recipe-details';
   static const String profile = '/profile';
+  static const String verifyEmail =
+    '/verify-email';
   
 }

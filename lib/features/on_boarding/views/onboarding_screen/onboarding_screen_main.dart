@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/core/theme/app_text_styles.dart';
+
 import 'package:recipe_app/features/on_boarding/controllers/onboarding_controller.dart';
-import 'package:recipe_app/features/on_boarding/views/onboarding_screen/onboarding_screen_1.dart';
-import 'package:recipe_app/features/on_boarding/views/onboarding_screen/onboarding_screen_2.dart';
-import 'package:recipe_app/features/on_boarding/views/onboarding_screen/onboarding_screen_3.dart';
 
-
+import 'onboarding_screen_1.dart';
+import 'onboarding_screen_2.dart';
+import 'onboarding_screen_3.dart';
 
 class OnboardingScreen extends GetView<OnboardingController> {
-  const OnboardingScreen({super.key});
+  const OnboardingScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +23,20 @@ class OnboardingScreen extends GetView<OnboardingController> {
       body: SafeArea(
         child: Column(
           children: [
-            // ==========================
+
+            // ==============================
             // SKIP
-            // ==========================
+            // ==============================
 
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24,
                 vertical: 8,
               ),
+
               child: Align(
                 alignment: Alignment.centerRight,
+
                 child: Obx(
                   () {
                     if (controller.currentPage.value == 2) {
@@ -41,6 +47,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
 
                     return TextButton(
                       onPressed: controller.skip,
+
                       child: Text(
                         'Skip',
                         style: AppTextStyles.labelMedium.copyWith(
@@ -53,9 +60,9 @@ class OnboardingScreen extends GetView<OnboardingController> {
               ),
             ),
 
-            // ==========================
+            // ==============================
             // PAGE VIEW
-            // ==========================
+            // ==============================
 
             Expanded(
               child: PageView(
@@ -63,67 +70,80 @@ class OnboardingScreen extends GetView<OnboardingController> {
 
                 onPageChanged: controller.changePage,
 
-                children: const [
-                  Onboarding1(),
-                  Onboarding2(),
-                  Onboarding3(),
-                ],
+                children: [
+  Onboarding1(
+    model: controller.onboardingPages[0],
+  ),
+
+  Onboarding2(
+    model: controller.onboardingPages[1],
+  ),
+
+  Onboarding3(
+    model: controller.onboardingPages[2],
+  ),
+],
               ),
             ),
 
-            // ==========================
+            // ==============================
             // DOTS
-            // ==========================
+            // ==============================
 
             Obx(
-              () => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  3,
-                  (index) {
-                    final selected =
-                        controller.currentPage.value == index;
+              () {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
 
-                    return AnimatedContainer(
-                      duration: const Duration(
-                        milliseconds: 250,
-                      ),
+                  children: List.generate(
+                    3,
+                    (index) {
+                      final selected =
+                          controller.currentPage.value == index;
 
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                      ),
+                      return AnimatedContainer(
+                        duration: const Duration(
+                          milliseconds: 250,
+                        ),
 
-                      height: 8,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                        ),
 
-                      width: selected ? 24 : 8,
+                        height: 8,
 
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? AppColors.orange
-                            : AppColors.disabled,
+                        width: selected ? 24 : 8,
 
-                        borderRadius:
-                            BorderRadius.circular(10),
-                      ),
-                    );
-                  },
-                ),
-              ),
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? AppColors.orange
+                              : AppColors.disabled,
+
+                          borderRadius:
+                              BorderRadius.circular(10),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 24),
 
-            // ==========================
+            // ==============================
             // NEXT / GET STARTED
-            // ==========================
+            // ==============================
 
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24,
               ),
+
               child: SizedBox(
                 width: double.infinity,
                 height: 54,
+
                 child: Obx(
                   () {
                     final isLastPage =

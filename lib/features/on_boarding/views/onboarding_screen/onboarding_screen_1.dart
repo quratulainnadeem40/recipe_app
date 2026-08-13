@@ -1,32 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/core/theme/app_text_styles.dart';
+import 'package:recipe_app/features/on_boarding/models/onboarding_model.dart';
 
 class Onboarding1 extends StatelessWidget {
-  const Onboarding1({super.key});
+  final OnboardingModel model;
+
+  const Onboarding1({
+    super.key,
+    required this.model,
+  });
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 24,
+      ),
       child: Column(
         children: [
           Expanded(
             flex: 6,
             child: Center(
               child: Image.asset(
-               "assets/image1.png" ,
-                width: size.width * 0.88,
-                height: size.height * 0.48,
+                model.image,
                 fit: BoxFit.contain,
               ),
             ),
           ),
 
           Text(
-            'Discover Delicious Recipes',
+            model.title,
             textAlign: TextAlign.center,
             style: AppTextStyles.headingLarge.copyWith(
               color: AppColors.primary,
@@ -37,7 +43,7 @@ class Onboarding1 extends StatelessWidget {
           const SizedBox(height: 14),
 
           Text(
-            'Explore delicious recipes and discover new meals to make every day.',
+            model.description,
             textAlign: TextAlign.center,
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondary,
