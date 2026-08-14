@@ -6,13 +6,12 @@ import 'app_text_styles.dart';
 class AppTheme {
   AppTheme._();
 
-
-  // Light Theme
-  
+  // =========================================================
+  // LIGHT THEME
+  // =========================================================
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-
     brightness: Brightness.light,
 
     scaffoldBackgroundColor: AppColors.lightBackground,
@@ -22,6 +21,9 @@ class AppTheme {
       secondary: AppColors.orange,
       surface: AppColors.lightSurface,
       error: AppColors.error,
+      onPrimary: AppColors.white,
+      onSecondary: AppColors.white,
+      onSurface: AppColors.textPrimary,
     ),
 
     appBarTheme: const AppBarTheme(
@@ -48,6 +50,10 @@ class AppTheme {
       labelMedium: AppTextStyles.labelMedium,
       labelSmall: AppTextStyles.labelSmall,
     ),
+
+    // =======================================================
+    // LIGHT INPUT FIELDS
+    // =======================================================
 
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -84,6 +90,10 @@ class AppTheme {
       ),
     ),
 
+    // =======================================================
+    // LIGHT BUTTON
+    // =======================================================
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.orange,
@@ -97,33 +107,40 @@ class AppTheme {
       ),
     ),
 
+    // =======================================================
+    // LIGHT DIVIDER
+    // =======================================================
+
     dividerTheme: const DividerThemeData(
       color: AppColors.divider,
       thickness: 1,
     ),
   );
 
-  
-  // Dark Theme
-  
+  // =========================================================
+  // DARK THEME
+  // =========================================================
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
-
     brightness: Brightness.dark,
 
     scaffoldBackgroundColor: AppColors.darkBackground,
 
     colorScheme: const ColorScheme.dark(
-      primary: AppColors.primary,
+      primary: AppColors.darkPrimary,
       secondary: AppColors.orange,
       surface: AppColors.darkSurface,
       error: AppColors.error,
+
+      onPrimary: AppColors.darkBackground,
+      onSecondary: AppColors.white,
+      onSurface: AppColors.darkTextPrimary,
     ),
 
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.darkBackground,
-      foregroundColor: AppColors.textPrimaryDark,
+      foregroundColor: AppColors.darkTextPrimary,
       elevation: 0,
       centerTitle: false,
     ),
@@ -134,50 +151,66 @@ class AppTheme {
       margin: EdgeInsets.zero,
     ),
 
+    // =======================================================
+    // DARK TEXT THEME
+    // =======================================================
+
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        color: AppColors.textPrimaryDark,
+        color: AppColors.darkTextPrimary,
       ),
+
       headlineMedium: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w700,
-        color: AppColors.textPrimaryDark,
+        color: AppColors.darkTextPrimary,
       ),
+
       headlineSmall: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: AppColors.textPrimaryDark,
+        color: AppColors.darkTextPrimary,
       ),
+
       bodyLarge: TextStyle(
         fontSize: 16,
-        color: AppColors.textPrimaryDark,
+        color: AppColors.darkTextPrimary,
       ),
+
       bodyMedium: TextStyle(
         fontSize: 14,
-        color: AppColors.textPrimaryDark,
+        color: AppColors.darkTextPrimary,
       ),
+
       bodySmall: TextStyle(
         fontSize: 12,
-        color: AppColors.textSecondaryDark,
+        color: AppColors.darkTextSecondary,
       ),
+
       labelLarge: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: AppColors.textPrimaryDark,
+        color: AppColors.darkTextPrimary,
       ),
+
       labelMedium: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: AppColors.textPrimaryDark,
+        color: AppColors.darkTextPrimary,
       ),
+
       labelSmall: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w500,
-        color: AppColors.textSecondaryDark,
+        color: AppColors.darkTextSecondary,
       ),
     ),
+
+    // =======================================================
+    // DARK INPUT FIELDS
+    // =======================================================
 
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -196,8 +229,15 @@ class AppTheme {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(
-          color: AppColors.orange,
+          color: AppColors.darkPrimary,
           width: 1.5,
+        ),
+      ),
+
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: AppColors.error,
         ),
       ),
 
@@ -206,6 +246,10 @@ class AppTheme {
         vertical: 16,
       ),
     ),
+
+    // =======================================================
+    // DARK BUTTON
+    // =======================================================
 
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -220,8 +264,12 @@ class AppTheme {
       ),
     ),
 
+    // =======================================================
+    // DARK DIVIDER
+    // =======================================================
+
     dividerTheme: const DividerThemeData(
-      color: Color(0xFF3A3A3A),
+      color: AppColors.darkDivider,
       thickness: 1,
     ),
   );

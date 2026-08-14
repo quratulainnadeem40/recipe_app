@@ -1,12 +1,16 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+
+import 'package:recipe_app/core/services/image_picker_service.dart';
+import 'package:recipe_app/core/services/storage_service.dart';
 
 import '../../auth/repositories/auth_repository.dart';
 import '../../auth/model/user_model.dart';
 
 class ProfileController extends GetxController {
-  
   final AuthRepository _authRepository = AuthRepository();
   final GetStorage _storage = GetStorage();
 
@@ -17,20 +21,31 @@ class ProfileController extends GetxController {
   final user = Rxn<UserModel>();
 
   // =========================================================
+  // PROFILE IMAGE
+  // =========================================================
+
+  final Rxn<Uint8List> profileImageBytes =
+      Rxn<Uint8List>();
+
+  // =========================================================
   // THEME
   // =========================================================
+
   final isNotificationsEnabled = true.obs;
   final isDarkMode = false.obs;
+
   // =========================================================
   // CHANGE PASSWORD
   // =========================================================
 
-  final GlobalKey<FormState> changePasswordFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> changePasswordFormKey =
+      GlobalKey<FormState>();
 
   final TextEditingController currentPasswordController =
       TextEditingController();
 
-  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController newPasswordController =
+      TextEditingController();
 
   final TextEditingController confirmPasswordController =
       TextEditingController();
@@ -41,26 +56,32 @@ class ProfileController extends GetxController {
   // INITIALIZATION
   // =========================================================
 
- @override
-void onInit() {
-  super.onInit();
+  @override
+  void onInit() {
+    super.onInit();
 
-  loadUser();
+    loadUser();
+    loadProfileImage();
 
-  isNotificationsEnabled.value =
-      _storage.read('notifications_enabled') ?? true;
-}
+    isNotificationsEnabled.value =
+        _storage.read('notifications_enabled') ?? true;
+  }
 
-void toggleNotifications(bool value) {
-  isNotificationsEnabled.value = value;
-
-  _storage.write(
-    'notifications_enabled',
-    value,
-  );
-}
   // =========================================================
-  // LOAD CURRENT USER
+  // NOTIFICATIONS
+  // =========================================================
+
+  void toggleNotifications(bool value) {
+    isNotificationsEnabled.value = value;
+
+    _storage.write(
+      'notifications_enabled',
+      value,
+    );
+  }
+
+  // =========================================================
+  // LOAD USER
   // =========================================================
 
   Future<void> loadUser() async {
@@ -78,13 +99,60 @@ void toggleNotifications(bool value) {
   }
 
   // =========================================================
+  // PICK PROFILE IMAGE
+  // =========================================================
+
+  Future<void> pickProfileImage() async {
+    final Uint8List? imageBytes =
+        await ImagePickerService.pickFromGallery();
+
+    if (imageBytes == null) {
+      return;
+    }
+
+    profileImageBytes.value = imageBytes;
+
+    await StorageService.saveProfileImage(
+      imageBytes,
+    );
+  }
+
+  // =========================================================
+  // LOAD PROFILE IMAGE
+  // =========================================================
+
+  void loadProfileImage() {
+    final List<int>? savedBytes =
+        StorageService.profileImageBytes;
+
+    if (savedBytes == null || savedBytes.isEmpty) {
+      return;
+    }
+
+    profileImageBytes.value =
+        Uint8List.fromList(savedBytes);
+  }
+
+  // =========================================================
+  // REMOVE PROFILE IMAGE
+  // =========================================================
+
+  Future<void> removeProfileImage() async {
+    profileImageBytes.value = null;
+
+    await StorageService.removeProfileImage();
+  }
+
+  // =========================================================
   // DARK MODE
   // =========================================================
 
   void toggleTheme(bool value) {
     isDarkMode.value = value;
 
-    Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+    Get.changeThemeMode(
+      value ? ThemeMode.dark : ThemeMode.light,
+    );
   }
 
   // =========================================================
@@ -92,18 +160,20 @@ void toggleNotifications(bool value) {
   // =========================================================
 
   Future<void> changePassword() async {
-    // Validate form
-    if (!(changePasswordFormKey.currentState?.validate() ?? false)) {
+    if (!(changePasswordFormKey.currentState?.validate() ??
+        false)) {
       return;
     }
 
-    final String currentPassword = currentPasswordController.text.trim();
+    final String currentPassword =
+        currentPasswordController.text.trim();
 
-    final String newPassword = newPasswordController.text.trim();
+    final String newPassword =
+        newPasswordController.text.trim();
 
-    final String confirmPassword = confirmPasswordController.text.trim();
+    final String confirmPassword =
+        confirmPasswordController.text.trim();
 
-    // Extra password confirmation check
     if (newPassword != confirmPassword) {
       Get.snackbar(
         'Password Error',
@@ -128,12 +198,10 @@ void toggleNotifications(bool value) {
         newPassword: newPassword,
       );
 
-      // Clear password fields after successful change
       currentPasswordController.clear();
       newPasswordController.clear();
       confirmPasswordController.clear();
 
-      // Go back to Account Settings
       Get.back();
 
       Get.snackbar(
@@ -143,7 +211,10 @@ void toggleNotifications(bool value) {
     } catch (e) {
       Get.snackbar(
         'Password Change Failed',
-        e.toString().replaceFirst('Exception: ', ''),
+        e.toString().replaceFirst(
+              'Exception: ',
+              '',
+            ),
       );
     } finally {
       isChangingPassword.value = false;
@@ -158,7 +229,9 @@ void toggleNotifications(bool value) {
     final shouldLogout = await Get.dialog<bool>(
       AlertDialog(
         title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        content: const Text(
+          'Are you sure you want to logout?',
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -187,7 +260,10 @@ void toggleNotifications(bool value) {
     } catch (e) {
       Get.snackbar(
         'Logout Failed',
-        e.toString().replaceFirst('Exception: ', ''),
+        e.toString().replaceFirst(
+              'Exception: ',
+              '',
+            ),
       );
     }
   }
@@ -228,6 +304,8 @@ void toggleNotifications(bool value) {
     try {
       await _authRepository.deleteAccount();
 
+      await StorageService.clearUserData();
+
       Get.offAllNamed('/login');
 
       Get.snackbar(
@@ -237,7 +315,10 @@ void toggleNotifications(bool value) {
     } catch (e) {
       Get.snackbar(
         'Delete Failed',
-        e.toString().replaceFirst('Exception: ', ''),
+        e.toString().replaceFirst(
+              'Exception: ',
+              '',
+            ),
       );
     }
   }
@@ -246,17 +327,13 @@ void toggleNotifications(bool value) {
   // PRIVACY POLICY
   // =========================================================
 
-  void openPrivacyPolicy() {
-    // Privacy Policy screen will be added later.
-  }
+  void openPrivacyPolicy() {}
 
   // =========================================================
   // TERMS & CONDITIONS
   // =========================================================
 
-  void openTermsAndConditions() {
-    // Terms screen will be added later.
-  }
+  void openTermsAndConditions() {}
 
   // =========================================================
   // DISPOSE

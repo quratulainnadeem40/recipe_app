@@ -15,34 +15,72 @@ class ThemeSwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Theme-aware primary color
+    final primaryColor = isDark
+        ? AppColors.darkPrimary
+        : AppColors.primary;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 4,
         vertical: 2,
       ),
+
+      // =====================================================
+      // ICON
+      // =====================================================
       leading: Container(
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.10),
+          color: primaryColor.withValues(
+            alpha: isDark ? 0.16 : 0.10,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Icon(
+        child: Icon(
           Icons.dark_mode_outlined,
-          color: AppColors.primary,
+          color: primaryColor,
           size: 22,
         ),
       ),
+
+      // =====================================================
+      // TITLE
+      // =====================================================
       title: Text(
         'Dark Mode',
         style: AppTextStyles.bodyLarge.copyWith(
+          color: colorScheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
       ),
+
+      // =====================================================
+      // SWITCH
+      // =====================================================
       trailing: Switch.adaptive(
         value: value,
         onChanged: onChanged,
+
         activeThumbColor: AppColors.orange,
+
+        activeTrackColor: isDark
+            ? AppColors.orange.withValues(alpha: 0.35)
+            : AppColors.orange.withValues(alpha: 0.25),
+
+        inactiveThumbColor: isDark
+            ? Colors.grey.shade300
+            : Colors.grey.shade600,
+
+        inactiveTrackColor: isDark
+            ? Colors.grey.shade700
+            : Colors.grey.shade300,
       ),
     );
   }

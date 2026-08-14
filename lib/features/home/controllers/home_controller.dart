@@ -33,6 +33,19 @@ class HomeController extends GetxController {
   final RxString categoryErrorMessage = ''.obs;
 
   // =========================================================
+  // COUNTRY RECIPES
+  // =========================================================
+
+  final RxList<RecipeModel> countryRecipes =
+      <RecipeModel>[].obs;
+
+  final RxBool isCountryLoading = false.obs;
+
+  final RxString countryErrorMessage = ''.obs;
+
+  final RxString selectedCountry = ''.obs;
+
+  // =========================================================
   // SEARCH
   // =========================================================
 
@@ -90,12 +103,14 @@ class HomeController extends GetxController {
       categoryRecipes.clear();
 
       final result =
-          await repository.getRecipesByCategory(category);
+          await repository.getRecipesByCategory(
+        category,
+      );
 
       categoryRecipes.assignAll(result);
     } catch (e) {
       categoryErrorMessage.value =
-          'Failed to load $category recipes';
+          'Failed to load $category recipes: $e';
 
       categoryRecipes.clear();
     } finally {
@@ -104,13 +119,62 @@ class HomeController extends GetxController {
   }
 
   // =========================================================
+  // GET RECIPES BY COUNTRY / AREA
+  // =========================================================
+
+  Future<void> getRecipesByCountry(
+    String country,
+  ) async {
+    try {
+      isCountryLoading.value = true;
+      countryErrorMessage.value = '';
+
+      countryRecipes.clear();
+
+      selectedCountry.value = country;
+
+      final result =
+          await repository.getRecipesByCountry(
+        country,
+      );
+
+      if (result.isEmpty) {
+        countryErrorMessage.value =
+            'No recipes found for $country';
+        return;
+      }
+
+      countryRecipes.assignAll(result);
+    } catch (e) {
+      countryErrorMessage.value =
+          'Failed to load $country recipes: $e';
+
+      countryRecipes.clear();
+    } finally {
+      isCountryLoading.value = false;
+    }
+  }
+
+  // =========================================================
+  // CLEAR COUNTRY RECIPES
+  // =========================================================
+
+  void clearCountryRecipes() {
+    countryRecipes.clear();
+    selectedCountry.value = '';
+    countryErrorMessage.value = '';
+    isCountryLoading.value = false;
+  }
+
+  // =========================================================
   // SEARCH RECIPES
   // =========================================================
 
-  Future<void> searchRecipes(String query) async {
+  Future<void> searchRecipes(
+    String query,
+  ) async {
     final searchQuery = query.trim();
 
-    // Empty search
     if (searchQuery.isEmpty) {
       clearSearch();
       return;
@@ -122,12 +186,14 @@ class HomeController extends GetxController {
       searchErrorMessage.value = '';
 
       final result =
-          await repository.searchRecipes(searchQuery);
+          await repository.searchRecipes(
+        searchQuery,
+      );
 
       searchResults.assignAll(result);
     } catch (e) {
       searchErrorMessage.value =
-          'Failed to search recipes';
+          'Failed to search recipes: $e';
 
       searchResults.clear();
     } finally {

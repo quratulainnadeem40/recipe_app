@@ -7,11 +7,17 @@ import 'package:recipe_app/features/auth/views/signup_screen.dart';
 
 import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart';
 import 'package:recipe_app/features/navigation/views/main_navigation.dart';
-import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
 
 import 'package:recipe_app/features/on_boarding/bindings/onboarding_binding.dart';
 import 'package:recipe_app/features/on_boarding/views/onboarding_screen/onboarding_screen_main.dart';
+
 import 'package:recipe_app/features/profile/bindings/profile_binding.dart';
+import 'package:recipe_app/features/profile/bindings/edit_profile_binding.dart';
+import 'package:recipe_app/features/profile/views/edit_profile_screen.dart';
+import 'package:recipe_app/features/profile/views/account_settings_screen.dart';
+import 'package:recipe_app/features/profile/views/privacy_policy_screen.dart';
+import 'package:recipe_app/features/profile/views/terms_and_conditions_screen.dart';
+import 'package:recipe_app/features/profile/views/change_password_screen.dart';
 
 import 'package:recipe_app/features/recipe_details/bindings/recipe_details_binding.dart';
 import 'package:recipe_app/features/recipe_details/views/recipe_details_screen.dart';
@@ -19,23 +25,14 @@ import 'package:recipe_app/features/recipe_details/views/recipe_details_screen.d
 import 'package:recipe_app/features/splash/bindings/splash_bindings.dart';
 import 'package:recipe_app/features/splash/views/splash_screen.dart';
 
-import 'package:recipe_app/features/profile/bindings/edit_profile_binding.dart';
-import 'package:recipe_app/features/profile/views/edit_profile_screen.dart';
-
 import 'package:recipe_app/features/favorites/bindings/favorites_binding.dart';
 import 'package:recipe_app/features/favorites/views/favorites_screen.dart';
 
 import 'package:recipe_app/features/search/bindings/search_binding.dart';
 import 'package:recipe_app/features/search/views/search_screen.dart';
 
-import 'package:recipe_app/features/profile/views/account_settings_screen.dart';
-import 'package:recipe_app/features/profile/views/privacy_policy_screen.dart';
-
-import 'package:recipe_app/features/profile/views/terms_and_conditions_screen.dart';
-import 'package:recipe_app/features/profile/views/change_password_screen.dart';
-
-import 'package:recipe_app/features/notifications/views/notifications_screen.dart';
 import 'package:recipe_app/features/notifications/bindings/notifications_binding.dart';
+import 'package:recipe_app/features/notifications/views/notifications_screen.dart';
 
 import 'app_routes.dart';
 
@@ -99,7 +96,7 @@ class AppPages {
       binding: FavoritesBinding(),
     ),
 
-    //edit profile
+    // Edit Profile
     GetPage(
       name: '/edit-profile',
       page: () => const EditProfileScreen(),
@@ -107,11 +104,11 @@ class AppPages {
     ),
 
     // Change Password
-GetPage(
-  name: AppRoutes.changePassword,
-  page: () => const ChangePasswordScreen(),
-  binding: ProfileBinding(),
-),
+    GetPage(
+      name: AppRoutes.changePassword,
+      page: () => const ChangePasswordScreen(),
+      binding: ProfileBinding(),
+    ),
 
     // Account Settings
     GetPage(
@@ -120,15 +117,11 @@ GetPage(
     ),
 
     // Notifications
-GetPage(
-  name: AppRoutes.notifications,
-  page: () => const NotificationsScreen(),
-  binding: BindingsBuilder(() {
-    Get.lazyPut<NotificationController>(
-      () => NotificationController(),
-    );
-  }),
-),
+    GetPage(
+      name: AppRoutes.notifications,
+      page: () => const NotificationsScreen(),
+      binding: NotificationBinding(),
+    ),
 
     // Privacy Policy
     GetPage(
@@ -141,17 +134,12 @@ GetPage(
       name: AppRoutes.termsAndConditions,
       page: () => const TermsAndConditionsScreen(),
     ),
+
     // Recipe Details
     GetPage(
       name: AppRoutes.recipeDetails,
       page: () => const RecipeDetailsScreen(),
       binding: RecipeDetailsBinding(),
     ),
-
-    //     GetPage(
-    //   name: AppRoutes.home,
-    //   page: () => const HomeScreen(),
-    //   binding: HomeBinding(),
-    // ),
   ];
 }

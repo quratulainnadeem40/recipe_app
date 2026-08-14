@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 
 import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/features/home/controllers/home_controller.dart';
+import 'package:recipe_app/features/home/data/country_data.dart';
+import 'package:recipe_app/features/home/views/widgets/country_item.dart';
 import 'package:recipe_app/features/home/views/widgets/home_header.dart';
-import 'package:recipe_app/features/home/views/widgets/category_item.dart';
-//import 'package:recipe_app/features/home/views/widgets/home_searchbar.dart';
 import 'package:recipe_app/features/home/views/widgets/recipe_horizontal_list.dart';
 
 class HomeScreen extends GetView<HomeController> {
@@ -17,18 +17,20 @@ class HomeScreen extends GetView<HomeController> {
       body: SafeArea(
         child: Obx(
           () {
-            // ==========================================
+            // =====================================================
             // MAIN LOADING
-            // ==========================================
+            // =====================================================
+
             if (controller.isLoading.value) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
             }
 
-            // ==========================================
+            // =====================================================
             // MAIN ERROR
-            // ==========================================
+            // =====================================================
+
             if (controller.errorMessage.value.isNotEmpty) {
               return Center(
                 child: Padding(
@@ -41,12 +43,16 @@ class HomeScreen extends GetView<HomeController> {
                         size: 50,
                         color: Colors.red,
                       ),
+
                       const SizedBox(height: 12),
+
                       Text(
                         controller.errorMessage.value,
                         textAlign: TextAlign.center,
                       ),
+
                       const SizedBox(height: 16),
+
                       ElevatedButton(
                         onPressed: controller.getRecipes,
                         child: const Text('Retry'),
@@ -57,109 +63,113 @@ class HomeScreen extends GetView<HomeController> {
               );
             }
 
-            // ==========================================
-            // HOME CONTENT
-            // ==========================================
+            // =====================================================
+            // HOME
+            // VERTICAL SCROLL
+            // =====================================================
+
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              physics: const BouncingScrollPhysics(),
+
+              // IMPORTANT:
+              // Extra bottom space so the last recipe cards
+              // don't touch/attach to the Bottom Navigation Bar.
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                110,
+              ),
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ======================================
+                  // =================================================
                   // HEADER
-                  // ======================================
+                  // =================================================
+
                   HomeHeader(
-                   // userName: ,
-                   // onProfileTap: ,
                     onNotificationTap: () {
-                      Get.toNamed(AppRoutes.notifications);
+                      Get.toNamed(
+                        AppRoutes.notifications,
+                      );
                     },
                   ),
-                  const SizedBox(height: 20),
 
-                  // ======================================
-                  // SEARCH BAR
-                  // ======================================
-                 // const HomeSearchBar(),
+                  const SizedBox(height: 28),
 
-                 // const SizedBox(height: 24),
+                  // =================================================
+                  // COUNTRIES
+                  // =================================================
 
-                  // ======================================
-                  // CATEGORIES TITLE
-                  // ======================================
                   const Text(
-                    'Categories',
+                    'Explore by Country',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
-                  // ======================================
-                  // CATEGORIES
-                  // ======================================
-                  SizedBox(
-                    height: 90,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        CategoryItem(
-                          title: 'Chicken',
-                          icon: Icons.restaurant,
-                          onTap: () {
-                            controller.getRecipesByCategory(
-                              'Chicken',
-                            );
-                          },
-                        ),
-
-                        CategoryItem(
-                          title: 'Beef',
-                          icon: Icons.lunch_dining,
-                          onTap: () {
-                            controller.getRecipesByCategory(
-                              'Beef',
-                            );
-                          },
-                        ),
-
-                        CategoryItem(
-                          title: 'Dessert',
-                          icon: Icons.cake,
-                          onTap: () {
-                            controller.getRecipesByCategory(
-                              'Dessert',
-                            );
-                          },
-                        ),
-
-                        CategoryItem(
-                          title: 'Seafood',
-                          icon: Icons.set_meal,
-                          onTap: () {
-                            controller.getRecipesByCategory(
-                              'Seafood',
-                            );
-                          },
-                        ),
-                      ],
+                  const Text(
+                    'Discover delicious recipes from around the world',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-                  // ======================================
-                  // CATEGORY RECIPES
-                  // ======================================
+                  // =================================================
+                  // COUNTRY HORIZONTAL SCROLL
+                  // =================================================
+
+                  SizedBox(
+                    height: 120,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: CountryData.countries.length,
+                      separatorBuilder: (
+                        context,
+                        index,
+                      ) {
+                        return const SizedBox(width: 12);
+                      },
+                      itemBuilder: (
+                        context,
+                        index,
+                      ) {
+                        final country =
+                            CountryData.countries[index];
+
+                        return CountryItem(
+                          country: country,
+                          onTap: () {
+                            controller.getRecipesByCountry(
+                              country.area,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // =================================================
+                  // COUNTRY RECIPES
+                  // =================================================
+
                   Obx(
                     () {
-                      // Category loading
-                      if (controller.isCategoryLoading.value) {
+                      // Loading
+                      if (controller.isCountryLoading.value) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(
-                            vertical: 30,
+                            vertical: 25,
                           ),
                           child: Center(
                             child: CircularProgressIndicator(),
@@ -167,18 +177,18 @@ class HomeScreen extends GetView<HomeController> {
                         );
                       }
 
-                      // Category error
+                      // Error
                       if (controller
-                          .categoryErrorMessage
+                          .countryErrorMessage
                           .value
                           .isNotEmpty) {
                         return Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.08),
                             borderRadius:
-                                BorderRadius.circular(12),
+                                BorderRadius.circular(16),
+                            color: Colors.red.withOpacity(0.08),
                           ),
                           child: Column(
                             children: [
@@ -187,20 +197,21 @@ class HomeScreen extends GetView<HomeController> {
                                 color: Colors.red,
                                 size: 40,
                               ),
+
                               const SizedBox(height: 8),
+
                               Text(
                                 controller
-                                    .categoryErrorMessage
+                                    .countryErrorMessage
                                     .value,
                                 textAlign: TextAlign.center,
                               ),
+
                               const SizedBox(height: 12),
+
                               ElevatedButton(
-                                onPressed: () {
-                                  controller
-                                      .categoryErrorMessage
-                                      .value = '';
-                                },
+                                onPressed: controller
+                                    .clearCountryRecipes,
                                 child: const Text('Close'),
                               ),
                             ],
@@ -208,19 +219,21 @@ class HomeScreen extends GetView<HomeController> {
                         );
                       }
 
-                      // No category selected
-                      if (controller.categoryRecipes.isEmpty) {
+                      // No country selected
+                      if (controller
+                          .countryRecipes
+                          .isEmpty) {
                         return const SizedBox.shrink();
                       }
 
-                      // Category recipes
+                      // Country recipes
                       return Column(
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Category Recipes',
-                            style: TextStyle(
+                          Text(
+                            '${controller.selectedCountry.value} Recipes',
+                            style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
@@ -228,9 +241,13 @@ class HomeScreen extends GetView<HomeController> {
 
                           const SizedBox(height: 12),
 
+                          // =================================================
+                          // COUNTRY RECIPES HORIZONTAL SCROLL
+                          // =================================================
+
                           RecipeHorizontalList(
                             recipes:
-                                controller.categoryRecipes,
+                                controller.countryRecipes,
                             onRecipeTap: (recipe) {
                               Get.toNamed(
                                 AppRoutes.recipeDetails,
@@ -245,9 +262,10 @@ class HomeScreen extends GetView<HomeController> {
                     },
                   ),
 
-                  // ======================================
+                  // =================================================
                   // POPULAR RECIPES
-                  // ======================================
+                  // =================================================
+
                   const Text(
                     'Popular Recipes',
                     style: TextStyle(
@@ -256,11 +274,22 @@ class HomeScreen extends GetView<HomeController> {
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
-                  // ======================================
-                  // POPULAR RECIPE LIST
-                  // ======================================
+                  const Text(
+                    'Trending recipes you should try',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // =================================================
+                  // POPULAR RECIPES HORIZONTAL SCROLL
+                  // =================================================
+
                   RecipeHorizontalList(
                     recipes: controller.recipes,
                     onRecipeTap: (recipe) {
@@ -270,6 +299,50 @@ class HomeScreen extends GetView<HomeController> {
                       );
                     },
                   ),
+
+                  const SizedBox(height: 32),
+
+                  // =================================================
+                  // RECOMMENDED FOR YOU
+                  // =================================================
+
+                  const Text(
+                    'Recommended For You',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  const Text(
+                    'Recipes selected for your taste',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // =================================================
+                  // RECOMMENDED RECIPES HORIZONTAL SCROLL
+                  // =================================================
+
+                  RecipeHorizontalList(
+                    recipes: controller.recipes,
+                    onRecipeTap: (recipe) {
+                      Get.toNamed(
+                        AppRoutes.recipeDetails,
+                        arguments: recipe.id,
+                      );
+                    },
+                  ),
+
+                  // =================================================
+                  // EXTRA BOTTOM SPACE
+                  // =================================================
 
                   const SizedBox(height: 30),
                 ],

@@ -1,7 +1,5 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
-import 'package:recipe_app/features/notifications/views/notifications_screen.dart';
 
 import '../models/notification_model.dart';
 
@@ -16,7 +14,6 @@ class NotificationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
     loadNotifications();
   }
 
@@ -40,7 +37,7 @@ class NotificationController extends GetxController {
       return;
     }
 
-    // First time only: show the welcome notification.
+    // First time only: show welcome notification
     notifications.assignAll([
       NotificationModel(
         id: '1',
@@ -62,9 +59,45 @@ class NotificationController extends GetxController {
       return;
     }
 
-    notifications[index] = notifications[index].copyWith(isRead: true);
+    notifications[index] =
+        notifications[index].copyWith(isRead: true);
 
     _saveNotifications();
+  }
+
+  void markAllAsRead() {
+    notifications.value = notifications
+        .map(
+          (notification) =>
+              notification.copyWith(isRead: true),
+        )
+        .toList();
+
+    // Save updated read status
+    _saveNotifications();
+  }
+
+  void addNotification({
+    required String title,
+    required String message,
+  }) {
+    final notification = NotificationModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      message: message,
+      createdAt: DateTime.now(),
+    );
+
+    notifications.insert(0, notification);
+
+    _saveNotifications();
+  }
+
+  void clearNotifications() {
+    notifications.clear();
+
+    // Also remove notifications from storage
+    _storage.remove('notifications');
   }
 
   void _saveNotifications() {
@@ -80,28 +113,4 @@ class NotificationController extends GetxController {
 
     _storage.write('notifications', data);
   }
-
-  void addNotification({required String title, required String message}) {
-    final notification = NotificationModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: title,
-      message: message,
-      createdAt: DateTime.now(),
-    );
-
-    notifications.insert(0, notification);
-
-    _saveNotifications();
-  }
-
-  void markAllAsRead() {
-    notifications.value = notifications
-        .map((notification) => notification.copyWith(isRead: true))
-        .toList();
-  }
-
-  void clearNotifications() {
-    notifications.clear();
-  }
-
 }

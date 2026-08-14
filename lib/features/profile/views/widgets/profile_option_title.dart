@@ -19,36 +19,64 @@ class ProfileOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final isDark = theme.brightness == Brightness.dark;
+
+    // Theme-aware primary color
+    final primaryColor = isDark
+        ? AppColors.darkPrimary
+        : AppColors.primary;
+
+    // Use custom color for special actions
+    final effectiveIconColor = iconColor ?? primaryColor;
+
     return ListTile(
       onTap: onTap,
+
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 4,
         vertical: 2,
       ),
+
+      // =====================================================
+      // ICON
+      // =====================================================
       leading: Container(
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: (iconColor ?? AppColors.primary)
-              .withValues(alpha: 0.10),
+          color: effectiveIconColor.withValues(
+            alpha: isDark ? 0.16 : 0.10,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
           icon,
-          color: iconColor ?? AppColors.primary,
+          color: effectiveIconColor,
           size: 22,
         ),
       ),
+
+      // =====================================================
+      // TITLE
+      // =====================================================
       title: Text(
         title,
         style: AppTextStyles.bodyLarge.copyWith(
+          color: colorScheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
       ),
-      trailing: const Icon(
+
+      // =====================================================
+      // ARROW
+      // =====================================================
+      trailing: Icon(
         Icons.arrow_forward_ios_rounded,
         size: 16,
-        color: AppColors.primary,
+        color: primaryColor,
       ),
     );
   }
