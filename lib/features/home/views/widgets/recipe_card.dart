@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import 'package:recipe_app/features/home/models/recipe_models.dart';
+import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
+import 'package:recipe_app/features/favorites/models/favorite_recipe_model.dart';
 
 class RecipeCard extends StatelessWidget {
   final RecipeModel recipe;
@@ -15,6 +19,9 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final FavoritesController favoritesController =
+        Get.find<FavoritesController>();
+
     return SizedBox(
       width: horizontal ? 220 : double.infinity,
       child: Card(
@@ -26,32 +33,93 @@ class RecipeCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: double.infinity,
-                height: 150,
-                child: Image.network(
-                  recipe.image,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(
-                      child: Icon(
-                        Icons.restaurant,
-                        size: 50,
-                      ),
-                    );
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    }
+              // ==========================================
+              // IMAGE + FAVORITE BUTTON
+              // ==========================================
+              Stack(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 150,
+                    child: Image.network(
+                      recipe.image,
+                      fit: BoxFit.cover,
+                      errorBuilder: (
+                        context,
+                        error,
+                        stackTrace,
+                      ) {
+                        return const Center(
+                          child: Icon(
+                            Icons.restaurant,
+                            size: 50,
+                          ),
+                        );
+                      },
+                      loadingBuilder: (
+                        context,
+                        child,
+                        loadingProgress,
+                      ) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
 
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  },
-                ),
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                    ),
+                  ),
+
+                  // ======================================
+                  // FAVORITE BUTTON
+                  // ======================================
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Obx(
+                      () {
+                        final bool isFavorite =
+                            favoritesController.isFavorite(
+                          recipe.id,
+                        );
+
+                        return Material(
+                          color: Colors.white.withOpacity(0.9),
+                          shape: const CircleBorder(),
+                          child: IconButton(
+                            onPressed: () {
+                              final favoriteRecipe =
+                                  FavoriteRecipeModel(
+                                id: recipe.id,
+                                name: recipe.name,
+                                image: recipe.image,
+                              );
+
+                              favoritesController.toggleFavorite(
+                                favoriteRecipe,
+                              );
+                            },
+                            icon: Icon(
+                              isFavorite
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: isFavorite
+                                  ? Colors.red
+                                  : Colors.grey,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
 
+              // ==========================================
+              // RECIPE NAME
+              // ==========================================
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: Text(
