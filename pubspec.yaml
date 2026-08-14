@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^6.8.0
   firebase_core: ^4.13.0
   http: ^1.6.0
+  get_storage: ^2.1.1
 
 dev_dependencies:
   flutter_test:
@@ -93,8 +94,10 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
+
   assets:
     - assets/imagefolder/image.png
     - assets/imagefolder/image1.png
     - assets/imagefolder/image2.png
     - assets/imagefolder/image3.png
+

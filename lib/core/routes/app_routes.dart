@@ -11,5 +11,19 @@ abstract class AppRoutes {
   static const String search = '/search';
   static const String recipeDetails = '/recipe-details';
   static const String profile = '/profile';
+  static const String changePassword = '/change-password';
   static const String verifyEmail = '/verify-email';
+
+  static const String favorites = '/favorites';
+  static const String notifications = '/notifications';
+
+  // =========================================================
+  // PROFILE
+  // =========================================================
+
+  static const String editProfile = '/edit-profile';
+  static const String accountSettings = '/account-settings';
+  static const String privacyPolicy = '/privacy-policy';
+  static const String termsAndConditions = '/terms-and-conditions';
 }
+

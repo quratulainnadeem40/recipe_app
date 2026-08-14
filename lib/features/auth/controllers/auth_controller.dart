@@ -104,7 +104,9 @@ class AuthController extends GetxController {
           await _authRepository.login(
         email: email,
         password: password,
-      );
+      );print('AUTH CURRENT USER AFTER LOGIN:');
+print('UID: ${_authRepository.currentUser?.uid}');
+print('EMAIL: ${_authRepository.currentUser?.email}');
 
       print('==============================');
       print('CONTROLLER RECEIVED USER');
