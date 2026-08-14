@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:get/get.dart';
+import '../../../core/routes/app_routes.dart';
 
 class SplashController extends GetxController {
   final progress = 0.0.obs;
@@ -9,25 +11,25 @@ class SplashController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
     startLoading();
   }
 
   void startLoading() {
-    const totalSteps = 100;
-    int currentStep = 0;
-
     _timer = Timer.periodic(
-      const Duration(milliseconds: 40),
+      const Duration(milliseconds: 50),
       (timer) {
-        currentStep++;
+        progress.value += 0.02;
 
-        progress.value = currentStep / totalSteps;
+        if (progress.value >= 1.0) {
+          progress.value = 1.0;
 
-        if (currentStep >= totalSteps) {
           timer.cancel();
 
-          // Navigate to next screen
-          Get.offNamed('/home');
+          // Loading complete
+          Get.offNamed(
+            AppRoutes.onboarding,
+          );
         }
       },
     );
@@ -36,6 +38,7 @@ class SplashController extends GetxController {
   @override
   void onClose() {
     _timer?.cancel();
+
     super.onClose();
   }
 }
