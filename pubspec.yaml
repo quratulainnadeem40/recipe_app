@@ -92,9 +92,14 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+<<<<<<< HEAD
+assets:
+- assets/Cooking_image.png
+=======
 
   assets:
     - assets/imagefolder/image.png
     - assets/imagefolder/image1.png
     - assets/imagefolder/image2.png
     - assets/imagefolder/image3.png
+>>>>>>> origin/main
