@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/features/splash/controllers/splash_controller.dart';
 
 class SplashScreen extends GetView<SplashController> {
@@ -9,49 +9,59 @@ class SplashScreen extends GetView<SplashController> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    // ==========================================
+    // FULL SCREEN SYSTEM UI
+    // ==========================================
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+    );
+
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
 
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
 
       body: SizedBox.expand(
         child: Stack(
           children: [
-            // ==============================
-            // BACKGROUND IMAGE
-            // ==============================
-
-            Positioned(
-              top: 0,
-              bottom: 0,
-              left: 0, // Side distance
-              right: 0, // Side distance
+            // ==========================================
+            // FULL SCREEN SPLASH IMAGE
+            // ==========================================
+            Positioned.fill(
               child: Image.asset(
                 'assets/imagefolder/image.png',
-                fit: BoxFit.contain,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
               ),
             ),
 
-            // ==============================
-            // LOADING
-            // ==============================
-
+            // ==========================================
+            // LOADING INDICATOR
+            // ==========================================
             Positioned(
-              bottom: screenHeight * 0.075,
               left: 0,
               right: 0,
+              bottom: 20,
               child: Center(
                 child: Obx(
                   () {
                     return SizedBox(
-                      width: 25,
-                      height: 25,
+                      width: 30,
+                      height: 30,
                       child: CircularProgressIndicator(
                         value: controller.progress.value,
-                        strokeWidth: 2,
-                        color: AppColors.orange,
+                        strokeWidth: 2.5,
+                        color: const Color(0xFFFF8A00),
                         backgroundColor:
-                            AppColors.white.withOpacity(0.25),
+                            Colors.white.withOpacity(0.25),
                       ),
                     );
                   },
