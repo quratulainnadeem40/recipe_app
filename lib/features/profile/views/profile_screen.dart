@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/features/profile/views/widgets/profile_option_title.dart';
 import 'package:recipe_app/features/profile/views/widgets/theme_switch_title.dart';
 
@@ -7,7 +8,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../controllers/profile_controller.dart';
 import 'widgets/profile_header.dart';
-
 
 class ProfileScreen extends GetView<ProfileController> {
   const ProfileScreen({super.key});
@@ -22,31 +22,44 @@ class ProfileScreen extends GetView<ProfileController> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           'My Profile',
-          style: AppTextStyles.headingMedium.copyWith(
-            color: AppColors.primary,
-          ),
+          style: AppTextStyles.headingMedium.copyWith(color: AppColors.primary),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             children: [
               // ==========================================
               // PROFILE HEADER
               // ==========================================
-
-              const ProfileHeader(),
+              Obx(
+                () => ProfileHeader(
+                  name: controller.user.value?.name ?? 'COOKmate User',
+                  email: controller.user.value?.email ?? '',
+                ),
+              ),
 
               const SizedBox(height: 32),
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Get.toNamed('/edit-profile');
+                  },
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Edit Profile'),
+                ),
+              ),
+
+              const SizedBox(height: 20),
 
               // ==========================================
               // ACCOUNT SECTION
               // ==========================================
-
               _sectionTitle('Account'),
 
               const SizedBox(height: 8),
@@ -55,7 +68,7 @@ class ProfileScreen extends GetView<ProfileController> {
                 icon: Icons.person_outline_rounded,
                 title: 'Account Settings',
                 onTap: () {
-                  // Account settings will be added later.
+                  Get.toNamed(AppRoutes.accountSettings);
                 },
               ),
 
@@ -64,7 +77,6 @@ class ProfileScreen extends GetView<ProfileController> {
               // ==========================================
               // APPEARANCE SECTION
               // ==========================================
-
               _sectionTitle('Appearance'),
 
               const SizedBox(height: 8),
@@ -81,7 +93,6 @@ class ProfileScreen extends GetView<ProfileController> {
               // ==========================================
               // INFORMATION SECTION
               // ==========================================
-
               _sectionTitle('Information'),
 
               const SizedBox(height: 8),
@@ -89,7 +100,9 @@ class ProfileScreen extends GetView<ProfileController> {
               ProfileOptionTile(
                 icon: Icons.privacy_tip_outlined,
                 title: 'Privacy Policy',
-                onTap: controller.openPrivacyPolicy,
+                onTap: () {
+                  Get.toNamed(AppRoutes.privacyPolicy);
+                },
               ),
 
               const SizedBox(height: 4),
@@ -97,7 +110,9 @@ class ProfileScreen extends GetView<ProfileController> {
               ProfileOptionTile(
                 icon: Icons.description_outlined,
                 title: 'Terms & Conditions',
-                onTap: controller.openTermsAndConditions,
+                onTap: () {
+                  Get.toNamed(AppRoutes.termsAndConditions);
+                },
               ),
 
               const SizedBox(height: 4),
@@ -105,7 +120,6 @@ class ProfileScreen extends GetView<ProfileController> {
               // ==========================================
               // DANGER ZONE
               // ==========================================
-
               _sectionTitle('Account Actions'),
 
               const SizedBox(height: 8),

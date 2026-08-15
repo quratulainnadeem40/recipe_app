@@ -10,32 +10,56 @@ class HomeController extends GetxController {
     required this.repository,
   });
 
-  // All recipes
-  final RxList<RecipeModel> recipes = <RecipeModel>[].obs;
+  // =========================================================
+  // ALL RECIPES
+  // =========================================================
 
-  // Loading state
+  final RxList<RecipeModel> recipes =
+      <RecipeModel>[].obs;
+
   final RxBool isLoading = false.obs;
 
-  // Error message
   final RxString errorMessage = ''.obs;
 
-  // Category recipes
+  // =========================================================
+  // CATEGORY RECIPES
+  // =========================================================
+
   final RxList<RecipeModel> categoryRecipes =
       <RecipeModel>[].obs;
 
-  // Category loading
   final RxBool isCategoryLoading = false.obs;
 
-  // Category error
   final RxString categoryErrorMessage = ''.obs;
+
+  // =========================================================
+  // SEARCH
+  // =========================================================
+
+  final RxList<RecipeModel> searchResults =
+      <RecipeModel>[].obs;
+
+  final RxBool isSearching = false.obs;
+
+  final RxString searchErrorMessage = ''.obs;
+
+  final RxBool isSearchActive = false.obs;
+
+  // =========================================================
+  // INITIALIZATION
+  // =========================================================
 
   @override
   void onInit() {
     super.onInit();
+
     getRecipes();
   }
 
-  // Get all recipes
+  // =========================================================
+  // GET ALL RECIPES
+  // =========================================================
+
   Future<void> getRecipes() async {
     try {
       isLoading.value = true;
@@ -52,7 +76,10 @@ class HomeController extends GetxController {
     }
   }
 
-  // Get recipes by category
+  // =========================================================
+  // GET RECIPES BY CATEGORY
+  // =========================================================
+
   Future<void> getRecipesByCategory(
     String category,
   ) async {
@@ -74,5 +101,48 @@ class HomeController extends GetxController {
     } finally {
       isCategoryLoading.value = false;
     }
+  }
+
+  // =========================================================
+  // SEARCH RECIPES
+  // =========================================================
+
+  Future<void> searchRecipes(String query) async {
+    final searchQuery = query.trim();
+
+    // Empty search
+    if (searchQuery.isEmpty) {
+      clearSearch();
+      return;
+    }
+
+    try {
+      isSearching.value = true;
+      isSearchActive.value = true;
+      searchErrorMessage.value = '';
+
+      final result =
+          await repository.searchRecipes(searchQuery);
+
+      searchResults.assignAll(result);
+    } catch (e) {
+      searchErrorMessage.value =
+          'Failed to search recipes';
+
+      searchResults.clear();
+    } finally {
+      isSearching.value = false;
+    }
+  }
+
+  // =========================================================
+  // CLEAR SEARCH
+  // =========================================================
+
+  void clearSearch() {
+    searchResults.clear();
+    searchErrorMessage.value = '';
+    isSearchActive.value = false;
+    isSearching.value = false;
   }
 }

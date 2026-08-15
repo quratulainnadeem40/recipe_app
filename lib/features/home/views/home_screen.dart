@@ -5,7 +5,7 @@ import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/features/home/controllers/home_controller.dart';
 import 'package:recipe_app/features/home/views/widgets/home_header.dart';
 import 'package:recipe_app/features/home/views/widgets/category_item.dart';
-import 'package:recipe_app/features/home/views/widgets/home_searchbar.dart';
+//import 'package:recipe_app/features/home/views/widgets/home_searchbar.dart';
 import 'package:recipe_app/features/home/views/widgets/recipe_horizontal_list.dart';
 
 class HomeScreen extends GetView<HomeController> {
@@ -68,16 +68,21 @@ class HomeScreen extends GetView<HomeController> {
                   // ======================================
                   // HEADER
                   // ======================================
-                  const HomeHeader(),
-
+                  HomeHeader(
+                   // userName: ,
+                   // onProfileTap: ,
+                    onNotificationTap: () {
+                      Get.toNamed(AppRoutes.notifications);
+                    },
+                  ),
                   const SizedBox(height: 20),
 
                   // ======================================
                   // SEARCH BAR
                   // ======================================
-                  const HomeSearchBar(),
+                 // const HomeSearchBar(),
 
-                  const SizedBox(height: 24),
+                 // const SizedBox(height: 24),
 
                   // ======================================
                   // CATEGORIES TITLE

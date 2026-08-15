@@ -274,10 +274,199 @@ class AuthRepository {
     print('User logged out successfully.');
   }
 
-  // =========================================================
+// =========================================================
+// DELETE ACCOUNT
+// =========================================================
+
+Future<void> deleteAccount() async {
+  try {
+    final User? user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception(
+        'No user is currently signed in.',
+      );
+    }
+
+    // Delete Firestore user document
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .delete();
+
+    print('Firestore user document deleted.');
+
+    // Delete Firebase Authentication account
+    await user.delete();
+
+    print('Firebase Authentication account deleted.');
+  } on FirebaseAuthException catch (e) {
+    print('DELETE ACCOUNT AUTH ERROR: ${e.code}');
+
+    throw Exception(
+      _authErrorMessage(e),
+    );
+  } on FirebaseException catch (e) {
+    print('DELETE ACCOUNT FIRESTORE ERROR: ${e.code}');
+
+    throw Exception(
+      'Firestore error: ${e.message ?? e.code}',
+    );
+  } catch (e) {
+    print('DELETE ACCOUNT ERROR: $e');
+
+    throw Exception(
+      e.toString().replaceFirst(
+            'Exception: ',
+            '',
+          ),
+    );
+  }
+}
+
+// =========================================================
+// UPDATE PROFILE
+// =========================================================
+
+Future<void> updateProfile({
+  required String name,
+}) async {
+  try {
+    final User? user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception(
+        'No user is currently signed in.',
+      );
+    }
+
+    final String cleanName = name.trim();
+
+    if (cleanName.isEmpty) {
+      throw Exception(
+        'Name cannot be empty.',
+      );
+    }
+
+    // Update Firebase Authentication
+    await user.updateDisplayName(cleanName);
+
+    // Update Firestore
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .update({
+      'name': cleanName,
+    });
+
+    print('Profile updated successfully.');
+  } on FirebaseAuthException catch (e) {
+    throw Exception(
+      _authErrorMessage(e),
+    );
+  } on FirebaseException catch (e) {
+    throw Exception(
+      'Firestore error: ${e.message ?? e.code}',
+    );
+  } catch (e) {
+    throw Exception(
+      e.toString().replaceFirst(
+            'Exception: ',
+            '',
+          ),
+    );
+  }
+}
+// =========================================================
+// CHANGE PASSWORD
+// =========================================================
+
+Future<void> changePassword({
+  required String currentPassword,
+  required String newPassword,
+}) async {
+  try {
+    final User? user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception(
+        'No user is currently signed in.',
+      );
+    }
+
+    final String email = user.email ?? '';
+
+    if (email.isEmpty) {
+      throw Exception(
+        'User email could not be found.',
+      );
+    }
+
+    // -------------------------------------------------------
+    // 1. Re-authenticate user with current password
+    // -------------------------------------------------------
+
+    final AuthCredential credential =
+        EmailAuthProvider.credential(
+      email: email,
+      password: currentPassword,
+    );
+
+    await user.reauthenticateWithCredential(
+      credential,
+    );
+
+    // -------------------------------------------------------
+    // 2. Update password
+    // -------------------------------------------------------
+
+    await user.updatePassword(newPassword);
+
+    print('Password changed successfully.');
+  } on FirebaseAuthException catch (e) {
+    print(
+      'CHANGE PASSWORD AUTH ERROR: ${e.code}',
+    );
+
+    switch (e.code) {
+      case 'wrong-password':
+      case 'invalid-credential':
+        throw Exception(
+          'Current password is incorrect.',
+        );
+
+      case 'weak-password':
+        throw Exception(
+          'New password is too weak.',
+        );
+
+      case 'requires-recent-login':
+        throw Exception(
+          'Please login again before changing your password.',
+        );
+
+      case 'network-request-failed':
+        throw Exception(
+          'Please check your internet connection.',
+        );
+
+      default:
+        throw Exception(
+          _authErrorMessage(e),
+        );
+    }
+  } catch (e) {
+    throw Exception(
+      e.toString().replaceFirst(
+            'Exception: ',
+            '',
+          ),
+    );
+  }
+}
+// =========================================================
   // CURRENT USER
   // =========================================================
-
   User? get currentUser {
     return _auth.currentUser;
   }

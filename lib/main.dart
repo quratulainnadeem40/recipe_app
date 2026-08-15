@@ -47,7 +47,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:recipe_app/core/theme/app_themes.dart';
+import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
 
 import 'core/routes/app_pages.dart';
 import 'core/routes/app_routes.dart';
@@ -57,8 +59,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
-    options:
-        DefaultFirebaseOptions.currentPlatform,
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await GetStorage.init();
+
+  Get.put<NotificationController>(
+    NotificationController(),
+    permanent: true,
   );
 
   runApp(
