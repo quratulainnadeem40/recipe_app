@@ -104,9 +104,15 @@ class AuthController extends GetxController {
           await _authRepository.login(
         email: email,
         password: password,
-      );print('AUTH CURRENT USER AFTER LOGIN:');
-print('UID: ${_authRepository.currentUser?.uid}');
-print('EMAIL: ${_authRepository.currentUser?.email}');
+      );
+
+      print('AUTH CURRENT USER AFTER LOGIN:');
+      print(
+        'UID: ${_authRepository.currentUser?.uid}',
+      );
+      print(
+        'EMAIL: ${_authRepository.currentUser?.email}',
+      );
 
       print('==============================');
       print('CONTROLLER RECEIVED USER');
@@ -119,8 +125,6 @@ print('EMAIL: ${_authRepository.currentUser?.email}');
       // LOGIN SUCCESS
       // -------------------------------------------------------
 
-      print('Showing success message...');
-
       Get.snackbar(
         'Login Successful',
         'Welcome back, ${user.name.isEmpty ? 'User' : user.name}!',
@@ -128,24 +132,14 @@ print('EMAIL: ${_authRepository.currentUser?.email}');
         duration: const Duration(seconds: 2),
       );
 
-      print('Success message displayed.');
-
       // -------------------------------------------------------
-      // HOME NAVIGATION
+      // GO DIRECTLY TO HOME
       // -------------------------------------------------------
-
-      print('==============================');
-      print('GOING TO HOME');
-      print('ROUTE: ${AppRoutes.home}');
-      print('==============================');
 
       Get.offAllNamed(
         AppRoutes.home,
       );
 
-      print('HOME NAVIGATION CALLED');
-      print('LOGIN FLOW COMPLETED');
-      print('==============================');
     } catch (e, stackTrace) {
       print('==============================');
       print('LOGIN CONTROLLER ERROR');
@@ -253,28 +247,24 @@ print('EMAIL: ${_authRepository.currentUser?.email}');
       print('==============================');
 
       // -------------------------------------------------------
-      // SUCCESS
+      // ACCOUNT CREATED SUCCESSFULLY
       // -------------------------------------------------------
 
       Get.snackbar(
         'Account Created',
-        'Your account has been created successfully.',
+        'Welcome to COOKmate, ${user.name.isEmpty ? 'User' : user.name}!',
         snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 2),
       );
 
-      print('Signup success message displayed.');
-
-      // NO EMAIL VERIFICATION
-      // Directly go to LOGIN
-
-      print('Going to Login screen...');
+      // -------------------------------------------------------
+      // DIRECTLY GO TO HOME
+      // -------------------------------------------------------
 
       Get.offAllNamed(
-        AppRoutes.login,
+        AppRoutes.home,
       );
 
-      print('Signup navigation completed.');
     } catch (e, stackTrace) {
       print('==============================');
       print('SIGNUP CONTROLLER ERROR');
@@ -416,5 +406,18 @@ print('EMAIL: ${_authRepository.currentUser?.email}');
   // DISPOSE CONTROLLERS
   // =========================================================
 
-  
-  }
+  // @override
+  // void onClose() {
+  //   loginEmailController.dispose();
+  //   loginPasswordController.dispose();
+
+  //   signupNameController.dispose();
+  //   signupEmailController.dispose();
+  //   signupPasswordController.dispose();
+  //   signupConfirmPasswordController.dispose();
+
+  //   forgotEmailController.dispose();
+
+  //   super.onClose();
+  // }
+}

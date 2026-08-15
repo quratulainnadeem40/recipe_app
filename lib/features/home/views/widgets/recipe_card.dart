@@ -23,7 +23,8 @@ class RecipeCard extends StatelessWidget {
         Get.find<FavoritesController>();
 
     return SizedBox(
-      width: horizontal ? 220 : double.infinity,
+      width: horizontal ? 275 : double.infinity,
+      height: 365,
       child: Card(
         clipBehavior: Clip.antiAlias,
         elevation: 3,
@@ -33,15 +34,17 @@ class RecipeCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ==========================================
-              // IMAGE + FAVORITE BUTTON
-              // ==========================================
-              Stack(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 150,
-                    child: Image.network(
+              // =====================================================
+              // IMAGE
+              // =====================================================
+
+              SizedBox(
+                width: double.infinity,
+                height: 155,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
                       recipe.image,
                       fit: BoxFit.cover,
                       errorBuilder: (
@@ -70,66 +73,123 @@ class RecipeCard extends StatelessWidget {
                         );
                       },
                     ),
-                  ),
 
-                  // ======================================
-                  // FAVORITE BUTTON
-                  // ======================================
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Obx(
-                      () {
-                        final bool isFavorite =
-                            favoritesController.isFavorite(
-                          recipe.id,
-                        );
+                    // =================================================
+                    // FAVORITE BUTTON
+                    // =================================================
 
-                        return Material(
-                          color: Colors.white.withOpacity(0.9),
-                          shape: const CircleBorder(),
-                          child: IconButton(
-                            onPressed: () {
-                              final favoriteRecipe =
-                                  FavoriteRecipeModel(
-                                id: recipe.id,
-                                name: recipe.name,
-                                image: recipe.image,
-                              );
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Obx(
+                        () {
+                          final bool isFavorite =
+                              favoritesController.isFavorite(
+                            recipe.id,
+                          );
 
-                              favoritesController.toggleFavorite(
-                                favoriteRecipe,
-                              );
-                            },
-                            icon: Icon(
-                              isFavorite
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_border_rounded,
-                              color: isFavorite
-                                  ? Colors.red
-                                  : Colors.grey,
+                          return Material(
+                            color: Colors.white.withValues(
+                              alpha: 0.90,
                             ),
-                          ),
-                        );
-                      },
+                            shape: const CircleBorder(),
+                            child: IconButton(
+                              onPressed: () {
+                                final FavoriteRecipeModel
+                                    favoriteRecipe =
+                                    FavoriteRecipeModel(
+                                  id: recipe.id,
+                                  name: recipe.name,
+                                  image: recipe.image,
+                                );
+
+                                favoritesController
+                                    .toggleFavorite(
+                                  favoriteRecipe,
+                                );
+                              },
+                              icon: Icon(
+                                isFavorite
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                color: isFavorite
+                                    ? Colors.red
+                                    : Colors.grey,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
-              // ==========================================
-              // RECIPE NAME
-              // ==========================================
+              // =====================================================
+              // RECIPE INFORMATION
+              // =====================================================
+
               Padding(
-                padding: const EdgeInsets.all(10),
-                child: Text(
-                  recipe.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                padding: const EdgeInsets.fromLTRB(
+                  12,
+                  10,
+                  12,
+                  10,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // =================================================
+                    // RECIPE NAME
+                    // =================================================
+
+                    Text(
+                      recipe.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        height: 1.15,
+                      ),
+                    ),
+
+                    const SizedBox(height: 5),
+
+                    // =================================================
+                    // AREA + CATEGORY
+                    // =================================================
+
+                    Text(
+                      '🍴 ${recipe.area} • ${recipe.category}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                        height: 1.1,
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // =================================================
+                    // SHORT INFO
+                    // =================================================
+
+                    Text(
+                      recipe.shortInfo,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                        height: 1.15,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

@@ -32,6 +32,8 @@ class HomeController extends GetxController {
 
   final RxString categoryErrorMessage = ''.obs;
 
+  final RxString selectedCategory = ''.obs;
+
   // =========================================================
   // COUNTRY RECIPES
   // =========================================================
@@ -102,10 +104,19 @@ class HomeController extends GetxController {
 
       categoryRecipes.clear();
 
+      selectedCategory.value = category;
+
       final result =
           await repository.getRecipesByCategory(
         category,
       );
+
+      if (result.isEmpty) {
+        categoryErrorMessage.value =
+            'No recipes found for $category';
+
+        return;
+      }
 
       categoryRecipes.assignAll(result);
     } catch (e) {
@@ -116,6 +127,17 @@ class HomeController extends GetxController {
     } finally {
       isCategoryLoading.value = false;
     }
+  }
+
+  // =========================================================
+  // CLEAR CATEGORY RECIPES
+  // =========================================================
+
+  void clearCategoryRecipes() {
+    categoryRecipes.clear();
+    selectedCategory.value = '';
+    categoryErrorMessage.value = '';
+    isCategoryLoading.value = false;
   }
 
   // =========================================================
@@ -141,6 +163,7 @@ class HomeController extends GetxController {
       if (result.isEmpty) {
         countryErrorMessage.value =
             'No recipes found for $country';
+
         return;
       }
 

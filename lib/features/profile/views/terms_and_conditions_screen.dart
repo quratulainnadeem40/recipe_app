@@ -8,68 +8,173 @@ class TermsAndConditionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // =========================================================
+    // THEME
+    // =========================================================
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // =========================================================
+    // COLORS
+    // =========================================================
+
+    final backgroundColor = isDark
+        ? AppColors.darkBackground
+        : AppColors.lightBackground;
+
+    final headingColor = isDark
+        ? Colors.white
+        : AppColors.primary;
+
+    final bodyColor = isDark
+        ? Colors.white.withOpacity(0.85)
+        : Colors.black87;
+
+    final secondaryColor = isDark
+        ? Colors.white.withOpacity(0.65)
+        : AppColors.textSecondary;
+
+    final appBarColor = isDark
+        ? AppColors.darkBackground
+        : AppColors.lightBackground;
+
+    // =========================================================
+    // SCREEN
+    // =========================================================
+
     return Scaffold(
+      backgroundColor: backgroundColor,
+
+      // =======================================================
+      // APP BAR
+      // =======================================================
+
       appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: appBarColor,
+
+        iconTheme: IconThemeData(
+          color: isDark
+              ? Colors.white
+              : AppColors.primary,
+        ),
+
         title: Text(
           'Terms & Conditions',
           style: AppTextStyles.headingMedium.copyWith(
-            color: AppColors.primary,
+            color: headingColor,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        centerTitle: true,
       ),
+
+      // =======================================================
+      // BODY
+      // =======================================================
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _title('Terms & Conditions'),
+            // ===================================================
+            // TERMS & CONDITIONS
+            // ===================================================
+
+            _title(
+              context,
+              'Terms & Conditions',
+            ),
 
             _paragraph(
+              context,
               'Welcome to COOKmate. By using this application, '
               'you agree to these Terms & Conditions. Please read '
               'them carefully before using the application.',
             ),
 
-            _title('Use of the Application'),
+            // ===================================================
+            // USE OF THE APPLICATION
+            // ===================================================
+
+            _title(
+              context,
+              'Use of the Application',
+            ),
 
             _paragraph(
+              context,
               'COOKmate provides recipe-related content and features '
               'for personal and informational use. You agree to use '
               'the application responsibly and in accordance with '
               'applicable laws.',
             ),
 
-            _title('User Accounts'),
+            // ===================================================
+            // USER ACCOUNTS
+            // ===================================================
+
+            _title(
+              context,
+              'User Accounts',
+            ),
 
             _paragraph(
+              context,
               'You are responsible for maintaining the security of '
               'your account and for the activity performed through '
               'your account. You should provide accurate information '
               'when creating or updating your account.',
             ),
 
-            _title('Recipe Content'),
+            // ===================================================
+            // RECIPE CONTENT
+            // ===================================================
+
+            _title(
+              context,
+              'Recipe Content',
+            ),
 
             _paragraph(
+              context,
               'Recipe information displayed in COOKmate may come from '
               'third-party or open-source recipe services. COOKmate '
               'does not guarantee that every recipe is accurate, '
               'complete, or suitable for every user.',
             ),
 
-            _title('User Responsibility'),
+            // ===================================================
+            // USER RESPONSIBILITY
+            // ===================================================
+
+            _title(
+              context,
+              'User Responsibility',
+            ),
 
             _paragraph(
+              context,
               'Users are responsible for checking recipe ingredients, '
               'preparation instructions, allergies, dietary requirements, '
               'and food-safety considerations before preparing or '
               'consuming any recipe.',
             ),
 
-            _title('Intellectual Property'),
+            // ===================================================
+            // INTELLECTUAL PROPERTY
+            // ===================================================
+
+            _title(
+              context,
+              'Intellectual Property',
+            ),
 
             _paragraph(
+              context,
               'The COOKmate application, including its original design, '
               'branding, and application code, may be protected by '
               'applicable intellectual-property laws. Third-party '
@@ -77,53 +182,105 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'and ownership rights.',
             ),
 
-            _title('Third-Party Services'),
+            // ===================================================
+            // THIRD-PARTY SERVICES
+            // ===================================================
+
+            _title(
+              context,
+              'Third-Party Services',
+            ),
 
             _paragraph(
+              context,
               'COOKmate may use third-party services to provide certain '
               'features, including authentication, storage, and recipe '
               'data. Your use of those services may also be subject to '
               'their respective terms and policies.',
             ),
 
-            _title('Account Termination'),
+            // ===================================================
+            // ACCOUNT TERMINATION
+            // ===================================================
+
+            _title(
+              context,
+              'Account Termination',
+            ),
 
             _paragraph(
+              context,
               'You may stop using COOKmate at any time. COOKmate may '
               'restrict or terminate access when necessary to protect '
               'the application, its users, or its services.',
             ),
 
-            _title('Changes to These Terms'),
+            // ===================================================
+            // CHANGES TO THESE TERMS
+            // ===================================================
+
+            _title(
+              context,
+              'Changes to These Terms',
+            ),
 
             _paragraph(
+              context,
               'These Terms & Conditions may be updated from time to '
               'time. Continued use of COOKmate after changes are '
               'published means that you accept the updated terms.',
             ),
 
-            _title('Contact'),
+            // ===================================================
+            // CONTACT
+            // ===================================================
+
+            _title(
+              context,
+              'Contact',
+            ),
 
             _paragraph(
+              context,
               'If you have questions about these Terms & Conditions, '
               'please contact the COOKmate development team.',
             ),
 
             const SizedBox(height: 20),
 
+            // ===================================================
+            // LAST UPDATED
+            // ===================================================
+
             Text(
               'Last updated: August 2026',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: secondaryColor,
               ),
             ),
+
+            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
 
-  Widget _title(String title) {
+  // =============================================================
+  // SECTION TITLE
+  // =============================================================
+
+  Widget _title(
+    BuildContext context,
+    String title,
+  ) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    final headingColor = isDark
+        ? Colors.white
+        : AppColors.primary;
+
     return Padding(
       padding: const EdgeInsets.only(
         top: 20,
@@ -132,18 +289,34 @@ class TermsAndConditionsScreen extends StatelessWidget {
       child: Text(
         title,
         style: AppTextStyles.headingSmall.copyWith(
-          color: AppColors.primary,
+          color: headingColor,
           fontWeight: FontWeight.w700,
         ),
       ),
     );
   }
 
-  Widget _paragraph(String text) {
+  // =============================================================
+  // PARAGRAPH
+  // =============================================================
+
+  Widget _paragraph(
+    BuildContext context,
+    String text,
+  ) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    final bodyColor = isDark
+        ? Colors.white.withOpacity(0.85)
+        : Colors.black87;
+
     return Text(
       text,
-      style: AppTextStyles.bodyMedium,
+      style: AppTextStyles.bodyMedium.copyWith(
+        color: bodyColor,
+        height: 1.6,
+      ),
     );
   }
 }
-

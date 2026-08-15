@@ -10,25 +10,85 @@ class AccountSettingsScreen extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
+    // =========================================================
+    // THEME
+    // =========================================================
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // =========================================================
+    // COLORS
+    // =========================================================
+
+    final backgroundColor = isDark
+        ? AppColors.darkBackground
+        : AppColors.lightBackground;
+
+    final primaryColor = isDark
+        ? AppColors.darkPrimary
+        : AppColors.primary;
+
+    final titleColor = isDark
+        ? Colors.white
+        : Colors.black87;
+
+    final subtitleColor = isDark
+        ? Colors.white.withOpacity(0.70)
+        : AppColors.textSecondary;
+
+    final iconColor = isDark
+        ? AppColors.darkPrimary
+        : AppColors.primary;
+
     return Scaffold(
+      backgroundColor: backgroundColor,
+
+      // =======================================================
+      // APP BAR
+      // =======================================================
+
       appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: backgroundColor,
+
+        iconTheme: IconThemeData(
+          color: isDark
+              ? Colors.white
+              : AppColors.primary,
+        ),
+
         title: Text(
           'Account Settings',
-          style: AppTextStyles.headingMedium.copyWith(color: AppColors.primary),
+          style: AppTextStyles.headingMedium.copyWith(
+            color: primaryColor,
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        centerTitle: true,
       ),
+
+      // =======================================================
+      // BODY
+      // =======================================================
+
       body: ListView(
         padding: const EdgeInsets.all(20),
+
         children: [
           // =====================================================
           // ACCOUNT INFORMATION
           // =====================================================
-          _sectionTitle('Account Information'),
+
+          _sectionTitle(
+            context,
+            'Account Information',
+          ),
 
           const SizedBox(height: 8),
 
           _settingsTile(
+            context: context,
             icon: Icons.email_outlined,
             title: 'Email',
             subtitle: controller.user.value?.email ?? '',
@@ -39,11 +99,16 @@ class AccountSettingsScreen extends GetView<ProfileController> {
           // =====================================================
           // SECURITY
           // =====================================================
-          _sectionTitle('Security'),
+
+          _sectionTitle(
+            context,
+            'Security',
+          ),
 
           const SizedBox(height: 8),
 
           _settingsTile(
+            context: context,
             icon: Icons.lock_outline_rounded,
             title: 'Change Password',
             subtitle: 'Update your account password',
@@ -57,18 +122,47 @@ class AccountSettingsScreen extends GetView<ProfileController> {
           // =====================================================
           // NOTIFICATIONS
           // =====================================================
-          _sectionTitle('Notifications'),
+
+          _sectionTitle(
+            context,
+            'Notifications',
+          ),
 
           const SizedBox(height: 8),
 
           Obx(
             () => SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              secondary: const Icon(Icons.notifications_none_rounded),
-              title: const Text('Notifications'),
-              subtitle: const Text('Receive notifications about your account'),
-              value: controller.isNotificationsEnabled.value,
-             onChanged: controller.toggleNotifications,
+
+              secondary: Icon(
+                Icons.notifications_none_rounded,
+                color: iconColor,
+              ),
+
+              title: Text(
+                'Notifications',
+                style: TextStyle(
+                  color: titleColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              subtitle: Text(
+                'Receive notifications about your account',
+                style: TextStyle(
+                  color: subtitleColor,
+                  fontSize: 14,
+                ),
+              ),
+
+              value:
+                  controller.isNotificationsEnabled.value,
+
+              onChanged:
+                  controller.toggleNotifications,
+
+              activeColor: primaryColor,
             ),
           ),
 
@@ -77,45 +171,116 @@ class AccountSettingsScreen extends GetView<ProfileController> {
           // =====================================================
           // ACCOUNT ACTIONS
           // =====================================================
-          _sectionTitle('Account Actions'),
+
+          _sectionTitle(
+            context,
+            'Account Actions',
+          ),
 
           const SizedBox(height: 8),
 
           _settingsTile(
+            context: context,
             icon: Icons.delete_outline_rounded,
             title: 'Delete Account',
             subtitle: 'Permanently delete your account',
             iconColor: Colors.red,
             onTap: controller.deleteAccount,
           ),
+
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget _sectionTitle(String title) {
+  // =============================================================
+  // SECTION TITLE
+  // =============================================================
+
+  Widget _sectionTitle(
+    BuildContext context,
+    String title,
+  ) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    final color = isDark
+        ? AppColors.darkPrimary
+        : AppColors.primary;
+
     return Text(
       title,
       style: AppTextStyles.labelLarge.copyWith(
-        color: AppColors.primary,
+        color: color,
         fontWeight: FontWeight.w700,
       ),
     );
   }
 
+  // =============================================================
+  // SETTINGS TILE
+  // =============================================================
+
   Widget _settingsTile({
+    required BuildContext context,
     required IconData icon,
     required String title,
     String? subtitle,
     Color? iconColor,
     VoidCallback? onTap,
   }) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    final titleColor = isDark
+        ? Colors.white
+        : Colors.black87;
+
+    final subtitleColor = isDark
+        ? Colors.white.withOpacity(0.70)
+        : AppColors.textSecondary;
+
+    final defaultIconColor = isDark
+        ? AppColors.darkPrimary
+        : AppColors.primary;
+
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: iconColor ?? AppColors.primary),
-      title: Text(title),
-      subtitle: subtitle == null ? null : Text(subtitle),
-      trailing: onTap == null ? null : const Icon(Icons.chevron_right_rounded),
+
+      leading: Icon(
+        icon,
+        color: iconColor ?? defaultIconColor,
+      ),
+
+      title: Text(
+        title,
+        style: TextStyle(
+          color: titleColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+
+      subtitle: subtitle == null
+          ? null
+          : Text(
+              subtitle,
+              style: TextStyle(
+                color: subtitleColor,
+                fontSize: 14,
+              ),
+            ),
+
+      trailing: onTap == null
+          ? null
+          : Icon(
+              Icons.chevron_right_rounded,
+              color: isDark
+                  ? Colors.white70
+                  : Colors.black54,
+            ),
+
       onTap: onTap,
     );
   }

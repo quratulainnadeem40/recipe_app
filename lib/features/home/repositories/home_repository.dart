@@ -30,13 +30,15 @@ class HomeRepository {
       return [];
     }
 
-    return meals
+    final recipes = meals
         .map(
           (item) => RecipeModel.fromJson(
             Map<String, dynamic>.from(item),
           ),
         )
         .toList();
+
+    return _enrichRecipes(recipes);
   }
 
   // =========================================================
@@ -66,13 +68,17 @@ class HomeRepository {
       return [];
     }
 
-    return meals
+    final recipes = meals
         .map(
           (item) => RecipeModel.fromJson(
             Map<String, dynamic>.from(item),
           ),
         )
         .toList();
+
+    // filter.php only gives basic information,
+    // so get complete recipe details.
+    return _enrichRecipes(recipes);
   }
 
   // =========================================================
@@ -88,23 +94,24 @@ class HomeRepository {
       // Try TheMealDB AREA filter first
       // -------------------------------------------------------
 
-      final url =
-          ApiConstants.recipesByCountry(country);
+      final url = ApiConstants.recipesByCountry(country);
 
       print('========================================');
-      print('🌍 Country: $country');
-      print('🔗 API URL: $url');
+      print('Country: $country');
+      print('API URL: $url');
 
       final response = await http.get(
         Uri.parse(url),
       );
 
       print(
-        '📡 Area Status Code: ${response.statusCode}',
+        'Area Status Code: ${response.statusCode}',
       );
+
       print(
-        '📦 Area Response: ${response.body}',
+        'Area Response: ${response.body}',
       );
+
       print('========================================');
 
       if (response.statusCode == 200) {
@@ -113,7 +120,7 @@ class HomeRepository {
         final meals = data['meals'] as List?;
 
         // -----------------------------------------------------
-        // If area API returns recipes, use them
+        // If area API returns recipes
         // -----------------------------------------------------
 
         if (meals != null && meals.isNotEmpty) {
@@ -126,53 +133,118 @@ class HomeRepository {
               .toList();
 
           print(
-            '✅ Found ${recipes.length} recipes using area filter.',
+            'Found ${recipes.length} recipes using area filter.',
           );
 
-          return recipes;
+          return _enrichRecipes(recipes);
         }
       }
 
       // -------------------------------------------------------
       // STEP 2:
       // Area filter returned nothing.
-      // Use country-specific fallback searches.
+      // Use fallback searches.
       // -------------------------------------------------------
 
       print(
-        '⚠️ No recipes found using area filter.',
+        'No recipes found using area filter.',
       );
 
       print(
-        '🔄 Starting fallback recipe search for $country...',
+        'Starting fallback recipe search for $country...',
       );
 
       final fallbackRecipes =
-          await _getFallbackCountryRecipes(
-        country,
-      );
+          await _getFallbackCountryRecipes(country);
 
       print(
-        '✅ Fallback recipes found: ${fallbackRecipes.length}',
+        'Fallback recipes found: ${fallbackRecipes.length}',
       );
 
       return fallbackRecipes;
     } catch (e) {
       print(
-        '❌ Country recipe error: $e',
+        'Country recipe error: $e',
       );
 
       // -------------------------------------------------------
       // STEP 3:
-      // Even if area request fails, try fallback search
+      // Try fallback search
       // -------------------------------------------------------
 
-      final fallbackRecipes =
-          await _getFallbackCountryRecipes(
-        country,
+      return _getFallbackCountryRecipes(country);
+    }
+  }
+
+  // =========================================================
+  // ENRICH RECIPES WITH COMPLETE DETAILS
+  // =========================================================
+
+  Future<List<RecipeModel>> _enrichRecipes(
+    List<RecipeModel> recipes,
+  ) async {
+    if (recipes.isEmpty) {
+      return [];
+    }
+
+    try {
+      final detailedRecipes = await Future.wait(
+        recipes.map(
+          (recipe) => _getRecipeDetails(recipe),
+        ),
       );
 
-      return fallbackRecipes;
+      return detailedRecipes;
+    } catch (e) {
+      print(
+        'Recipe enrichment error: $e',
+      );
+
+      // If detail API fails, return original recipes.
+      return recipes;
+    }
+  }
+
+  // =========================================================
+  // GET SINGLE RECIPE DETAILS
+  // =========================================================
+
+  Future<RecipeModel> _getRecipeDetails(
+    RecipeModel recipe,
+  ) async {
+    try {
+      if (recipe.id.isEmpty) {
+        return recipe;
+      }
+
+      final response = await http.get(
+        Uri.parse(
+          '${ApiConstants.baseUrl}/lookup.php?i=${Uri.encodeComponent(recipe.id)}',
+        ),
+      );
+
+      if (response.statusCode != 200) {
+        return recipe;
+      }
+
+      final data = jsonDecode(response.body);
+
+      final meals = data['meals'] as List?;
+
+      if (meals == null || meals.isEmpty) {
+        return recipe;
+      }
+
+      final meal =
+          Map<String, dynamic>.from(meals.first);
+
+      return RecipeModel.fromJson(meal);
+    } catch (e) {
+      print(
+        'Failed to get details for ${recipe.name}: $e',
+      );
+
+      return recipe;
     }
   }
 
@@ -193,7 +265,7 @@ class HomeRepository {
 
     final List<RecipeModel> recipes = [];
 
-    // Used to prevent duplicate recipes
+    // Used to prevent duplicates.
     final Set<String> recipeIds = {};
 
     // -------------------------------------------------------
@@ -203,7 +275,7 @@ class HomeRepository {
     for (final query in queries) {
       try {
         print(
-          '🔎 Searching $country recipe: $query',
+          'Searching $country recipe: $query',
         );
 
         final response = await http.get(
@@ -225,8 +297,7 @@ class HomeRepository {
         }
 
         for (final item in meals) {
-          final recipe =
-              RecipeModel.fromJson(
+          final recipe = RecipeModel.fromJson(
             Map<String, dynamic>.from(item),
           );
 
@@ -241,10 +312,9 @@ class HomeRepository {
         }
       } catch (e) {
         print(
-          '⚠️ Failed searching "$query": $e',
+          'Failed searching "$query": $e',
         );
 
-        // Continue with next search
         continue;
       }
     }
@@ -309,7 +379,7 @@ class HomeRepository {
         ];
 
       // =====================================================
-      // OTHER COUNTRIES
+      // ITALIAN
       // =====================================================
 
       case 'italian':
@@ -320,6 +390,10 @@ class HomeRepository {
           'Risotto',
         ];
 
+      // =====================================================
+      // FRENCH
+      // =====================================================
+
       case 'french':
         return [
           'Croissant',
@@ -327,6 +401,10 @@ class HomeRepository {
           'Ratatouille',
           'Crepes',
         ];
+
+      // =====================================================
+      // CHINESE
+      // =====================================================
 
       case 'chinese':
         return [
@@ -336,6 +414,10 @@ class HomeRepository {
           'Spring Rolls',
         ];
 
+      // =====================================================
+      // JAPANESE
+      // =====================================================
+
       case 'japanese':
         return [
           'Sushi',
@@ -343,6 +425,10 @@ class HomeRepository {
           'Teriyaki',
           'Tempura',
         ];
+
+      // =====================================================
+      // MEXICAN
+      // =====================================================
 
       case 'mexican':
         return [
@@ -352,6 +438,10 @@ class HomeRepository {
           'Guacamole',
         ];
 
+      // =====================================================
+      // THAI
+      // =====================================================
+
       case 'thai':
         return [
           'Pad Thai',
@@ -359,6 +449,10 @@ class HomeRepository {
           'Tom Yum',
           'Thai Soup',
         ];
+
+      // =====================================================
+      // TURKISH
+      // =====================================================
 
       case 'turkish':
         return [
@@ -368,6 +462,10 @@ class HomeRepository {
           'Turkish Delight',
         ];
 
+      // =====================================================
+      // BRITISH
+      // =====================================================
+
       case 'british':
         return [
           'Fish and Chips',
@@ -376,12 +474,20 @@ class HomeRepository {
           'English Breakfast',
         ];
 
+      // =====================================================
+      // CANADIAN
+      // =====================================================
+
       case 'canadian':
         return [
           'Poutine',
           'Canadian Pancakes',
           'Butter Tarts',
         ];
+
+      // =====================================================
+      // GREEK
+      // =====================================================
 
       case 'greek':
         return [
@@ -390,6 +496,10 @@ class HomeRepository {
           'Souvlaki',
           'Tzatziki',
         ];
+
+      // =====================================================
+      // SPANISH
+      // =====================================================
 
       case 'spanish':
         return [
@@ -430,6 +540,7 @@ class HomeRepository {
       return [];
     }
 
+    // search.php already provides complete details.
     return meals
         .map(
           (item) => RecipeModel.fromJson(
