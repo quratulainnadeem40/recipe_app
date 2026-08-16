@@ -16,6 +16,7 @@ abstract class AppRoutes {
 
   static const String favorites = '/favorites';
   static const String notifications = '/notifications';
+  static const String feedback = '/feedback';
 
   // PROFILE
   static const String editProfile = '/edit-profile';

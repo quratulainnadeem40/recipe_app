@@ -1,9 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'package:recipe_app/core/routes/app_routes.dart';
+import 'package:recipe_app/features/favorites/views/widgets/favorite_recipe_card.dart';
 import 'package:recipe_app/features/favorites/views/widgets/favorites_recipe_card.dart';
 
 import '../controllers/favorites_controller.dart';
-
 
 class FavoritesScreen extends GetView<FavoritesController> {
   const FavoritesScreen({super.key});
@@ -20,6 +23,7 @@ class FavoritesScreen extends GetView<FavoritesController> {
           // ==========================================
           // EMPTY FAVORITES
           // ==========================================
+
           if (controller.favorites.isEmpty) {
             return const Center(
               child: Column(
@@ -50,6 +54,7 @@ class FavoritesScreen extends GetView<FavoritesController> {
           // ==========================================
           // FAVORITES LIST
           // ==========================================
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: controller.favorites.length,
@@ -58,11 +63,24 @@ class FavoritesScreen extends GetView<FavoritesController> {
 
               return FavoriteRecipeCard(
                 recipe: recipe,
+
+                // ====================================
+                // REMOVE FAVORITE
+                // ====================================
+
                 onRemove: () {
                   controller.removeFavorite(recipe.id);
                 },
+
+                // ====================================
+                // OPEN RECIPE DETAILS
+                // ====================================
+
                 onTap: () {
-                  // Recipe details will be connected later.
+                  Get.toNamed(
+                    AppRoutes.recipeDetails,
+                    arguments: recipe.id,
+                  );
                 },
               );
             },

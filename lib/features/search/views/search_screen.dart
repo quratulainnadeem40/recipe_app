@@ -31,7 +31,85 @@ class SearchScreen extends StatelessWidget {
 
             const SearchField(),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
+
+            // =====================================================
+            // FILTERS
+            // =====================================================
+
+            Obx(
+              () {
+                return Row(
+                  children: [
+                    // -------------------------------------------------
+                    // CATEGORY FILTER
+                    // -------------------------------------------------
+
+                    Expanded(
+                      child: _FilterDropdown(
+                        value: controller.selectedCategory.value,
+                        hint: 'Category',
+                        icon: Icons.category_outlined,
+                        items: controller.categories,
+                        onChanged: (value) {
+                          controller.setCategory(value);
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    // -------------------------------------------------
+                    // AREA FILTER
+                    // -------------------------------------------------
+
+                    Expanded(
+                      child: _FilterDropdown(
+                        value: controller.selectedArea.value,
+                        hint: 'Area',
+                        icon: Icons.public,
+                        items: controller.areas,
+                        onChanged: (value) {
+                          controller.setArea(value);
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 10),
+
+            // =====================================================
+            // CLEAR FILTERS
+            // =====================================================
+
+            Obx(
+              () {
+                final hasFilters =
+                    controller.selectedCategory.value != null ||
+                    controller.selectedArea.value != null;
+
+                if (!hasFilters) {
+                  return const SizedBox.shrink();
+                }
+
+                return Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    onPressed: controller.clearFilters,
+                    icon: const Icon(
+                      Icons.filter_alt_off_outlined,
+                      size: 18,
+                    ),
+                    label: const Text('Clear Filters'),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 4),
 
             // =====================================================
             // SEARCH RESULTS
@@ -99,7 +177,7 @@ class SearchScreen extends StatelessWidget {
                             MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.search,
+                            Icons.search_rounded,
                             size: 70,
                           ),
 
@@ -129,14 +207,14 @@ class SearchScreen extends StatelessWidget {
                   // NO RESULTS
                   // =================================================
 
-                  if (controller.searchResults.isEmpty) {
+                  if (controller.filteredResults.isEmpty) {
                     return const Center(
                       child: Column(
                         mainAxisAlignment:
                             MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.restaurant_menu,
+                            Icons.restaurant_menu_rounded,
                             size: 70,
                           ),
 
@@ -153,7 +231,7 @@ class SearchScreen extends StatelessWidget {
                           SizedBox(height: 8),
 
                           Text(
-                            'Try searching for another recipe.',
+                            'Try another recipe, category, or area.',
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -167,23 +245,28 @@ class SearchScreen extends StatelessWidget {
 
                   return GridView.builder(
                     padding: const EdgeInsets.only(
+                      top: 8,
                       bottom: 20,
                     ),
+                    physics: const BouncingScrollPhysics(),
 
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      childAspectRatio: 0.72,
+
+                      // Slightly taller card so the recipe
+                      // information has enough space.
+                      childAspectRatio: 0.78,
                     ),
 
                     itemCount:
-                        controller.searchResults.length,
+                        controller.filteredResults.length,
 
                     itemBuilder: (context, index) {
                       final recipe =
-                          controller.searchResults[index];
+                          controller.filteredResults[index];
 
                       return SearchRecipeCard(
                         recipe: recipe,
@@ -196,6 +279,94 @@ class SearchScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ===================================================================
+// FILTER DROPDOWN
+// ===================================================================
+
+class _FilterDropdown extends StatelessWidget {
+  final String? value;
+  final String hint;
+  final IconData icon;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+
+  const _FilterDropdown({
+    required this.value,
+    required this.hint,
+    required this.icon,
+    required this.items,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+
+      isExpanded: true,
+
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        size: 20,
+      ),
+
+      decoration: InputDecoration(
+        prefixIcon: Icon(
+          icon,
+          size: 19,
+        ),
+        hintText: hint,
+        filled: true,
+        fillColor: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest,
+
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 12,
+        ),
+
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+      ),
+
+      items: [
+        const DropdownMenuItem<String>(
+          value: null,
+          child: Text('All'),
+        ),
+
+        ...items.map(
+          (item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(
+                item,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          },
+        ),
+      ],
+
+      onChanged: onChanged,
     );
   }
 }

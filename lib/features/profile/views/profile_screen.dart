@@ -54,7 +54,6 @@ class ProfileScreen extends GetView<ProfileController> {
             horizontal: 20,
             vertical: 16,
           ),
-
           child: Column(
             children: [
               // =====================================================
@@ -65,13 +64,10 @@ class ProfileScreen extends GetView<ProfileController> {
                 () => ProfileHeader(
                   name: controller.user.value?.name ??
                       'COOKmate User',
-
                   email: controller.user.value?.email ??
                       '',
-
                   profileImageBytes:
                       controller.profileImageBytes.value,
-
                   onImageTap:
                       controller.pickProfileImage,
                 ),
@@ -92,12 +88,10 @@ class ProfileScreen extends GetView<ProfileController> {
                       AppRoutes.editProfile,
                     );
                   },
-
                   icon: Icon(
                     Icons.edit_outlined,
                     color: primaryColor,
                   ),
-
                   label: Text(
                     'Edit Profile',
                     style: TextStyle(
@@ -106,24 +100,19 @@ class ProfileScreen extends GetView<ProfileController> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-
                   style: OutlinedButton.styleFrom(
                     foregroundColor: primaryColor,
-
                     side: BorderSide(
                       color: primaryColor,
                       width: 1.2,
                     ),
-
                     shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(14),
                     ),
-
                     backgroundColor: isDark
                         ? AppColors.darkSurface
                         : AppColors.lightSurface,
-
                     elevation: 0,
                   ),
                 ),
@@ -143,8 +132,7 @@ class ProfileScreen extends GetView<ProfileController> {
               const SizedBox(height: 8),
 
               ProfileOptionTile(
-                icon:
-                    Icons.person_outline_rounded,
+                icon: Icons.person_outline_rounded,
                 title: 'Account Settings',
                 onTap: () {
                   Get.toNamed(
@@ -188,9 +176,12 @@ class ProfileScreen extends GetView<ProfileController> {
 
               const SizedBox(height: 8),
 
+              // -----------------------------------------------------
+              // PRIVACY POLICY
+              // -----------------------------------------------------
+
               ProfileOptionTile(
-                icon:
-                    Icons.privacy_tip_outlined,
+                icon: Icons.privacy_tip_outlined,
                 title: 'Privacy Policy',
                 onTap: () {
                   Get.toNamed(
@@ -201,13 +192,32 @@ class ProfileScreen extends GetView<ProfileController> {
 
               const SizedBox(height: 8),
 
+              // -----------------------------------------------------
+              // TERMS & CONDITIONS
+              // -----------------------------------------------------
+
               ProfileOptionTile(
-                icon:
-                    Icons.description_outlined,
+                icon: Icons.description_outlined,
                 title: 'Terms & Conditions',
                 onTap: () {
                   Get.toNamed(
                     AppRoutes.termsAndConditions,
+                  );
+                },
+              ),
+
+              const SizedBox(height: 8),
+
+              // -----------------------------------------------------
+              // FEEDBACK
+              // -----------------------------------------------------
+
+              ProfileOptionTile(
+                icon: Icons.feedback_outlined,
+                title: 'Feedback',
+                onTap: () {
+                  Get.toNamed(
+                    AppRoutes.feedback,
                   );
                 },
               ),
@@ -225,9 +235,12 @@ class ProfileScreen extends GetView<ProfileController> {
 
               const SizedBox(height: 8),
 
+              // -----------------------------------------------------
+              // DELETE ACCOUNT
+              // -----------------------------------------------------
+
               ProfileOptionTile(
-                icon:
-                    Icons.delete_outline_rounded,
+                icon: Icons.delete_outline_rounded,
                 title: 'Delete Account',
                 iconColor: Colors.red,
                 onTap:
@@ -236,9 +249,12 @@ class ProfileScreen extends GetView<ProfileController> {
 
               const SizedBox(height: 8),
 
+              // -----------------------------------------------------
+              // LOGOUT
+              // -----------------------------------------------------
+
               ProfileOptionTile(
-                icon:
-                    Icons.logout_rounded,
+                icon: Icons.logout_rounded,
                 title: 'Logout',
                 iconColor: AppColors.orange,
                 onTap:

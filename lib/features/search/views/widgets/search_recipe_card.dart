@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,6 +18,7 @@ class SearchRecipeCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 3,
+      margin: EdgeInsets.zero,
       child: InkWell(
         onTap: () {
           Get.toNamed(
@@ -27,7 +29,12 @@ class SearchRecipeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
+            // =====================================================
+            // RECIPE IMAGE
+            // =====================================================
+
+            AspectRatio(
+              aspectRatio: 1.25,
               child: Image.network(
                 recipe.image,
                 width: double.infinity,
@@ -39,7 +46,7 @@ class SearchRecipeCard extends StatelessWidget {
                 ) {
                   return const Center(
                     child: Icon(
-                      Icons.restaurant,
+                      Icons.restaurant_rounded,
                       size: 45,
                     ),
                   );
@@ -54,22 +61,64 @@ class SearchRecipeCard extends StatelessWidget {
                   }
 
                   return const Center(
-                    child: CircularProgressIndicator(),
+                    child: SizedBox(
+                      width: 25,
+                      height: 25,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                      ),
+                    ),
                   );
                 },
               ),
             ),
 
+            // =====================================================
+            // RECIPE INFORMATION
+            // =====================================================
+
             Padding(
-              padding: const EdgeInsets.all(10),
-              child: Text(
-                recipe.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
+              padding: const EdgeInsets.fromLTRB(
+                10,
+                8,
+                10,
+                10,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // -------------------------------------------------
+                  // RECIPE NAME
+                  // -------------------------------------------------
+
+                  Text(
+                    recipe.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // -------------------------------------------------
+                  // AREA + CATEGORY
+                  // -------------------------------------------------
+
+                  Text(
+                    '🍴 ${recipe.area} • ${recipe.category}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

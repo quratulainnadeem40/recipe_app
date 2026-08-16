@@ -4,6 +4,8 @@ import 'package:recipe_app/features/auth/bindings/auth_binding.dart';
 import 'package:recipe_app/features/auth/views/forgot_password_screen.dart';
 import 'package:recipe_app/features/auth/views/login_screen.dart';
 import 'package:recipe_app/features/auth/views/signup_screen.dart';
+import 'package:recipe_app/features/feedback/binding/feedback_binding.dart';
+import 'package:recipe_app/features/feedback/feedback_screen.dart';
 
 import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart';
 import 'package:recipe_app/features/navigation/views/main_navigation.dart';
@@ -141,5 +143,10 @@ class AppPages {
       page: () => const RecipeDetailsScreen(),
       binding: RecipeDetailsBinding(),
     ),
+    GetPage(
+  name: AppRoutes.feedback,
+  page: () => const FeedbackScreen(),
+  binding: FeedbackBinding(),
+),
   ];
 }

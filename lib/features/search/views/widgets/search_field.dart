@@ -22,7 +22,9 @@ class _SearchFieldState extends State<SearchField> {
   void initState() {
     super.initState();
 
-    _textController = TextEditingController();
+    _textController = TextEditingController(
+      text: controller.searchQuery.value,
+    );
   }
 
   @override
@@ -31,11 +33,19 @@ class _SearchFieldState extends State<SearchField> {
     super.dispose();
   }
 
+  // =========================================================
+  // SEARCH
+  // =========================================================
+
   void _search() {
     controller.searchRecipes(
       _textController.text,
     );
   }
+
+  // =========================================================
+  // CLEAR SEARCH
+  // =========================================================
 
   void _clear() {
     _textController.clear();
@@ -47,12 +57,29 @@ class _SearchFieldState extends State<SearchField> {
     return TextField(
       controller: _textController,
       textInputAction: TextInputAction.search,
+
+      // -------------------------------------------------------
+      // SEARCH WHEN KEYBOARD SEARCH IS PRESSED
+      // -------------------------------------------------------
+
       onSubmitted: (_) {
         _search();
       },
+
       decoration: InputDecoration(
         hintText: 'Search recipes...',
-        prefixIcon: const Icon(Icons.search),
+
+        // -----------------------------------------------------
+        // SEARCH ICON
+        // -----------------------------------------------------
+
+        prefixIcon: const Icon(
+          Icons.search_rounded,
+        ),
+
+        // -----------------------------------------------------
+        // CLEAR BUTTON
+        // -----------------------------------------------------
 
         suffixIcon: Obx(
           () {
@@ -62,10 +89,17 @@ class _SearchFieldState extends State<SearchField> {
 
             return IconButton(
               onPressed: _clear,
-              icon: const Icon(Icons.clear),
+              tooltip: 'Clear search',
+              icon: const Icon(
+                Icons.clear_rounded,
+              ),
             );
           },
         ),
+
+        // -----------------------------------------------------
+        // FIELD STYLE
+        // -----------------------------------------------------
 
         filled: true,
 
@@ -74,6 +108,16 @@ class _SearchFieldState extends State<SearchField> {
             .surfaceContainerHighest,
 
         border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+
+        focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),

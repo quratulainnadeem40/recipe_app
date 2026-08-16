@@ -9,7 +9,9 @@ class FavoriteRecipeModel {
     required this.image,
   });
 
-  factory FavoriteRecipeModel.fromMap(Map<String, dynamic> map) {
+  factory FavoriteRecipeModel.fromMap(
+    Map<String, dynamic> map,
+  ) {
     return FavoriteRecipeModel(
       id: map['id']?.toString() ?? '',
       name: map['name']?.toString() ?? '',
@@ -18,6 +20,10 @@ class FavoriteRecipeModel {
   }
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'name': name, 'image': image};
+    return {
+      'id': id,
+      'name': name,
+      'image': image,
+    };
   }
 }

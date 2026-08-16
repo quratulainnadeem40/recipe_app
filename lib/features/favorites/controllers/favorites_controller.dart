@@ -1,13 +1,11 @@
-
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+
 import '../../notifications/controllers/notifications_controller.dart';
 import '../models/favorite_recipe_model.dart';
 
 class FavoritesController extends GetxController {
   final GetStorage _storage = GetStorage();
-
- 
 
   static const String _favoritesKey = 'favorite_recipes';
 
@@ -17,7 +15,6 @@ class FavoritesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
     loadFavorites();
   }
 
@@ -26,7 +23,8 @@ class FavoritesController extends GetxController {
   // =========================================================
 
   void loadFavorites() {
-    final storedFavorites = _storage.read<List>(_favoritesKey);
+    final storedFavorites =
+        _storage.read<List>(_favoritesKey);
 
     if (storedFavorites == null) {
       favorites.clear();
@@ -73,24 +71,29 @@ class FavoritesController extends GetxController {
   // ADD FAVORITE
   // =========================================================
 
-Future<void> addFavorite(
-  FavoriteRecipeModel recipe,
-) async {
-  if (!isFavorite(recipe.id)) {
+  Future<void> addFavorite(
+    FavoriteRecipeModel recipe,
+  ) async {
+    if (isFavorite(recipe.id)) {
+      return;
+    }
+
     favorites.add(recipe);
 
     await saveFavorites();
-    
 
-    final notificationController =
-        Get.find<NotificationController>();
+    if (Get.isRegistered<NotificationController>()) {
+      final notificationController =
+          Get.find<NotificationController>();
 
-    notificationController.addNotification(
-      title: 'Recipe Added to Favorites',
-      message: '${recipe.name} has been added to your favorites.',
-    );
+      notificationController.addNotification(
+        title: 'Recipe Added to Favorites',
+        message:
+            '${recipe.name} has been added to your favorites.',
+      );
+    }
   }
-}
+
   // =========================================================
   // REMOVE FAVORITE
   // =========================================================

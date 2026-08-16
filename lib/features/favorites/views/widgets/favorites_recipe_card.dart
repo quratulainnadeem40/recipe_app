@@ -1,94 +1,97 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../../models/favorite_recipe_model.dart';
+import 'package:recipe_app/core/routes/app_routes.dart';
+import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
+import 'package:recipe_app/features/favorites/views/widgets/favorite_recipe_card.dart';
 
-class FavoriteRecipeCard extends StatelessWidget {
-  final FavoriteRecipeModel recipe;
-  final VoidCallback? onTap;
-  final VoidCallback? onRemove;
 
-  const FavoriteRecipeCard({
-    super.key,
-    required this.recipe,
-    this.onTap,
-    this.onRemove,
-  });
+class FavoritesScreen extends GetView<FavoritesController> {
+  const FavoritesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Row(
-          children: [
-            // ==========================================
-            // RECIPE IMAGE
-            // ==========================================
-            SizedBox(
-              width: 110,
-              height: 110,
-              child: Image.network(
-                recipe.image,
-                fit: BoxFit.cover,
-                errorBuilder: (
-                  context,
-                  error,
-                  stackTrace,
-                ) {
-                  return const Center(
-                    child: Icon(
-                      Icons.restaurant,
-                      size: 40,
-                    ),
-                  );
-                },
-                loadingBuilder: (
-                  context,
-                  child,
-                  loadingProgress,
-                ) {
-                  if (loadingProgress == null) {
-                    return child;
-                  }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Favorites'),
+        centerTitle: true,
+      ),
+      body: Obx(
+        () {
+          // =====================================================
+          // EMPTY FAVORITES
+          // =====================================================
 
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                },
-              ),
-            ),
-
-            // ==========================================
-            // RECIPE INFORMATION
-            // ==========================================
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  recipe.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
+          if (controller.favorites.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment:
+                    MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.favorite_border_rounded,
+                    size: 80,
                   ),
-                ),
-              ),
-            ),
 
-            // ==========================================
-            // REMOVE FAVORITE
-            // ==========================================
-            IconButton(
-              onPressed: onRemove,
-              icon: const Icon(
-                Icons.favorite_rounded,
+                  SizedBox(height: 16),
+
+                  Text(
+                    'No Favorite Recipes',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  SizedBox(height: 8),
+
+                  Text(
+                    'Your favorite recipes will appear here.',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
+            );
+          }
+
+          // =====================================================
+          // FAVORITES LIST
+          // =====================================================
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: controller.favorites.length,
+            itemBuilder: (context, index) {
+              final recipe =
+                  controller.favorites[index];
+
+              return FavoriteRecipeCard(
+                recipe: recipe,
+
+                // =================================================
+                // REMOVE FAVORITE
+                // =================================================
+
+                onRemove: () {
+                  controller.removeFavorite(
+                    recipe.id,
+                  );
+                },
+
+                // =================================================
+                // OPEN RECIPE DETAILS
+                // =================================================
+
+                onTap: () {
+                  Get.toNamed(
+                    AppRoutes.recipeDetails,
+                    arguments: recipe.id,
+                  );
+                },
+              );
+            },
+          );
+        },
       ),
     );
   }
