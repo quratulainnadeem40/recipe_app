@@ -7,6 +7,7 @@ class FavoritesBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<FavoritesController>(
       () => FavoritesController(),
+      fenix: true,
     );
   }
 }

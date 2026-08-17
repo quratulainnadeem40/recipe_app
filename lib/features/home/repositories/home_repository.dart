@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:recipe_app/core/constants/api_constants.dart';
@@ -6,39 +8,43 @@ import 'package:recipe_app/features/home/models/recipe_models.dart';
 
 class HomeRepository {
   // =========================================================
+  // NETWORK SETTINGS
+  // =========================================================
+
+  static const Duration _requestTimeout =
+      Duration(seconds: 12);
+
+  static const int _maxRetries = 3;
+
+  // =========================================================
   // GET ALL RECIPES
   // =========================================================
 
   Future<List<RecipeModel>> getRecipes() async {
-    final response = await http.get(
-      Uri.parse(
-        ApiConstants.allRecipes,
-      ),
+    final response = await _getWithRetry(
+      Uri.parse(ApiConstants.allRecipes),
     );
 
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to load recipes',
-      );
-    }
-
-    final data = jsonDecode(response.body);
+    final data = _decodeResponse(response);
 
     final meals = data['meals'] as List?;
 
-    if (meals == null) {
+    if (meals == null || meals.isEmpty) {
       return [];
     }
 
-    final recipes = meals
+    return meals
         .map(
           (item) => RecipeModel.fromJson(
             Map<String, dynamic>.from(item),
           ),
         )
+        .where(
+          (recipe) =>
+              recipe.id.isNotEmpty &&
+              recipe.name.isNotEmpty,
+        )
         .toList();
-
-    return _enrichRecipes(recipes);
   }
 
   // =========================================================
@@ -48,37 +54,50 @@ class HomeRepository {
   Future<List<RecipeModel>> getRecipesByCategory(
     String category,
   ) async {
-    final response = await http.get(
-      Uri.parse(
-        '${ApiConstants.baseUrl}/filter.php?c=${Uri.encodeComponent(category)}',
-      ),
-    );
+    final cleanCategory = category.trim();
 
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to load $category recipes',
-      );
-    }
-
-    final data = jsonDecode(response.body);
-
-    final meals = data['meals'] as List?;
-
-    if (meals == null) {
+    if (cleanCategory.isEmpty) {
       return [];
     }
 
-    final recipes = meals
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/filter.php?c=${Uri.encodeComponent(cleanCategory)}',
+    );
+
+    final response = await _getWithRetry(uri);
+
+    final data = _decodeResponse(response);
+
+    final meals = data['meals'] as List?;
+
+    if (meals == null || meals.isEmpty) {
+      return [];
+    }
+
+    // -------------------------------------------------------
+    // IMPORTANT:
+    // filter.php already gives:
+    // idMeal
+    // strMeal
+    // strMealThumb
+    //
+    // Do NOT call lookup.php for every recipe here.
+    // Full details will be loaded when the user opens
+    // the recipe detail screen.
+    // -------------------------------------------------------
+
+    return meals
         .map(
           (item) => RecipeModel.fromJson(
             Map<String, dynamic>.from(item),
           ),
         )
+        .where(
+          (recipe) =>
+              recipe.id.isNotEmpty &&
+              recipe.name.isNotEmpty,
+        )
         .toList();
-
-    // filter.php only gives basic information,
-    // so get complete recipe details.
-    return _enrichRecipes(recipes);
   }
 
   // =========================================================
@@ -88,163 +107,110 @@ class HomeRepository {
   Future<List<RecipeModel>> getRecipesByCountry(
     String country,
   ) async {
-    try {
-      // -------------------------------------------------------
-      // STEP 1:
-      // Try TheMealDB AREA filter first
-      // -------------------------------------------------------
+    final cleanCountry = country.trim();
 
-      final url = ApiConstants.recipesByCountry(country);
-
-      print('========================================');
-      print('Country: $country');
-      print('API URL: $url');
-
-      final response = await http.get(
-        Uri.parse(url),
-      );
-
-      print(
-        'Area Status Code: ${response.statusCode}',
-      );
-
-      print(
-        'Area Response: ${response.body}',
-      );
-
-      print('========================================');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        final meals = data['meals'] as List?;
-
-        // -----------------------------------------------------
-        // If area API returns recipes
-        // -----------------------------------------------------
-
-        if (meals != null && meals.isNotEmpty) {
-          final recipes = meals
-              .map(
-                (item) => RecipeModel.fromJson(
-                  Map<String, dynamic>.from(item),
-                ),
-              )
-              .toList();
-
-          print(
-            'Found ${recipes.length} recipes using area filter.',
-          );
-
-          return _enrichRecipes(recipes);
-        }
-      }
-
-      // -------------------------------------------------------
-      // STEP 2:
-      // Area filter returned nothing.
-      // Use fallback searches.
-      // -------------------------------------------------------
-
-      print(
-        'No recipes found using area filter.',
-      );
-
-      print(
-        'Starting fallback recipe search for $country...',
-      );
-
-      final fallbackRecipes =
-          await _getFallbackCountryRecipes(country);
-
-      print(
-        'Fallback recipes found: ${fallbackRecipes.length}',
-      );
-
-      return fallbackRecipes;
-    } catch (e) {
-      print(
-        'Country recipe error: $e',
-      );
-
-      // -------------------------------------------------------
-      // STEP 3:
-      // Try fallback search
-      // -------------------------------------------------------
-
-      return _getFallbackCountryRecipes(country);
-    }
-  }
-
-  // =========================================================
-  // ENRICH RECIPES WITH COMPLETE DETAILS
-  // =========================================================
-
-  Future<List<RecipeModel>> _enrichRecipes(
-    List<RecipeModel> recipes,
-  ) async {
-    if (recipes.isEmpty) {
+    if (cleanCountry.isEmpty) {
       return [];
     }
 
     try {
-      final detailedRecipes = await Future.wait(
-        recipes.map(
-          (recipe) => _getRecipeDetails(recipe),
-        ),
+      // -----------------------------------------------------
+      // STEP 1:
+      // Try official AREA filter.
+      // -----------------------------------------------------
+
+      final url =
+          ApiConstants.recipesByCountry(cleanCountry);
+
+      final response = await _getWithRetry(
+        Uri.parse(url),
       );
 
-      return detailedRecipes;
-    } catch (e) {
-      print(
-        'Recipe enrichment error: $e',
-      );
+      final data = _decodeResponse(response);
 
-      // If detail API fails, return original recipes.
-      return recipes;
+      final meals = data['meals'] as List?;
+
+      if (meals != null && meals.isNotEmpty) {
+        return meals
+            .map(
+              (item) => RecipeModel.fromJson(
+                Map<String, dynamic>.from(item),
+              ),
+            )
+            .where(
+              (recipe) =>
+                  recipe.id.isNotEmpty &&
+                  recipe.name.isNotEmpty,
+            )
+            .toList();
+      }
+
+      // -----------------------------------------------------
+      // STEP 2:
+      // Official area filter returned no recipes.
+      // Use fallback search.
+      // -----------------------------------------------------
+
+      return _getFallbackCountryRecipes(
+        cleanCountry,
+      );
+    } catch (_) {
+      // -----------------------------------------------------
+      // STEP 3:
+      // If area API fails, try fallback.
+      // -----------------------------------------------------
+
+      try {
+        return await _getFallbackCountryRecipes(
+          cleanCountry,
+        );
+      } catch (_) {
+        return [];
+      }
     }
   }
 
   // =========================================================
   // GET SINGLE RECIPE DETAILS
   // =========================================================
+  //
+  // This method is intentionally kept separate.
+  //
+  // Home/category screens should NOT call this for every
+  // recipe.
+  //
+  // Recipe Detail screen can use this method later.
+  // =========================================================
 
-  Future<RecipeModel> _getRecipeDetails(
-    RecipeModel recipe,
+  Future<RecipeModel?> getRecipeDetails(
+    String recipeId,
   ) async {
-    try {
-      if (recipe.id.isEmpty) {
-        return recipe;
-      }
+    final cleanId = recipeId.trim();
 
-      final response = await http.get(
+    if (cleanId.isEmpty) {
+      return null;
+    }
+
+    try {
+      final response = await _getWithRetry(
         Uri.parse(
-          '${ApiConstants.baseUrl}/lookup.php?i=${Uri.encodeComponent(recipe.id)}',
+          '${ApiConstants.baseUrl}/lookup.php?i=${Uri.encodeComponent(cleanId)}',
         ),
       );
 
-      if (response.statusCode != 200) {
-        return recipe;
-      }
-
-      final data = jsonDecode(response.body);
+      final data = _decodeResponse(response);
 
       final meals = data['meals'] as List?;
 
       if (meals == null || meals.isEmpty) {
-        return recipe;
+        return null;
       }
 
-      final meal =
-          Map<String, dynamic>.from(meals.first);
-
-      return RecipeModel.fromJson(meal);
-    } catch (e) {
-      print(
-        'Failed to get details for ${recipe.name}: $e',
+      return RecipeModel.fromJson(
+        Map<String, dynamic>.from(meals.first),
       );
-
-      return recipe;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -265,30 +231,17 @@ class HomeRepository {
 
     final List<RecipeModel> recipes = [];
 
-    // Used to prevent duplicates.
     final Set<String> recipeIds = {};
-
-    // -------------------------------------------------------
-    // Search each dish
-    // -------------------------------------------------------
 
     for (final query in queries) {
       try {
-        print(
-          'Searching $country recipe: $query',
-        );
-
-        final response = await http.get(
+        final response = await _getWithRetry(
           Uri.parse(
             '${ApiConstants.baseUrl}/search.php?s=${Uri.encodeComponent(query)}',
           ),
         );
 
-        if (response.statusCode != 200) {
-          continue;
-        }
-
-        final data = jsonDecode(response.body);
+        final data = _decodeResponse(response);
 
         final meals = data['meals'] as List?;
 
@@ -301,19 +254,20 @@ class HomeRepository {
             Map<String, dynamic>.from(item),
           );
 
-          // ---------------------------------------------------
-          // Add only unique recipes
-          // ---------------------------------------------------
+          if (recipe.id.isEmpty ||
+              recipe.name.isEmpty) {
+            continue;
+          }
 
-          if (!recipeIds.contains(recipe.id)) {
-            recipeIds.add(recipe.id);
+          if (recipeIds.add(recipe.id)) {
             recipes.add(recipe);
           }
         }
-      } catch (e) {
-        print(
-          'Failed searching "$query": $e',
-        );
+      } catch (_) {
+        // ---------------------------------------------------
+        // One fallback query failing must NOT stop all
+        // remaining queries.
+        // ---------------------------------------------------
 
         continue;
       }
@@ -520,33 +474,162 @@ class HomeRepository {
   Future<List<RecipeModel>> searchRecipes(
     String query,
   ) async {
-    final response = await http.get(
-      Uri.parse(
-        '${ApiConstants.baseUrl}/search.php?s=${Uri.encodeComponent(query)}',
-      ),
-    );
+    final cleanQuery = query.trim();
 
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Failed to search recipes',
-      );
-    }
-
-    final data = jsonDecode(response.body);
-
-    final meals = data['meals'] as List?;
-
-    if (meals == null) {
+    if (cleanQuery.isEmpty) {
       return [];
     }
 
-    // search.php already provides complete details.
+    final response = await _getWithRetry(
+      Uri.parse(
+        '${ApiConstants.baseUrl}/search.php?s=${Uri.encodeComponent(cleanQuery)}',
+      ),
+    );
+
+    final data = _decodeResponse(response);
+
+    final meals = data['meals'] as List?;
+
+    if (meals == null || meals.isEmpty) {
+      return [];
+    }
+
     return meals
         .map(
           (item) => RecipeModel.fromJson(
             Map<String, dynamic>.from(item),
           ),
         )
+        .where(
+          (recipe) =>
+              recipe.id.isNotEmpty &&
+              recipe.name.isNotEmpty,
+        )
         .toList();
+  }
+
+  // =========================================================
+  // HTTP GET WITH RETRY
+  // =========================================================
+
+  Future<http.Response> _getWithRetry(
+    Uri uri,
+  ) async {
+    Object? lastError;
+
+    for (int attempt = 1;
+        attempt <= _maxRetries;
+        attempt++) {
+      try {
+        final response = await http
+            .get(uri)
+            .timeout(_requestTimeout);
+
+        // ---------------------------------------------------
+        // SUCCESS
+        // ---------------------------------------------------
+
+        if (response.statusCode == 200) {
+          return response;
+        }
+
+        // ---------------------------------------------------
+        // RETRYABLE SERVER/RATE-LIMIT STATUS
+        // ---------------------------------------------------
+
+        if (_isRetryableStatus(response.statusCode) &&
+            attempt < _maxRetries) {
+          await _waitBeforeRetry(attempt);
+          continue;
+        }
+
+        throw HttpException(
+          'Request failed with status ${response.statusCode}',
+        );
+      } on TimeoutException catch (e) {
+        lastError = e;
+
+        if (attempt < _maxRetries) {
+          await _waitBeforeRetry(attempt);
+          continue;
+        }
+      } on SocketException catch (e) {
+        lastError = e;
+
+        if (attempt < _maxRetries) {
+          await _waitBeforeRetry(attempt);
+          continue;
+        }
+      } on http.ClientException catch (e) {
+        lastError = e;
+
+        if (attempt < _maxRetries) {
+          await _waitBeforeRetry(attempt);
+          continue;
+        }
+      } catch (e) {
+        lastError = e;
+
+        if (attempt < _maxRetries) {
+          await _waitBeforeRetry(attempt);
+          continue;
+        }
+      }
+    }
+
+    throw Exception(
+      lastError?.toString() ??
+          'Unable to connect to recipe service',
+    );
+  }
+
+  // =========================================================
+  // RETRYABLE STATUS CODES
+  // =========================================================
+
+  bool _isRetryableStatus(
+    int statusCode,
+  ) {
+    return statusCode == 408 ||
+        statusCode == 429 ||
+        statusCode >= 500;
+  }
+
+  // =========================================================
+  // RETRY DELAY
+  // =========================================================
+
+  Future<void> _waitBeforeRetry(
+    int attempt,
+  ) async {
+    final seconds = attempt * 2;
+
+    await Future.delayed(
+      Duration(seconds: seconds),
+    );
+  }
+
+  // =========================================================
+  // JSON DECODER
+  // =========================================================
+
+  Map<String, dynamic> _decodeResponse(
+    http.Response response,
+  ) {
+    if (response.statusCode != 200) {
+      throw HttpException(
+        'Server returned ${response.statusCode}',
+      );
+    }
+
+    final decoded = jsonDecode(response.body);
+
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Invalid recipe API response',
+      );
+    }
+
+    return decoded;
   }
 }

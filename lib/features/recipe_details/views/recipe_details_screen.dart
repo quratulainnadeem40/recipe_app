@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:recipe_app/core/theme/app_colors.dart';
+
+import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
+import 'package:recipe_app/features/favorites/models/favorite_recipe_model.dart';
+
 import 'package:recipe_app/features/recipe_details/controllers/recipe_details_controller.dart';
 
 class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
-  const RecipeDetailsScreen({super.key});
+  const RecipeDetailsScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,33 +22,40 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
         ? AppColors.darkBackground
         : AppColors.lightBackground;
 
-    final Color primaryColor =
-        isDarkMode ? AppColors.darkPrimary : AppColors.primary;
+    final Color primaryColor = isDarkMode
+        ? AppColors.darkPrimary
+        : AppColors.primary;
 
-    final Color textColor =
-        isDarkMode ? Colors.white : const Color(0xFF2D202B);
+    final Color textColor = isDarkMode
+        ? Colors.white
+        : const Color(0xFF2D202B);
 
-    final Color secondaryTextColor =
-        isDarkMode ? Colors.grey.shade300 : Colors.grey.shade600;
+    final Color secondaryTextColor = isDarkMode
+        ? Colors.grey.shade300
+        : Colors.grey.shade600;
 
-    final Color cardColor =
-        isDarkMode ? AppColors.darkSurface : Colors.white;
+    final Color cardColor = isDarkMode
+        ? AppColors.darkSurface
+        : Colors.white;
+
+    // =========================================================
+    // FAVORITES CONTROLLER
+    // =========================================================
+
+    final FavoritesController favoritesController =
+        Get.find<FavoritesController>();
 
     return Scaffold(
       backgroundColor: backgroundColor,
 
-      // =====================================================
+      // =======================================================
       // APP BAR
-      // =====================================================
+      // =======================================================
 
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0,
         centerTitle: true,
-
-        // ===================================================
-        // BACK BUTTON
-        // ===================================================
 
         leading: IconButton(
           onPressed: () {
@@ -67,14 +80,14 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
         ),
       ),
 
-      // =====================================================
+      // =======================================================
       // BODY
-      // =====================================================
+      // =======================================================
 
       body: Obx(() {
-        // ===================================================
+        // =====================================================
         // LOADING
-        // ===================================================
+        // =====================================================
 
         if (controller.isLoading.value) {
           return Center(
@@ -84,9 +97,9 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
           );
         }
 
-        // ===================================================
+        // =====================================================
         // ERROR
-        // ===================================================
+        // =====================================================
 
         if (controller.errorMessage.value.isNotEmpty) {
           return Center(
@@ -145,8 +158,7 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
                         vertical: 13,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: const Text(
@@ -162,9 +174,9 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
           );
         }
 
-        // ===================================================
-        // NO DATA
-        // ===================================================
+        // =====================================================
+        // RECIPE DATA
+        // =====================================================
 
         final recipe = controller.recipe.value;
 
@@ -181,9 +193,15 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
           );
         }
 
-        // ===================================================
+        // =====================================================
+        // RECIPE ID
+        // =====================================================
+
+        final String recipeId = recipe.id.trim();
+
+        // =====================================================
         // IMAGE LIST
-        // ===================================================
+        // =====================================================
 
         final List<String> images = recipe.images.isNotEmpty
             ? recipe.images
@@ -191,15 +209,14 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
                 ? [recipe.image]
                 : [];
 
-        // ===================================================
-        // RECIPE CONTENT
-        // ===================================================
+        // =====================================================
+        // MAIN CONTENT
+        // =====================================================
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // =================================================
               // IMAGE GALLERY
@@ -214,17 +231,19 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
                     0,
                   ),
                   child: ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(24),
                     child: SizedBox(
                       width: double.infinity,
                       height: 270,
                       child: Stack(
                         children: [
+                          // =====================================
+                          // IMAGE PAGE VIEW
+                          // =====================================
+
                           PageView.builder(
                             itemCount: images.length,
-                            onPageChanged:
-                                controller.changeImage,
+                            onPageChanged: controller.changeImage,
                             itemBuilder: (
                               context,
                               index,
@@ -235,63 +254,140 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
                             },
                           ),
 
-                          // ---------------------------------------
+                          // =====================================
                           // FAVORITE BUTTON
-                          // ---------------------------------------
+                          // =====================================
 
                           Positioned(
                             top: 14,
                             right: 14,
-                            child: Material(
-                              color:
-                                  Colors.white.withValues(
-                                alpha: 0.92,
-                              ),
-                              shape:
-                                  const CircleBorder(),
-                              child: IconButton(
-                                onPressed: () {},
-                                icon: const Icon(
-                                  Icons
-                                      .favorite_border_rounded,
-                                  color:
-                                      AppColors.primary,
+                            child: Obx(() {
+                              final bool isFavorite =
+                                  recipeId.isNotEmpty &&
+                                  favoritesController.isFavorite(
+                                    recipeId,
+                                  );
+
+                              return Material(
+                                color: Colors.white.withValues(
+                                  alpha: 0.92,
                                 ),
-                              ),
-                            ),
+                                shape: const CircleBorder(),
+                                child: IconButton(
+                                  tooltip: isFavorite
+                                      ? 'Remove from favorites'
+                                      : 'Add to favorites',
+
+                                  onPressed: recipeId.isEmpty
+                                      ? null
+                                      : () async {
+                                          final favoriteRecipe =
+                                              FavoriteRecipeModel(
+                                            id: recipe.id.trim(),
+                                            name: recipe.name,
+                                            image: recipe.image,
+                                          );
+
+                                          await favoritesController
+                                              .toggleFavorite(
+                                            favoriteRecipe,
+                                          );
+
+                                          // =================================
+                                          // CHECK UPDATED STATE
+                                          // =================================
+
+                                          final bool updatedFavorite =
+                                              favoritesController
+                                                  .isFavorite(
+                                            recipeId,
+                                          );
+
+                                          if (updatedFavorite) {
+                                            Get.snackbar(
+                                              'Favorite Added',
+                                              '${recipe.name} added to favorites.',
+                                              snackPosition:
+                                                  SnackPosition.BOTTOM,
+                                              duration:
+                                                  const Duration(
+                                                seconds: 2,
+                                              ),
+                                            );
+                                          } else {
+                                            Get.snackbar(
+                                              'Favorite Removed',
+                                              '${recipe.name} removed from favorites.',
+                                              snackPosition:
+                                                  SnackPosition.BOTTOM,
+                                              duration:
+                                                  const Duration(
+                                                seconds: 2,
+                                              ),
+                                            );
+                                          }
+                                        },
+
+                                  // =================================
+                                  // HEART ICON
+                                  // =================================
+
+                                  icon: AnimatedSwitcher(
+                                    duration: const Duration(
+                                      milliseconds: 200,
+                                    ),
+                                    transitionBuilder:
+                                        (
+                                      child,
+                                      animation,
+                                    ) {
+                                      return ScaleTransition(
+                                        scale: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    child: Icon(
+                                      isFavorite
+                                          ? Icons.favorite_rounded
+                                          : Icons.favorite_border_rounded,
+                                      key: ValueKey<bool>(
+                                        isFavorite,
+                                      ),
+                                      color: AppColors.primary,
+                                      size: 25,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
                           ),
 
-                          // ---------------------------------------
+                          // =====================================
                           // IMAGE LABEL
-                          // ---------------------------------------
+                          // =====================================
 
                           Positioned(
                             left: 18,
                             bottom: 16,
                             child: Container(
                               padding:
-                                  const EdgeInsets
-                                      .symmetric(
+                                  const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 7,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black
-                                    .withValues(
+                                color: Colors.black.withValues(
                                   alpha: 0.45,
                                 ),
                                 borderRadius:
-                                    BorderRadius.circular(
-                                  20,
-                                ),
+                                    BorderRadius.circular(20),
                               ),
                               child: const Text(
                                 'Delicious Recipe',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
-                                  fontWeight:
-                                      FontWeight.w600,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -315,9 +411,7 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
                   ),
                   child: Obx(() {
                     final int currentIndex =
-                        controller
-                            .currentImageIndex
-                            .value;
+                        controller.currentImageIndex.value;
 
                     return Row(
                       mainAxisAlignment:
@@ -362,8 +456,7 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
               // =================================================
 
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                 ),
                 child: Text(
@@ -383,16 +476,14 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
               // =================================================
 
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                 ),
                 child: Row(
                   children: [
                     Expanded(
                       child: _InfoCard(
-                        icon: Icons
-                            .restaurant_menu_rounded,
+                        icon: Icons.restaurant_menu_rounded,
                         title: 'Category',
                         value: recipe.category,
                         isDarkMode: isDarkMode,
@@ -416,7 +507,7 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
               const SizedBox(height: 28),
 
               // =================================================
-              // INGREDIENTS HEADING
+              // INGREDIENTS
               // =================================================
 
               _SectionHeading(
@@ -427,33 +518,23 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
 
               const SizedBox(height: 14),
 
-              // =================================================
-              // INGREDIENT LIST
-              // =================================================
-
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                 ),
                 child: Container(
                   width: double.infinity,
-                  padding:
-                      const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: cardColor,
-                    borderRadius:
-                        BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black
-                            .withValues(
-                          alpha:
-                              isDarkMode ? 0.20 : 0.05,
+                        color: Colors.black.withValues(
+                          alpha: isDarkMode ? 0.20 : 0.05,
                         ),
                         blurRadius: 12,
-                        offset:
-                            const Offset(0, 4),
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -465,24 +546,16 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
                             recipe.ingredients[index];
 
                         final String measure =
-                            index <
-                                    recipe.measures.length
-                                ? recipe
-                                    .measures[index]
+                            index < recipe.measures.length
+                                ? recipe.measures[index]
                                 : '';
 
                         return _IngredientItem(
-                          ingredient:
-                              ingredient,
+                          ingredient: ingredient,
                           measure: measure,
-                          isLast:
-                              index ==
-                                  recipe
-                                      .ingredients
-                                      .length -
-                              1,
-                          isDarkMode:
-                              isDarkMode,
+                          isLast: index ==
+                              recipe.ingredients.length - 1,
+                          isDarkMode: isDarkMode,
                         );
                       },
                     ),
@@ -493,7 +566,7 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
               const SizedBox(height: 30),
 
               // =================================================
-              // INSTRUCTIONS HEADING
+              // INSTRUCTIONS
               // =================================================
 
               _SectionHeading(
@@ -504,13 +577,8 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
 
               const SizedBox(height: 14),
 
-              // =================================================
-              // INSTRUCTIONS
-              // =================================================
-
               Padding(
-                padding:
-                    const EdgeInsets.fromLTRB(
+                padding: const EdgeInsets.fromLTRB(
                   20,
                   0,
                   20,
@@ -518,22 +586,17 @@ class RecipeDetailsScreen extends GetView<RecipeDetailsController> {
                 ),
                 child: Container(
                   width: double.infinity,
-                  padding:
-                      const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: cardColor,
-                    borderRadius:
-                        BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black
-                            .withValues(
-                          alpha:
-                              isDarkMode ? 0.20 : 0.05,
+                        color: Colors.black.withValues(
+                          alpha: isDarkMode ? 0.20 : 0.05,
                         ),
                         blurRadius: 12,
-                        offset:
-                            const Offset(0, 4),
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -578,6 +641,7 @@ class _RecipeImage extends StatelessWidget {
         Image.network(
           imageUrl,
           fit: BoxFit.cover,
+
           loadingBuilder: (
             context,
             child,
@@ -590,11 +654,11 @@ class _RecipeImage extends StatelessWidget {
             return Container(
               color: Colors.grey.shade200,
               child: const Center(
-                child:
-                    CircularProgressIndicator(),
+                child: CircularProgressIndicator(),
               ),
             );
           },
+
           errorBuilder: (
             context,
             error,
@@ -613,7 +677,10 @@ class _RecipeImage extends StatelessWidget {
           },
         ),
 
-        // Bottom gradient
+        // =====================================================
+        // BOTTOM GRADIENT
+        // =====================================================
+
         Positioned(
           left: 0,
           right: 0,
@@ -622,10 +689,8 @@ class _RecipeImage extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin:
-                    Alignment.topCenter,
-                end:
-                    Alignment.bottomCenter,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
                   Colors.black.withValues(
@@ -658,8 +723,7 @@ class _EmptyImage extends StatelessWidget {
         0,
       ),
       child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24),
         child: Container(
           width: double.infinity,
           height: 270,
@@ -695,8 +759,7 @@ class _SectionHeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 20,
       ),
       child: Row(
@@ -706,8 +769,7 @@ class _SectionHeading extends StatelessWidget {
             height: 27,
             decoration: BoxDecoration(
               color: color,
-              borderRadius:
-                  BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
 
@@ -750,22 +812,21 @@ class _InfoCard extends StatelessWidget {
         ? Colors.white
         : const Color(0xFF2D202B);
 
-    final Color secondaryColor =
-        isDarkMode
-            ? Colors.grey.shade300
-            : Colors.grey.shade600;
+    final Color secondaryColor = isDarkMode
+        ? Colors.grey.shade300
+        : Colors.grey.shade600;
 
     return Container(
-      padding:
-          const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.primary
-            .withValues(alpha: 0.07),
-        borderRadius:
-            BorderRadius.circular(16),
+        color: AppColors.primary.withValues(
+          alpha: 0.07,
+        ),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primary
-              .withValues(alpha: 0.10),
+          color: AppColors.primary.withValues(
+            alpha: 0.10,
+          ),
         ),
       ),
       child: Row(
@@ -774,10 +835,10 @@ class _InfoCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.primary
-                  .withValues(alpha: 0.12),
-              borderRadius:
-                  BorderRadius.circular(12),
+              color: AppColors.primary.withValues(
+                alpha: 0.12,
+              ),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
@@ -800,8 +861,7 @@ class _InfoCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     color: secondaryColor,
-                    fontWeight:
-                        FontWeight.w500,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
 
@@ -812,12 +872,10 @@ class _InfoCard extends StatelessWidget {
                       ? 'Not available'
                       : value,
                   maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                     color: textColor,
                   ),
                 ),
@@ -853,10 +911,9 @@ class _IngredientItem extends StatelessWidget {
         ? Colors.white
         : const Color(0xFF30242E);
 
-    final Color measureColor =
-        isDarkMode
-            ? Colors.grey.shade300
-            : Colors.grey.shade600;
+    final Color measureColor = isDarkMode
+        ? Colors.grey.shade300
+        : Colors.grey.shade600;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -871,10 +928,8 @@ class _IngredientItem extends StatelessWidget {
               Container(
                 width: 34,
                 height: 34,
-                decoration:
-                    BoxDecoration(
-                  color: AppColors.primary
-                      .withValues(
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(
                     alpha: 0.10,
                   ),
                   shape: BoxShape.circle,
@@ -895,8 +950,7 @@ class _IngredientItem extends StatelessWidget {
                   ingredient,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight:
-                        FontWeight.w600,
+                    fontWeight: FontWeight.w600,
                     color: textColor,
                   ),
                 ),
@@ -906,13 +960,11 @@ class _IngredientItem extends StatelessWidget {
                 Flexible(
                   child: Text(
                     measure,
-                    textAlign:
-                        TextAlign.right,
+                    textAlign: TextAlign.right,
                     style: TextStyle(
                       fontSize: 14,
                       color: measureColor,
-                      fontWeight:
-                          FontWeight.w500,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -949,17 +1001,16 @@ class _PageDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration:
-          const Duration(milliseconds: 200),
+      duration: const Duration(
+        milliseconds: 200,
+      ),
       width: isActive ? 20 : 7,
       height: 7,
-      margin:
-          const EdgeInsets.symmetric(
+      margin: const EdgeInsets.symmetric(
         horizontal: 3,
       ),
       decoration: BoxDecoration(
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
         color: isActive
             ? AppColors.primary
             : Colors.grey.shade400,

@@ -9,21 +9,58 @@ class RecipeDetailsRepository {
     required this.apiService,
   });
 
+  // =========================================================
+  // GET RECIPE DETAILS
+  // =========================================================
+
   Future<RecipeDetailsModel> getRecipeDetails(
     String id,
   ) async {
+    final recipeId = id.trim();
+
+    if (recipeId.isEmpty) {
+      throw Exception(
+        'Recipe ID is empty',
+      );
+    }
+
+    // ---------------------------------------------------------
+    // Call TheMealDB details endpoint
+    // ---------------------------------------------------------
+
     final response = await apiService.get(
-      ApiConstants.recipeDetails(id),
+      ApiConstants.recipeDetails(recipeId),
     );
+
+    // ---------------------------------------------------------
+    // Validate response
+    // ---------------------------------------------------------
+
+    if (response is! Map<String, dynamic>) {
+      throw Exception(
+        'Invalid recipe response',
+      );
+    }
 
     final meals = response['meals'] as List?;
 
     if (meals == null || meals.isEmpty) {
-      throw Exception('Recipe not found');
+      throw Exception(
+        'Recipe not found',
+      );
     }
 
+    // ---------------------------------------------------------
+    // Convert API meal to model
+    // ---------------------------------------------------------
+
+    final meal =
+        Map<String, dynamic>.from(
+      meals.first as Map,
+    );
+
     return RecipeDetailsModel.fromJson(
-      meals.first as Map<String, dynamic>,
+      meal,
     );
   }
 }

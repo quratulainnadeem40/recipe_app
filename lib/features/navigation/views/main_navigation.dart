@@ -6,7 +6,7 @@ import '../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../controllers/navigation_controller.dart';
 
 import '../../home/views/home_screen.dart';
-import '../../search/views/search_screen.dart';
+import '../../search/views/search_screen.dart' hide SearchController;
 import '../../favorites/views/favorites_screen.dart';
 import '../../profile/views/profile_screen.dart';
 
@@ -17,7 +17,7 @@ class MainNavigation extends GetView<NavigationController> {
   Widget build(BuildContext context) {
     final pages = [
       const HomeScreen(),
-      const SearchScreen(),
+       const SearchScreen  (),
       const FavoritesScreen(),
       const ProfileScreen(),
     ];

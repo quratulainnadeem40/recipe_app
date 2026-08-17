@@ -22,51 +22,51 @@ class RecipeCard extends StatelessWidget {
     final FavoritesController favoritesController =
         Get.find<FavoritesController>();
 
+    final ThemeData theme = Theme.of(context);
+
+    final Color cardColor = theme.cardColor;
+    final Color textColor = theme.colorScheme.onSurface;
+
+    final Color secondaryTextColor =
+        theme.textTheme.bodySmall?.color?.withValues(
+              alpha: 0.65,
+            ) ??
+            Colors.grey;
+
     return SizedBox(
-      width: horizontal ? 275 : double.infinity,
-      height: 190,
+      width: horizontal ? 205 : double.infinity,
+      height: 260,
 
       child: Card(
         clipBehavior: Clip.antiAlias,
         elevation: 3,
         margin: const EdgeInsets.only(right: 12),
+        color: cardColor,
 
         child: InkWell(
           onTap: onTap,
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
-
               // =====================================================
-              // IMAGE + FAVORITE
+              // RECIPE IMAGE
               // =====================================================
 
               SizedBox(
                 width: double.infinity,
-                height: 105,
+                height: 135,
 
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
+                    // =================================================
+                    // IMAGE
+                    // =================================================
 
                     Image.network(
                       recipe.image,
                       fit: BoxFit.cover,
-
-                      errorBuilder: (
-                        context,
-                        error,
-                        stackTrace,
-                      ) {
-                        return const Center(
-                          child: Icon(
-                            Icons.restaurant,
-                            size: 40,
-                          ),
-                        );
-                      },
 
                       loadingBuilder: (
                         context,
@@ -77,13 +77,31 @@ class RecipeCard extends StatelessWidget {
                           return child;
                         }
 
-                        return const Center(
+                        return Center(
                           child: SizedBox(
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
+                              color: theme.colorScheme.primary,
                             ),
+                          ),
+                        );
+                      },
+
+                      errorBuilder: (
+                        context,
+                        error,
+                        stackTrace,
+                      ) {
+                        return Container(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          alignment: Alignment.center,
+
+                          child: Icon(
+                            Icons.restaurant_rounded,
+                            size: 40,
+                            color: secondaryTextColor,
                           ),
                         );
                       },
@@ -94,8 +112,8 @@ class RecipeCard extends StatelessWidget {
                     // =================================================
 
                     Positioned(
-                      top: 6,
-                      right: 6,
+                      top: 8,
+                      right: 8,
 
                       child: Obx(
                         () {
@@ -117,16 +135,20 @@ class RecipeCard extends StatelessWidget {
                               child: IconButton(
                                 padding: EdgeInsets.zero,
 
+                                tooltip: isFavorite
+                                    ? 'Remove from favorites'
+                                    : 'Add to favorites',
+
                                 onPressed: () {
-                                  final favoriteRecipe =
+                                  final FavoriteRecipeModel
+                                      favoriteRecipe =
                                       FavoriteRecipeModel(
                                     id: recipe.id,
                                     name: recipe.name,
                                     image: recipe.image,
                                   );
 
-                                  favoritesController
-                                      .toggleFavorite(
+                                  favoritesController.toggleFavorite(
                                     favoriteRecipe,
                                   );
                                 },
@@ -138,7 +160,7 @@ class RecipeCard extends StatelessWidget {
 
                                   color: isFavorite
                                       ? Colors.red
-                                      : Colors.grey,
+                                      : Colors.grey.shade700,
 
                                   size: 22,
                                 ),
@@ -156,88 +178,89 @@ class RecipeCard extends StatelessWidget {
               // RECIPE INFORMATION
               // =====================================================
 
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  10,
-                  5,
-                  10,
-                  4,
-                ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    10,
+                    6,
+                    10,
+                    6,
+                  ),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
 
-                  children: [
+                    mainAxisAlignment:
+                        MainAxisAlignment.start,
 
-                    // =================================================
-                    // NAME
-                    // =================================================
+                    children: [
+                      // ===============================================
+                      // RECIPE NAME
+                      // ===============================================
 
-                    Text(
-                      recipe.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      Text(
+                        recipe.name,
 
-                      style: const TextStyle(
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.bold,
+                        maxLines: 1,
+
+                        overflow:
+                            TextOverflow.ellipsis,
+
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          height: 1.1,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 2),
+                      const SizedBox(height: 4),
 
-                    // =================================================
-                    // AREA + CATEGORY
-                    // =================================================
+                      // ===============================================
+                      // AREA + CATEGORY
+                      // ===============================================
 
-                    Text(
-                      '🍴 ${recipe.area} • ${recipe.category}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      Text(
+                        '🍴 ${recipe.area} • ${recipe.category}',
 
-                      style: TextStyle(
-                        fontSize: 10.5,
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.w500,
+                        maxLines: 1,
+
+                        overflow:
+                            TextOverflow.ellipsis,
+
+                        style: TextStyle(
+                          color: secondaryTextColor,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w500,
+                          height: 1.1,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 2),
+                      const SizedBox(height: 4),
 
-                    // =================================================
-                    // SHORT INFO
-                    // =================================================
+                      // ===============================================
+                      // SHORT INFO
+                      // ===============================================
 
-                    Text(
-                      recipe.shortInfo,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      Expanded(
+                        child: Text(
+                          recipe.shortInfo,
 
-                      style: TextStyle(
-                        fontSize: 10.5,
-                        color: Colors.grey.shade600,
+                          maxLines: 2,
+
+                          overflow:
+                              TextOverflow.ellipsis,
+
+                          style: TextStyle(
+                            color: secondaryTextColor,
+                            fontSize: 9.5,
+                            height: 1.2,
+                          ),
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(height: 1),
-
-                    // =================================================
-                    // EXTRA WORDS
-                    // =================================================
-
-                    Text(
-                      '${recipe.category} • ${recipe.area} • Tasty • Easy',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

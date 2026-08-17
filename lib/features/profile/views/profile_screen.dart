@@ -18,11 +18,9 @@ class ProfileScreen extends GetView<ProfileController> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final primaryColor =
-        isDark ? AppColors.darkPrimary : AppColors.primary;
+    final primaryColor = isDark ? AppColors.darkPrimary : AppColors.primary;
 
-    final backgroundColor =
-        theme.scaffoldBackgroundColor;
+    final backgroundColor = theme.scaffoldBackgroundColor;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -30,7 +28,6 @@ class ProfileScreen extends GetView<ProfileController> {
       // =====================================================
       // APP BAR
       // =====================================================
-
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
@@ -47,87 +44,29 @@ class ProfileScreen extends GetView<ProfileController> {
       // =====================================================
       // BODY
       // =====================================================
-
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             children: [
               // =====================================================
               // PROFILE HEADER
               // =====================================================
-
               Obx(
                 () => ProfileHeader(
-                  name: controller.user.value?.name ??
-                      'COOKmate User',
-                  email: controller.user.value?.email ??
-                      '',
-                  profileImageBytes:
-                      controller.profileImageBytes.value,
-                  onImageTap:
-                      controller.pickProfileImage,
+                  name: controller.user.value?.name ?? 'COOKmate User',
+                  email: controller.user.value?.email ?? '',
+                  profileImageBytes: controller.profileImageBytes.value,
+                  onImageTap: controller.pickProfileImage,
                 ),
               ),
 
-              const SizedBox(height: 28),
-
-              // =====================================================
-              // EDIT PROFILE
-              // =====================================================
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    Get.toNamed(
-                      AppRoutes.editProfile,
-                    );
-                  },
-                  icon: Icon(
-                    Icons.edit_outlined,
-                    color: primaryColor,
-                  ),
-                  label: Text(
-                    'Edit Profile',
-                    style: TextStyle(
-                      color: primaryColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: primaryColor,
-                    side: BorderSide(
-                      color: primaryColor,
-                      width: 1.2,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
-                    ),
-                    backgroundColor: isDark
-                        ? AppColors.darkSurface
-                        : AppColors.lightSurface,
-                    elevation: 0,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
+              const SizedBox(height: 30),
 
               // =====================================================
               // ACCOUNT
               // =====================================================
-
-              _sectionTitle(
-                context,
-                'Account',
-              ),
+              _sectionTitle(context, 'Account'),
 
               const SizedBox(height: 8),
 
@@ -135,9 +74,7 @@ class ProfileScreen extends GetView<ProfileController> {
                 icon: Icons.person_outline_rounded,
                 title: 'Account Settings',
                 onTap: () {
-                  Get.toNamed(
-                    AppRoutes.accountSettings,
-                  );
+                  Get.toNamed(AppRoutes.accountSettings);
                 },
               ),
 
@@ -146,20 +83,14 @@ class ProfileScreen extends GetView<ProfileController> {
               // =====================================================
               // APPEARANCE
               // =====================================================
-
-              _sectionTitle(
-                context,
-                'Appearance',
-              ),
+              _sectionTitle(context, 'Appearance'),
 
               const SizedBox(height: 8),
 
               Obx(
                 () => ThemeSwitchTile(
-                  value:
-                      controller.isDarkMode.value,
-                  onChanged:
-                      controller.toggleTheme,
+                  value: controller.isDarkMode.value,
+                  onChanged: controller.toggleTheme,
                 ),
               ),
 
@@ -168,25 +99,18 @@ class ProfileScreen extends GetView<ProfileController> {
               // =====================================================
               // INFORMATION
               // =====================================================
-
-              _sectionTitle(
-                context,
-                'Information',
-              ),
+              _sectionTitle(context, 'Information'),
 
               const SizedBox(height: 8),
 
               // -----------------------------------------------------
               // PRIVACY POLICY
               // -----------------------------------------------------
-
               ProfileOptionTile(
                 icon: Icons.privacy_tip_outlined,
                 title: 'Privacy Policy',
                 onTap: () {
-                  Get.toNamed(
-                    AppRoutes.privacyPolicy,
-                  );
+                  Get.toNamed(AppRoutes.privacyPolicy);
                 },
               ),
 
@@ -195,14 +119,11 @@ class ProfileScreen extends GetView<ProfileController> {
               // -----------------------------------------------------
               // TERMS & CONDITIONS
               // -----------------------------------------------------
-
               ProfileOptionTile(
                 icon: Icons.description_outlined,
                 title: 'Terms & Conditions',
                 onTap: () {
-                  Get.toNamed(
-                    AppRoutes.termsAndConditions,
-                  );
+                  Get.toNamed(AppRoutes.termsAndConditions);
                 },
               ),
 
@@ -211,14 +132,11 @@ class ProfileScreen extends GetView<ProfileController> {
               // -----------------------------------------------------
               // FEEDBACK
               // -----------------------------------------------------
-
               ProfileOptionTile(
                 icon: Icons.feedback_outlined,
                 title: 'Feedback',
                 onTap: () {
-                  Get.toNamed(
-                    AppRoutes.feedback,
-                  );
+                  Get.toNamed(AppRoutes.feedback);
                 },
               ),
 
@@ -227,24 +145,18 @@ class ProfileScreen extends GetView<ProfileController> {
               // =====================================================
               // ACCOUNT ACTIONS
               // =====================================================
-
-              _sectionTitle(
-                context,
-                'Account Actions',
-              ),
+              _sectionTitle(context, 'Account Actions'),
 
               const SizedBox(height: 8),
 
               // -----------------------------------------------------
               // DELETE ACCOUNT
               // -----------------------------------------------------
-
               ProfileOptionTile(
                 icon: Icons.delete_outline_rounded,
                 title: 'Delete Account',
                 iconColor: Colors.red,
-                onTap:
-                    controller.deleteAccount,
+                onTap: controller.deleteAccount,
               ),
 
               const SizedBox(height: 8),
@@ -252,13 +164,11 @@ class ProfileScreen extends GetView<ProfileController> {
               // -----------------------------------------------------
               // LOGOUT
               // -----------------------------------------------------
-
               ProfileOptionTile(
                 icon: Icons.logout_rounded,
                 title: 'Logout',
                 iconColor: AppColors.orange,
-                onTap:
-                    controller.logout,
+                onTap: controller.logout,
               ),
 
               const SizedBox(height: 24),
@@ -273,17 +183,10 @@ class ProfileScreen extends GetView<ProfileController> {
   // SECTION TITLE
   // ===============================================================
 
-  Widget _sectionTitle(
-    BuildContext context,
-    String title,
-  ) {
-    final isDark =
-        Theme.of(context).brightness ==
-            Brightness.dark;
+  Widget _sectionTitle(BuildContext context, String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final primaryColor = isDark
-        ? AppColors.darkPrimary
-        : AppColors.primary;
+    final primaryColor = isDark ? AppColors.darkPrimary : AppColors.primary;
 
     return Align(
       alignment: Alignment.centerLeft,

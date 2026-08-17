@@ -1,6 +1,9 @@
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
+import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/features/home/models/recipe_models.dart';
 import 'package:recipe_app/features/home/repositories/home_repository.dart';
 
@@ -26,30 +29,40 @@ class SearchController extends GetxController {
       <RecipeModel>[].obs;
 
   // =========================================================
-  // SEARCH TEXT
+  // SEARCH QUERY
   // =========================================================
 
   final RxString searchQuery = ''.obs;
 
   // =========================================================
-  // SELECTED CATEGORY
+  // SUGGESTIONS
   // =========================================================
 
-  final RxnString selectedCategory =
-      RxnString();
+  final RxList<RecipeModel> suggestions =
+      <RecipeModel>[].obs;
 
   // =========================================================
-  // SELECTED AREA / COUNTRY
+  // RECENT SEARCHES
   // =========================================================
 
-  final RxnString selectedArea =
-      RxnString();
+  final RxList<RecipeModel> recentSearches =
+      <RecipeModel>[].obs;
+
+  // =========================================================
+  // FILTERS
+  // =========================================================
+
+  final RxnString selectedCategory = RxnString();
+
+  final RxnString selectedArea = RxnString();
 
   // =========================================================
   // LOADING
   // =========================================================
 
   final RxBool isLoading = false.obs;
+
+  final RxBool isSuggestionLoading = false.obs;
 
   // =========================================================
   // ERROR
@@ -58,7 +71,13 @@ class SearchController extends GetxController {
   final RxString errorMessage = ''.obs;
 
   // =========================================================
-  // AVAILABLE CATEGORIES
+  // DEBOUNCE TIMER
+  // =========================================================
+
+  Timer? _suggestionTimer;
+
+  // =========================================================
+  // CATEGORIES
   // =========================================================
 
   final List<String> categories = [
@@ -73,7 +92,7 @@ class SearchController extends GetxController {
   ];
 
   // =========================================================
-  // AVAILABLE AREAS / COUNTRIES
+  // AREAS / CUISINES
   // =========================================================
 
   final List<String> areas = [
@@ -109,14 +128,82 @@ class SearchController extends GetxController {
   ];
 
   // =========================================================
-  // SEARCH
+  // TEXT CHANGE
+  // =========================================================
+
+  void onSearchTextChanged(String text) {
+    final query = text.trim();
+
+    searchQuery.value = query;
+    errorMessage.value = '';
+
+    _suggestionTimer?.cancel();
+
+    if (query.isEmpty) {
+      suggestions.clear();
+      isSuggestionLoading.value = false;
+      return;
+    }
+
+    // Wait until user stops typing.
+    // This prevents an API call for every character.
+    _suggestionTimer = Timer(
+      const Duration(milliseconds: 350),
+      () {
+        loadSuggestions(query);
+      },
+    );
+  }
+
+  // =========================================================
+  // LOAD SUGGESTIONS
+  // =========================================================
+
+  Future<void> loadSuggestions(String query) async {
+    final trimmedQuery = query.trim();
+
+    if (trimmedQuery.isEmpty) {
+      suggestions.clear();
+      return;
+    }
+
+    try {
+      isSuggestionLoading.value = true;
+
+      final result = await repository.searchRecipes(
+        trimmedQuery,
+      );
+
+      // Do not show stale results for an old query.
+      if (searchQuery.value.trim() != trimmedQuery) {
+        return;
+      }
+
+      suggestions.assignAll(
+        result.take(6).toList(),
+      );
+    } catch (e) {
+      suggestions.clear();
+    } finally {
+      if (searchQuery.value.trim() == trimmedQuery) {
+        isSuggestionLoading.value = false;
+      }
+    }
+  }
+
+  // =========================================================
+  // SEARCH RECIPES
   // =========================================================
 
   Future<void> searchRecipes(String query) async {
     final trimmedQuery = query.trim();
 
+    _suggestionTimer?.cancel();
+
     searchQuery.value = trimmedQuery;
     errorMessage.value = '';
+
+    suggestions.clear();
 
     if (trimmedQuery.isEmpty) {
       searchResults.clear();
@@ -127,12 +214,15 @@ class SearchController extends GetxController {
     try {
       isLoading.value = true;
 
-      final result =
-          await repository.searchRecipes(trimmedQuery);
+      final result = await repository.searchRecipes(
+        trimmedQuery,
+      );
 
       searchResults.assignAll(result);
 
       _applyFilters();
+
+      _addRecentSearches(result);
     } catch (e) {
       searchResults.clear();
       filteredResults.clear();
@@ -145,7 +235,55 @@ class SearchController extends GetxController {
   }
 
   // =========================================================
-  // APPLY CATEGORY + AREA FILTERS
+  // SELECT SUGGESTION
+  //
+  // IMPORTANT:
+  // Details API requires the recipe ID.
+  //
+  // RecipeModel.id comes from:
+  // idMeal
+  //
+  // Therefore we pass recipe.id to Recipe Details.
+  // =========================================================
+
+  void selectSuggestion(RecipeModel recipe) {
+    if (recipe.id.trim().isEmpty) {
+      Get.snackbar(
+        'Recipe Error',
+        'Recipe ID is missing.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      return;
+    }
+
+    _suggestionTimer?.cancel();
+
+    searchQuery.value = recipe.name;
+
+    suggestions.clear();
+
+    errorMessage.value = '';
+
+    // Keep recipe in search results.
+    searchResults.assignAll([recipe]);
+
+    _applyFilters();
+
+    _addRecentSearches([recipe]);
+
+    // =======================================================
+    // OPEN RECIPE DETAILS
+    // =======================================================
+
+    Get.toNamed(
+      AppRoutes.recipeDetails,
+      arguments: recipe.id,
+    );
+  }
+
+  // =========================================================
+  // APPLY FILTERS
   // =========================================================
 
   void _applyFilters() {
@@ -157,17 +295,21 @@ class SearchController extends GetxController {
 
     final result = searchResults.where(
       (recipe) {
+        final recipeCategory =
+            recipe.category.trim().toLowerCase();
+
+        final recipeArea =
+            recipe.area.trim().toLowerCase();
+
         final categoryMatches =
             category == null ||
             category.isEmpty ||
-            recipe.category.trim().toLowerCase() ==
-                category;
+            recipeCategory == category;
 
         final areaMatches =
             area == null ||
             area.isEmpty ||
-            recipe.area.trim().toLowerCase() ==
-                area;
+            recipeArea == area;
 
         return categoryMatches && areaMatches;
       },
@@ -180,17 +322,17 @@ class SearchController extends GetxController {
   // CATEGORY FILTER
   // =========================================================
 
-  Future<void> setCategory(String? category) async {
+  void setCategory(String? category) {
     selectedCategory.value = category;
 
     _applyFilters();
   }
 
   // =========================================================
-  // AREA / COUNTRY FILTER
+  // AREA FILTER
   // =========================================================
 
-  Future<void> setArea(String? area) async {
+  void setArea(String? area) {
     selectedArea.value = area;
 
     _applyFilters();
@@ -212,15 +354,77 @@ class SearchController extends GetxController {
   // =========================================================
 
   void clearSearch() {
+    _suggestionTimer?.cancel();
+
     searchQuery.value = '';
 
     searchResults.clear();
     filteredResults.clear();
+    suggestions.clear();
 
     errorMessage.value = '';
 
     selectedCategory.value = null;
     selectedArea.value = null;
+
+    isSuggestionLoading.value = false;
+  }
+
+  // =========================================================
+  // RECENT SEARCHES
+  // =========================================================
+
+  void _addRecentSearches(
+    List<RecipeModel> recipes,
+  ) {
+    for (final recipe in recipes.take(5)) {
+      if (recipe.id.trim().isEmpty) {
+        continue;
+      }
+
+      final exists = recentSearches.any(
+        (item) => item.id == recipe.id,
+      );
+
+      if (!exists) {
+        recentSearches.insert(0, recipe);
+      }
+    }
+
+    if (recentSearches.length > 10) {
+      recentSearches.removeRange(
+        10,
+        recentSearches.length,
+      );
+    }
+  }
+
+  // =========================================================
+  // SELECT RECENT RECIPE
+  // =========================================================
+
+  void selectRecipe(RecipeModel recipe) {
+    selectSuggestion(recipe);
+  }
+
+  // =========================================================
+  // REMOVE RECENT SEARCH
+  // =========================================================
+
+  void removeRecentSearch(
+    RecipeModel recipe,
+  ) {
+    recentSearches.removeWhere(
+      (item) => item.id == recipe.id,
+    );
+  }
+
+  // =========================================================
+  // CLEAR ALL RECENT SEARCHES
+  // =========================================================
+
+  void clearRecentSearches() {
+    recentSearches.clear();
   }
 
   // =========================================================
@@ -230,6 +434,16 @@ class SearchController extends GetxController {
   bool get hasActiveFilters {
     return selectedCategory.value != null ||
         selectedArea.value != null;
+  }
+
+  // =========================================================
+  // DISPOSE
+  // =========================================================
+
+  @override
+  void onClose() {
+    _suggestionTimer?.cancel();
+    super.onClose();
   }
 }
 
