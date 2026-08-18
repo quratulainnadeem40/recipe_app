@@ -59,7 +59,7 @@ class CountryData {
     ),
 
     CountryModel(
-      name: 'American',
+      name: 'United States',
       flag: '🇺🇸',
       area: 'American',
     ),

@@ -145,8 +145,6 @@ class SearchController extends GetxController {
       return;
     }
 
-    // Wait until user stops typing.
-    // This prevents an API call for every character.
     _suggestionTimer = Timer(
       const Duration(milliseconds: 350),
       () {
@@ -170,11 +168,9 @@ class SearchController extends GetxController {
     try {
       isSuggestionLoading.value = true;
 
-      final result = await repository.searchRecipes(
-        trimmedQuery,
-      );
+      final result =
+          await repository.searchRecipes(trimmedQuery);
 
-      // Do not show stale results for an old query.
       if (searchQuery.value.trim() != trimmedQuery) {
         return;
       }
@@ -214,9 +210,8 @@ class SearchController extends GetxController {
     try {
       isLoading.value = true;
 
-      final result = await repository.searchRecipes(
-        trimmedQuery,
-      );
+      final result =
+          await repository.searchRecipes(trimmedQuery);
 
       searchResults.assignAll(result);
 
@@ -236,14 +231,6 @@ class SearchController extends GetxController {
 
   // =========================================================
   // SELECT SUGGESTION
-  //
-  // IMPORTANT:
-  // Details API requires the recipe ID.
-  //
-  // RecipeModel.id comes from:
-  // idMeal
-  //
-  // Therefore we pass recipe.id to Recipe Details.
   // =========================================================
 
   void selectSuggestion(RecipeModel recipe) {
@@ -265,16 +252,11 @@ class SearchController extends GetxController {
 
     errorMessage.value = '';
 
-    // Keep recipe in search results.
     searchResults.assignAll([recipe]);
 
     _applyFilters();
 
     _addRecentSearches([recipe]);
-
-    // =======================================================
-    // OPEN RECIPE DETAILS
-    // =======================================================
 
     Get.toNamed(
       AppRoutes.recipeDetails,
@@ -329,14 +311,47 @@ class SearchController extends GetxController {
   }
 
   // =========================================================
-  // AREA FILTER
+  // AREA / COUNTRY FILTER
+  // =========================================================
+  //
+  // When a country is selected from CountryItem,
+  // its "area" is sent to the API.
+  //
+  // Example:
+  // Pakistan -> Pakistani
+  // India -> Indian
+  // Italy -> Italian
+  //
   // =========================================================
 
-  void setArea(String? area) {
-    selectedArea.value = area;
+  Future<void> setArea(String? area) async {
+  selectedArea.value = area;
+
+  if (area == null || area.trim().isEmpty) {
+    _applyFilters();
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    final result =
+        await repository.getRecipesByCountry(area);
+
+    searchResults.assignAll(result);
 
     _applyFilters();
+  } catch (e) {
+    searchResults.clear();
+    filteredResults.clear();
+
+    errorMessage.value =
+        'Failed to load $area recipes.';
+  } finally {
+    isLoading.value = false;
   }
+}
 
   // =========================================================
   // CLEAR FILTERS
@@ -446,4 +461,3 @@ class SearchController extends GetxController {
     super.onClose();
   }
 }
-

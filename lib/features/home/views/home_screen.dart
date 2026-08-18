@@ -183,9 +183,10 @@ class HomeScreen extends GetView<HomeController> {
                         return CountryItem(
                           country: country,
                           onTap: () {
-                            controller.getRecipesByCountry(
-                              country.area,
-                            );
+                          Get.toNamed(
+                            AppRoutes.search,
+                            arguments: country.area
+                          );
                           },
                         );
                       },
