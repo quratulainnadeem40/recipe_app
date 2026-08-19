@@ -12,18 +12,22 @@ class RecipeDetailsScreen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightBackground,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.lightBackground,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: AppColors.textPrimary,
+          ),
         ),
         title: const Text(
           'Recipe Details',
           style: TextStyle(
             fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
           ),
         ),
       ),
@@ -34,7 +38,9 @@ class RecipeDetailsScreen
 
         if (controller.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+            ),
           );
         }
 
@@ -53,12 +59,15 @@ class RecipeDetailsScreen
                   const Icon(
                     Icons.error_outline,
                     size: 60,
-                    color: Colors.redAccent,
+                    color: AppColors.error,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     controller.errorMessage.value,
                     textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -85,6 +94,7 @@ class RecipeDetailsScreen
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
           );
@@ -131,6 +141,7 @@ class RecipeDetailsScreen
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
                         ),
                       ),
 
@@ -223,12 +234,12 @@ class RecipeDetailsScreen
         ),
         child: recipe.image.trim().isEmpty
             ? Container(
-                color: Colors.grey.shade200,
+                color: AppColors.inputBackground,
                 child: const Center(
                   child: Icon(
                     Icons.restaurant,
                     size: 70,
-                    color: Colors.grey,
+                    color: AppColors.textSecondary,
                   ),
                 ),
               )
@@ -238,12 +249,12 @@ class RecipeDetailsScreen
                 errorBuilder:
                     (context, error, stackTrace) {
                   return Container(
-                    color: Colors.grey.shade200,
+                    color: AppColors.inputBackground,
                     child: const Center(
                       child: Icon(
                         Icons.broken_image_outlined,
                         size: 60,
-                        color: Colors.grey,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   );
@@ -256,7 +267,9 @@ class RecipeDetailsScreen
 
                   return const Center(
                     child:
-                        CircularProgressIndicator(),
+                        CircularProgressIndicator(
+                      color: AppColors.primary,
+                    ),
                   );
                 },
               ),
@@ -278,11 +291,11 @@ class RecipeDetailsScreen
         vertical: 11,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius:
             BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.grey.shade200,
+          color: AppColors.border,
         ),
       ),
       child: Row(
@@ -304,6 +317,7 @@ class RecipeDetailsScreen
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
@@ -337,13 +351,13 @@ class RecipeDetailsScreen
         width: double.infinity,
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius:
               BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
               color:
-                  Colors.black.withOpacity(0.05),
+                  AppColors.shadow,
               blurRadius: 15,
               offset:
                   const Offset(0, 6),
@@ -368,7 +382,7 @@ class RecipeDetailsScreen
                         .withOpacity(0.10),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.record_voice_over,
                     color:
                         AppColors.primary,
@@ -388,6 +402,7 @@ class RecipeDetailsScreen
                           fontSize: 17,
                           fontWeight:
                               FontWeight.w800,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       SizedBox(height: 3),
@@ -395,7 +410,7 @@ class RecipeDetailsScreen
                         'Listen to the complete recipe',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -456,7 +471,7 @@ class RecipeDetailsScreen
                     decoration:
                         BoxDecoration(
                       color:
-                          Colors.grey.shade100,
+                          AppColors.inputBackground,
                       borderRadius:
                           BorderRadius.circular(
                         10,
@@ -469,6 +484,7 @@ class RecipeDetailsScreen
                         fontSize: 12,
                         fontWeight:
                             FontWeight.w700,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -492,7 +508,7 @@ class RecipeDetailsScreen
               decoration:
                   BoxDecoration(
                 color:
-                    AppColors.lightBackground,
+                    AppColors.primaryLight,
                 borderRadius:
                     BorderRadius.circular(
                   14,
@@ -527,6 +543,7 @@ class RecipeDetailsScreen
                         fontSize: 13,
                         fontWeight:
                             FontWeight.w600,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -547,7 +564,7 @@ class RecipeDetailsScreen
                 child: isLoading
                     ? Container(
                         decoration:
-                            BoxDecoration(
+                            const BoxDecoration(
                           color:
                               AppColors.primary,
                           shape:
@@ -565,7 +582,7 @@ class RecipeDetailsScreen
                             valueColor:
                                 AlwaysStoppedAnimation<
                                     Color>(
-                              Colors.white,
+                              AppColors.textWhite,
                             ),
                           ),
                         ),
@@ -575,29 +592,17 @@ class RecipeDetailsScreen
                         backgroundColor:
                             AppColors.primary,
                         onPressed: () {
-                          // ===================================
-                          // PLAYING
-                          // ===================================
-
                           if (isSpeaking) {
                             controller
                                 .pauseRecipe();
                             return;
                           }
 
-                          // ===================================
-                          // PAUSED
-                          // ===================================
-
                           if (isPaused) {
                             controller
                                 .resumeRecipe();
                             return;
                           }
-
-                          // ===================================
-                          // STOPPED / NEW PLAY
-                          // ===================================
 
                           controller
                               .speakRecipe();
@@ -607,7 +612,7 @@ class RecipeDetailsScreen
                               ? Icons.pause
                               : Icons.play_arrow,
                           size: 34,
-                          color: Colors.white,
+                          color: AppColors.textWhite,
                         ),
                       ),
               ),
@@ -632,6 +637,7 @@ class RecipeDetailsScreen
                   fontSize: 13,
                   fontWeight:
                       FontWeight.w700,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ),
@@ -651,9 +657,13 @@ class RecipeDetailsScreen
                   icon: const Icon(
                     Icons.stop_circle_outlined,
                     size: 20,
+                    color: AppColors.primary,
                   ),
                   label: const Text(
                     'Stop Voice',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                    ),
                   ),
                 ),
               ),
@@ -678,14 +688,14 @@ class RecipeDetailsScreen
                     const EdgeInsets.all(12),
                 decoration:
                     BoxDecoration(
-                  color: Colors.red
+                  color: AppColors.error
                       .withOpacity(0.06),
                   borderRadius:
                       BorderRadius.circular(
                     12,
                   ),
                   border: Border.all(
-                    color: Colors.red
+                    color: AppColors.error
                         .withOpacity(0.15),
                   ),
                 ),
@@ -696,7 +706,7 @@ class RecipeDetailsScreen
                     const Icon(
                       Icons.error_outline,
                       color:
-                          Colors.redAccent,
+                          AppColors.error,
                       size: 18,
                     ),
                     const SizedBox(width: 8),
@@ -706,7 +716,7 @@ class RecipeDetailsScreen
                         style:
                             const TextStyle(
                           color:
-                              Colors.redAccent,
+                              AppColors.error,
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -742,6 +752,7 @@ class RecipeDetailsScreen
           style: const TextStyle(
             fontSize: 21,
             fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
           ),
         ),
       ],
@@ -762,12 +773,15 @@ class RecipeDetailsScreen
             const EdgeInsets.all(16),
         decoration:
             BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius:
               BorderRadius.circular(16),
         ),
         child: const Text(
           'No ingredients available.',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+          ),
         ),
       );
     }
@@ -804,14 +818,14 @@ class RecipeDetailsScreen
                 const EdgeInsets.all(15),
             decoration:
                 BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius:
                   BorderRadius.circular(
                 15,
               ),
               border: Border.all(
                 color:
-                    Colors.grey.shade200,
+                    AppColors.border,
               ),
             ),
             child: Row(
@@ -826,7 +840,7 @@ class RecipeDetailsScreen
                     top: 6,
                   ),
                   decoration:
-                      BoxDecoration(
+                      const BoxDecoration(
                     color:
                         AppColors.primary,
                     shape:
@@ -845,6 +859,7 @@ class RecipeDetailsScreen
                       height: 1.4,
                       fontWeight:
                           FontWeight.w500,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
@@ -873,12 +888,15 @@ class RecipeDetailsScreen
             const EdgeInsets.all(16),
         decoration:
             BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius:
               BorderRadius.circular(16),
         ),
         child: const Text(
           'No cooking instructions available.',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+          ),
         ),
       );
     }
@@ -889,12 +907,12 @@ class RecipeDetailsScreen
           const EdgeInsets.all(18),
       decoration:
           BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius:
             BorderRadius.circular(18),
         border: Border.all(
           color:
-              Colors.grey.shade200,
+              AppColors.border,
         ),
       ),
       child: Text(
@@ -903,7 +921,7 @@ class RecipeDetailsScreen
             const TextStyle(
           fontSize: 15,
           height: 1.65,
-          color: Colors.black87,
+          color: AppColors.textPrimary,
         ),
       ),
     );

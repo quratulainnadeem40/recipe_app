@@ -20,7 +20,7 @@ class LoginScreen extends GetView<AuthController> {
     final formKey = GlobalKey<FormState>();
 
     return Scaffold(
-      backgroundColor: AppColors.lightBackground,
+      backgroundColor: AppColors.background,
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -53,7 +53,7 @@ class LoginScreen extends GetView<AuthController> {
 
                     child: const Icon(
                       Icons.restaurant_menu,
-                      color: AppColors.white,
+                      color: AppColors.surface,
                       size: 40,
                     ),
                   ),

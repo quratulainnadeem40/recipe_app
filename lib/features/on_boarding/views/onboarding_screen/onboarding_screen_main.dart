@@ -18,7 +18,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightBackground,
+      backgroundColor: AppColors.background,
 
       body: SafeArea(
         child: Column(
@@ -116,8 +116,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
 
                         decoration: BoxDecoration(
                           color: selected
-                              ? AppColors.orange
-                              : AppColors.disabled,
+                              ? AppColors.primary
+                              : AppColors.surface,
 
                           borderRadius:
                               BorderRadius.circular(10),

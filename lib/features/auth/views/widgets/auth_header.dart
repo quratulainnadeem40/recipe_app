@@ -30,7 +30,7 @@ class AuthHeader extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              color: AppColors.white,
+              color: AppColors.surface,
               size: 40,
             ),
           ),

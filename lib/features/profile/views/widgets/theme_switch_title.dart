@@ -21,9 +21,7 @@ class ThemeSwitchTile extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     // Theme-aware primary color
-    final primaryColor = isDark
-        ? AppColors.darkPrimary
-        : AppColors.primary;
+    final primaryColor = AppColors.primary;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
@@ -68,19 +66,19 @@ class ThemeSwitchTile extends StatelessWidget {
         value: value,
         onChanged: onChanged,
 
-        activeThumbColor: AppColors.orange,
+        activeThumbColor: AppColors.primary,
 
         activeTrackColor: isDark
-            ? AppColors.orange.withValues(alpha: 0.35)
-            : AppColors.orange.withValues(alpha: 0.25),
+            ? AppColors.primary.withValues(alpha: 0.35)
+            : AppColors.primary.withValues(alpha: 0.25),
 
         inactiveThumbColor: isDark
-            ? Colors.grey.shade300
-            : Colors.grey.shade600,
+            ? AppColors.textWhite
+            : AppColors.textSecondary,
 
         inactiveTrackColor: isDark
-            ? Colors.grey.shade700
-            : Colors.grey.shade300,
+            ? AppColors.categoryCardSecondary
+            : AppColors.border,
       ),
     );
   }

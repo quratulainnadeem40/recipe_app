@@ -17,7 +17,7 @@ class EditProfileScreen extends GetView<EditProfileController> {
           style: AppTextStyles.headingSmall,
         ),
         backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.white,
+        foregroundColor: AppColors.surface,
         elevation: 0,
       ),
       body: SafeArea(
@@ -61,8 +61,8 @@ class EditProfileScreen extends GetView<EditProfileController> {
                         ? null
                         : controller.updateProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.orange,
-                      foregroundColor: AppColors.white,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.surface,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
@@ -74,7 +74,7 @@ class EditProfileScreen extends GetView<EditProfileController> {
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: AppColors.white,
+                              color: AppColors.surface,
                             ),
                           )
                         : Text(

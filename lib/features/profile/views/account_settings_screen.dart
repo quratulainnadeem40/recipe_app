@@ -23,23 +23,19 @@ class AccountSettingsScreen extends GetView<ProfileController> {
 
     final backgroundColor = isDark
         ? AppColors.darkBackground
-        : AppColors.lightBackground;
+        : AppColors.background;
 
-    final primaryColor = isDark
-        ? AppColors.darkPrimary
-        : AppColors.primary;
+    final primaryColor = AppColors.primary;
 
     final titleColor = isDark
-        ? Colors.white
-        : Colors.black87;
+        ? AppColors.textWhite
+        : AppColors.textPrimary;
 
     final subtitleColor = isDark
-        ? Colors.white.withOpacity(0.70)
+        ? AppColors.textWhite.withOpacity(0.70)
         : AppColors.textSecondary;
 
-    final iconColor = isDark
-        ? AppColors.darkPrimary
-        : AppColors.primary;
+    final iconColor = AppColors.primary;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -54,9 +50,7 @@ class AccountSettingsScreen extends GetView<ProfileController> {
         backgroundColor: backgroundColor,
 
         iconTheme: IconThemeData(
-          color: isDark
-              ? Colors.white
-              : AppColors.primary,
+          color: AppColors.primary,
         ),
 
         title: Text(
@@ -184,7 +178,7 @@ class AccountSettingsScreen extends GetView<ProfileController> {
             icon: Icons.delete_outline_rounded,
             title: 'Delete Account',
             subtitle: 'Permanently delete your account',
-            iconColor: Colors.red,
+            iconColor: AppColors.error,
             onTap: controller.deleteAccount,
           ),
 
@@ -205,9 +199,7 @@ class AccountSettingsScreen extends GetView<ProfileController> {
     final isDark =
         Theme.of(context).brightness == Brightness.dark;
 
-    final color = isDark
-        ? AppColors.darkPrimary
-        : AppColors.primary;
+    final color = AppColors.primary;
 
     return Text(
       title,
@@ -234,16 +226,14 @@ class AccountSettingsScreen extends GetView<ProfileController> {
         Theme.of(context).brightness == Brightness.dark;
 
     final titleColor = isDark
-        ? Colors.white
-        : Colors.black87;
+        ? AppColors.textWhite
+        : AppColors.textPrimary;
 
     final subtitleColor = isDark
-        ? Colors.white.withOpacity(0.70)
+        ? AppColors.textWhite.withOpacity(0.70)
         : AppColors.textSecondary;
 
-    final defaultIconColor = isDark
-        ? AppColors.darkPrimary
-        : AppColors.primary;
+    final defaultIconColor = AppColors.primary;
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
@@ -277,8 +267,8 @@ class AccountSettingsScreen extends GetView<ProfileController> {
           : Icon(
               Icons.chevron_right_rounded,
               color: isDark
-                  ? Colors.white70
-                  : Colors.black54,
+                  ? AppColors.textWhite
+                  : AppColors.textSecondary,
             ),
 
       onTap: onTap,

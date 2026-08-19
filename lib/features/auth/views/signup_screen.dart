@@ -20,10 +20,10 @@ class SignupScreen extends GetView<AuthController> {
     final formKey = GlobalKey<FormState>();
 
     return Scaffold(
-      backgroundColor: AppColors.lightBackground,
+      backgroundColor: AppColors.background,
 
       appBar: AppBar(
-        backgroundColor: AppColors.lightBackground,
+        backgroundColor: AppColors.background,
         title: const Text(
           'Create Account',
         ),

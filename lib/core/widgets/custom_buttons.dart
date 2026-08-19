@@ -38,13 +38,13 @@ class CustomButton extends StatelessWidget {
               backgroundColor ?? AppColors.primary,
 
           foregroundColor:
-              textColor ?? AppColors.white,
+              textColor ?? AppColors.textWhite,
 
           disabledBackgroundColor:
               backgroundColor ?? AppColors.primary,
 
           disabledForegroundColor:
-              textColor ?? AppColors.white,
+              textColor ?? AppColors.textWhite,
 
           elevation: 0,
 

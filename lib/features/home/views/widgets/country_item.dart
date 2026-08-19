@@ -4,93 +4,84 @@ import 'package:recipe_app/features/home/models/country_model.dart';
 
 class CountryItem extends StatelessWidget {
   final CountryModel country;
+  final bool isSelected;
   final VoidCallback onTap;
 
   const CountryItem({
     super.key,
     required this.country,
+    this.isSelected = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
 
-    final cardColor = isDark
-        ? AppColors.darkSurface
-        : AppColors.lightSurface;
-
-    final textColor = isDark
-        ? AppColors.darkTextPrimary
-        : AppColors.textPrimary;
-
-    final borderColor = isDark
-        ? AppColors.darkDivider
-        : AppColors.divider;
-
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-
-      child: Container(
-        width: 110,
-        padding: const EdgeInsets.all(10),
-
-        decoration: BoxDecoration(
-          color: cardColor,
-
-          borderRadius: BorderRadius.circular(18),
-
-          border: Border.all(
-            color: borderColor,
-            width: 1,
-          ),
-
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(
-                alpha: isDark ? 0.25 : 0.06,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Circular Flag Container with Selected Ring
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isSelected
+                  ? AppColors.tagGreenBg
+                  : theme.colorScheme.surface,
+              border: Border.all(
+                color: isSelected
+                    ? AppColors.tagGreen
+                    : theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: isSelected ? 2.5 : 1.0,
               ),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+              boxShadow: [
+                if (isSelected)
+                  BoxShadow(
+                    color: AppColors.tagGreen.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  )
+                else
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+              ],
             ),
-          ],
-        ),
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // =================================================
-            // COUNTRY FLAG
-            // =================================================
-
-            Text(
+            alignment: Alignment.center,
+            child: Text(
               country.flag,
               style: const TextStyle(
-                fontSize: 36,
+                fontSize: 26,
               ),
             ),
+          ),
 
-            const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
-            // =================================================
-            // COUNTRY NAME
-            // =================================================
-
-            Text(
+          // Country Name Label
+          SizedBox(
+            width: 64,
+            child: Text(
               country.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-
               style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: textColor,
+                color: isSelected
+                    ? AppColors.tagGreen
+                    : theme.colorScheme.onSurface,
+                fontSize: 11.5,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
