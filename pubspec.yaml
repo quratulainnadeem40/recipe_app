@@ -99,8 +99,8 @@ flutter:
 
 
   assets:
-    - assets/imagefolder/image.png
-    - assets/imagefolder/image1.png
-    - assets/imagefolder/image2.png
-    - assets/imagefolder/image3.png
+    - assets\images\image1.png
+    - assets\images\image2.jpeg
+    - assets\images\image3.jpeg
+    - assets\images\splash.png
 

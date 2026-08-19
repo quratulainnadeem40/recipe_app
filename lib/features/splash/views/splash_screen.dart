@@ -37,7 +37,7 @@ class SplashScreen extends GetView<SplashController> {
             // ==========================================
             Positioned.fill(
               child: Image.asset(
-                'assets/imagefolder/image.png',
+                'assets/images/splash.png',
                 fit: BoxFit.cover,
                 alignment: Alignment.center,
               ),

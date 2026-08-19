@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/core/theme/app_colors.dart';
+import 'package:recipe_app/core/theme/app_text_styles.dart';
 import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -95,17 +96,17 @@ class HomeHeader extends StatelessWidget {
                   TextSpan(
                     text: 'COOK',
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
-                      letterSpacing: 0.5,
+                      color: AppColors.primaryDark,
+                      letterSpacing: 0.3,
                     ),
                   ),
                   const TextSpan(
                     text: 'mate',
                     style: TextStyle(
                       fontSize: 22,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.primary,
                       fontStyle: FontStyle.italic,
                     ),
@@ -127,7 +128,8 @@ class HomeHeader extends StatelessWidget {
                       color: theme.colorScheme.onSurface,
                       size: 26,
                     ),
-                    onPressed: onNotificationTap ??
+                    onPressed:
+                        onNotificationTap ??
                         () {
                           Get.toNamed(AppRoutes.notifications);
                         },
@@ -183,12 +185,12 @@ class HomeHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Good morning, $name!',
-                  maxLines: 1,
+                  'Welcome Back, $name!',
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.60),
-                    fontSize: 14,
+                    color: theme.colorScheme.onSurface,
+                    fontSize: 20,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
