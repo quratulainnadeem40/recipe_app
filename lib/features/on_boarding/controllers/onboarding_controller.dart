@@ -11,24 +11,24 @@ class OnboardingController extends GetxController {
 
   final List<OnboardingModel> onboardingPages = const [
     OnboardingModel(
-      image: 'assets/imagefolder/image1.png',
-      title: 'Discover Delicious Recipes',
+      image: 'assets/images/image1.png',
+      title: '',
       description:
-          'Explore delicious recipes and discover new meals to make every day.',
+          '',
     ),
 
     OnboardingModel(
-      image: 'assets/imagefolder/image2.png',
-      title: 'Cook With Confidence',
+      image: 'assets/images/image2.jpeg',
+      title: '',
       description:
-          'Follow simple recipes with easy steps and create meals you will love.',
+          '',
     ),
 
     OnboardingModel(
-      image: 'assets/imagefolder/image3.png',
-      title: 'Share Your Favorite Recipes',
+      image: 'assets/images/image3.jpeg',
+      title: '',
       description:
-          'Save your favorite recipes and share your cooking inspiration with others.',
+          '',
     ),
   ];
 
