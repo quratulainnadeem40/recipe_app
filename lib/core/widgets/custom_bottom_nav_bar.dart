@@ -17,14 +17,14 @@ class CustomBottomNavBar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final selectedColor =
-        isDark ? AppColors.darkPrimary : AppColors.primary;
+        isDark ? AppColors.primaryDark : AppColors.primary;
 
     final unselectedColor = isDark
-        ? AppColors.darkTextSecondary
+        ? AppColors.textSecondary
         : const Color(0xFFB58EAC);
 
     final backgroundColor =
-        isDark ? AppColors.darkSurface : AppColors.lightSurface;
+        isDark ? AppColors.surface : AppColors.surface;
 
     return BottomNavigationBar(
       currentIndex: currentIndex,

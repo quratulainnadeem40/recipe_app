@@ -17,12 +17,12 @@ class RecipeHorizontalList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (recipes.isEmpty) {
       return const SizedBox(
-        height: 190,
+        height: 260,
         child: Center(
           child: Text(
             'No recipes found',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
             ),
           ),
         ),
@@ -30,19 +30,17 @@ class RecipeHorizontalList extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 195,
-
+      height: 260,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         itemCount: recipes.length,
-
         itemBuilder: (context, index) {
           final recipe = recipes[index];
 
           return RecipeCard(
             recipe: recipe,
             horizontal: true,
-
             onTap: () {
               onRecipeTap?.call(recipe);
             },

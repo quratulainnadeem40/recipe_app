@@ -18,7 +18,7 @@ class ProfileScreen extends GetView<ProfileController> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final primaryColor = isDark ? AppColors.darkPrimary : AppColors.primary;
+    final primaryColor = AppColors.primary;
 
     final backgroundColor = theme.scaffoldBackgroundColor;
 
@@ -155,7 +155,7 @@ class ProfileScreen extends GetView<ProfileController> {
               ProfileOptionTile(
                 icon: Icons.delete_outline_rounded,
                 title: 'Delete Account',
-                iconColor: Colors.red,
+                iconColor: AppColors.error,
                 onTap: controller.deleteAccount,
               ),
 
@@ -167,7 +167,7 @@ class ProfileScreen extends GetView<ProfileController> {
               ProfileOptionTile(
                 icon: Icons.logout_rounded,
                 title: 'Logout',
-                iconColor: AppColors.orange,
+                iconColor: AppColors.primary,
                 onTap: controller.logout,
               ),
 
@@ -186,7 +186,7 @@ class ProfileScreen extends GetView<ProfileController> {
   Widget _sectionTitle(BuildContext context, String title) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final primaryColor = isDark ? AppColors.darkPrimary : AppColors.primary;
+    final primaryColor = AppColors.primary;
 
     return Align(
       alignment: Alignment.centerLeft,

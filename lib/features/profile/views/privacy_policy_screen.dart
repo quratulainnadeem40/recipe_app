@@ -21,23 +21,23 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
     final backgroundColor = isDark
         ? AppColors.darkBackground
-        : AppColors.lightBackground;
+        : AppColors.background;
 
     final headingColor = isDark
-        ? Colors.white
+        ? AppColors.textWhite
         : AppColors.primary;
 
     final bodyColor = isDark
-        ? Colors.white.withOpacity(0.85)
-        : Colors.black87;
+        ? AppColors.textWhite.withOpacity(0.85)
+        : AppColors.textPrimary;
 
     final secondaryColor = isDark
-        ? Colors.white.withOpacity(0.65)
+        ? AppColors.textWhite.withOpacity(0.65)
         : AppColors.textSecondary;
 
     final appBarColor = isDark
         ? AppColors.darkBackground
-        : AppColors.lightBackground;
+        : AppColors.background;
 
     // =========================================================
     // SCREEN
@@ -57,7 +57,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
         iconTheme: IconThemeData(
           color: isDark
-              ? Colors.white
+              ? AppColors.textWhite
               : AppColors.primary,
         ),
 
@@ -81,10 +81,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
-            // ===================================================
-            // PRIVACY POLICY
-            // ===================================================
-
             _title(
               context,
               'Privacy Policy',
@@ -96,10 +92,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'explains how COOKmate handles information when you use '
               'the application.',
             ),
-
-            // ===================================================
-            // INFORMATION WE COLLECT
-            // ===================================================
 
             _title(
               context,
@@ -113,10 +105,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'you provide while using the application.',
             ),
 
-            // ===================================================
-            // HOW WE USE INFORMATION
-            // ===================================================
-
             _title(
               context,
               'How We Use Information',
@@ -129,10 +117,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'features, and maintain application security.',
             ),
 
-            // ===================================================
-            // ACCOUNT INFORMATION
-            // ===================================================
-
             _title(
               context,
               'Account Information',
@@ -144,10 +128,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'and provide access to features associated with your '
               'COOKmate account.',
             ),
-
-            // ===================================================
-            // DATA SECURITY
-            // ===================================================
 
             _title(
               context,
@@ -162,10 +142,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'to be completely secure.',
             ),
 
-            // ===================================================
-            // THIRD-PARTY SERVICES
-            // ===================================================
-
             _title(
               context,
               'Third-Party Services',
@@ -179,10 +155,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'their own privacy policies.',
             ),
 
-            // ===================================================
-            // CHANGES TO THIS POLICY
-            // ===================================================
-
             _title(
               context,
               'Changes to This Policy',
@@ -193,10 +165,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'This Privacy Policy may be updated from time to time. '
               'Any changes will be reflected on this page.',
             ),
-
-            // ===================================================
-            // CONTACT
-            // ===================================================
 
             _title(
               context,
@@ -211,13 +179,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // ===================================================
-            // LAST UPDATED
-            // ===================================================
-
             Text(
               'Last updated: August 2026',
-
               style: AppTextStyles.bodySmall.copyWith(
                 color: secondaryColor,
               ),
@@ -242,7 +205,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         Theme.of(context).brightness == Brightness.dark;
 
     final headingColor = isDark
-        ? Colors.white
+        ? AppColors.textWhite
         : AppColors.primary;
 
     return Padding(
@@ -274,8 +237,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
         Theme.of(context).brightness == Brightness.dark;
 
     final bodyColor = isDark
-        ? Colors.white.withOpacity(0.85)
-        : Colors.black87;
+        ? AppColors.textWhite.withOpacity(0.85)
+        : AppColors.textPrimary;
 
     return Text(
       text,

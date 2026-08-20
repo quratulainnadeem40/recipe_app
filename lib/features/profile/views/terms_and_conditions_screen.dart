@@ -21,23 +21,23 @@ class TermsAndConditionsScreen extends StatelessWidget {
 
     final backgroundColor = isDark
         ? AppColors.darkBackground
-        : AppColors.lightBackground;
+        : AppColors.background;
 
     final headingColor = isDark
-        ? Colors.white
+        ? AppColors.textWhite
         : AppColors.primary;
 
     final bodyColor = isDark
-        ? Colors.white.withOpacity(0.85)
-        : Colors.black87;
+        ? AppColors.textWhite.withOpacity(0.85)
+        : AppColors.textPrimary;
 
     final secondaryColor = isDark
-        ? Colors.white.withOpacity(0.65)
+        ? AppColors.textWhite.withOpacity(0.65)
         : AppColors.textSecondary;
 
     final appBarColor = isDark
         ? AppColors.darkBackground
-        : AppColors.lightBackground;
+        : AppColors.background;
 
     // =========================================================
     // SCREEN
@@ -57,7 +57,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
 
         iconTheme: IconThemeData(
           color: isDark
-              ? Colors.white
+              ? AppColors.textWhite
               : AppColors.primary,
         ),
 
@@ -278,7 +278,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
         Theme.of(context).brightness == Brightness.dark;
 
     final headingColor = isDark
-        ? Colors.white
+        ? AppColors.textWhite
         : AppColors.primary;
 
     return Padding(
@@ -308,8 +308,8 @@ class TermsAndConditionsScreen extends StatelessWidget {
         Theme.of(context).brightness == Brightness.dark;
 
     final bodyColor = isDark
-        ? Colors.white.withOpacity(0.85)
-        : Colors.black87;
+        ? AppColors.textWhite.withOpacity(0.85)
+        : AppColors.textPrimary;
 
     return Text(
       text,

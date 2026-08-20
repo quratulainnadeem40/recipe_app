@@ -17,8 +17,7 @@ class HomeController extends GetxController {
   // ALL RECIPES
   // =========================================================
 
-  final RxList<RecipeModel> recipes =
-      <RecipeModel>[].obs;
+  final RxList<RecipeModel> recipes = <RecipeModel>[].obs;
 
   final RxBool isLoading = false.obs;
 
@@ -103,14 +102,11 @@ class HomeController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      final result =
-          await repository.getRecipes();
+      final result = await repository.getRecipes();
 
       recipes.assignAll(result);
     } catch (e) {
-      errorMessage.value =
-          'Failed to load recipes';
-
+      errorMessage.value = 'Failed to load recipes';
       recipes.clear();
     } finally {
       isLoading.value = false;
@@ -124,30 +120,35 @@ class HomeController extends GetxController {
   Future<void> getRecipesByCategory(
     String category,
   ) async {
+    final cleanCategory = category.trim();
+
+    if (cleanCategory.isEmpty) {
+      return;
+    }
+
     try {
       isCategoryLoading.value = true;
       categoryErrorMessage.value = '';
 
-      categoryRecipes.clear();
+      selectedCategory.value = cleanCategory;
 
-      selectedCategory.value = category;
+      categoryRecipes.clear();
 
       final result =
           await repository.getRecipesByCategory(
-        category,
+        cleanCategory,
       );
 
       if (result.isEmpty) {
         categoryErrorMessage.value =
-            'No recipes found for $category';
-
+            'No recipes found for $cleanCategory';
         return;
       }
 
       categoryRecipes.assignAll(result);
     } catch (e) {
       categoryErrorMessage.value =
-          'Failed to load $category recipes';
+          'Failed to load $cleanCategory recipes';
 
       categoryRecipes.clear();
     } finally {
@@ -176,22 +177,28 @@ class HomeController extends GetxController {
   Future<void> getRecipesByCountry(
     String country,
   ) async {
+    final cleanCountry = country.trim();
+
+    if (cleanCountry.isEmpty) {
+      return;
+    }
+
     try {
       isCountryLoading.value = true;
       countryErrorMessage.value = '';
 
-      countryRecipes.clear();
+      selectedCountry.value = cleanCountry;
 
-      selectedCountry.value = country;
+      countryRecipes.clear();
 
       final result =
           await repository.getRecipesByCountry(
-        country,
+        cleanCountry,
       );
 
       if (result.isEmpty) {
         countryErrorMessage.value =
-            'No recipes found for $country';
+            'No recipes found for $cleanCountry';
 
         return;
       }
@@ -199,12 +206,30 @@ class HomeController extends GetxController {
       countryRecipes.assignAll(result);
     } catch (e) {
       countryErrorMessage.value =
-          'Failed to load $country recipes';
+          'Failed to load $cleanCountry recipes';
 
       countryRecipes.clear();
     } finally {
       isCountryLoading.value = false;
     }
+  }
+
+  // =========================================================
+  // CHANGE COUNTRY
+  // =========================================================
+  //
+  // Used by the Explore screen dropdown.
+  //
+  // Example:
+  // Pakistan -> India
+  //
+  // The recipes automatically reload.
+  // =========================================================
+
+  Future<void> changeCountry(
+    String country,
+  ) async {
+    await getRecipesByCountry(country);
   }
 
   // =========================================================
@@ -230,10 +255,8 @@ class HomeController extends GetxController {
   ) {
     final query = value.trim();
 
-    // Cancel previous request timer.
     _searchDebounce?.cancel();
 
-    // Empty search.
     if (query.isEmpty) {
       searchSuggestions.clear();
 
@@ -244,7 +267,6 @@ class HomeController extends GetxController {
       return;
     }
 
-    // Don't call API for a single character.
     if (query.length < 2) {
       searchSuggestions.clear();
 
@@ -255,12 +277,10 @@ class HomeController extends GetxController {
       return;
     }
 
-    // Show dropdown immediately.
     showSuggestions.value = true;
 
     isSuggestionLoading.value = true;
 
-    // Wait before calling API.
     _searchDebounce = Timer(
       const Duration(milliseconds: 350),
       () {
@@ -270,7 +290,7 @@ class HomeController extends GetxController {
   }
 
   // =========================================================
-  // LOAD LIVE SEARCH SUGGESTIONS
+  // LOAD SEARCH SUGGESTIONS
   // =========================================================
 
   Future<void> _loadSearchSuggestions(
@@ -280,17 +300,20 @@ class HomeController extends GetxController {
       final result =
           await repository.searchRecipes(query);
 
-      // Only show a small number of suggestions.
-      final suggestions =
-          result.take(6).toList();
+      // Make sure suggestions belong to current text.
+      if (searchTextController.text.trim() != query) {
+        return;
+      }
 
       searchSuggestions.assignAll(
-        suggestions,
+        result.take(6).toList(),
       );
     } catch (e) {
       searchSuggestions.clear();
     } finally {
-      isSuggestionLoading.value = false;
+      if (searchTextController.text.trim() == query) {
+        isSuggestionLoading.value = false;
+      }
     }
   }
 
@@ -301,20 +324,15 @@ class HomeController extends GetxController {
   void selectSearchSuggestion(
     RecipeModel recipe,
   ) {
-    // Put selected recipe name in search field.
-    searchTextController.text =
-        recipe.name;
+    searchTextController.text = recipe.name;
 
-    // Move cursor to end.
     searchTextController.selection =
         TextSelection.fromPosition(
       TextPosition(
-        offset:
-            searchTextController.text.length,
+        offset: searchTextController.text.length,
       ),
     );
 
-    // Hide suggestions.
     showSuggestions.value = false;
 
     searchSuggestions.clear();
@@ -342,7 +360,8 @@ class HomeController extends GetxController {
       return;
     }
 
-    // Hide live suggestions when actual search starts.
+    _searchDebounce?.cancel();
+
     showSuggestions.value = false;
 
     searchSuggestions.clear();
@@ -359,9 +378,7 @@ class HomeController extends GetxController {
         searchQuery,
       );
 
-      searchResults.assignAll(
-        result,
-      );
+      searchResults.assignAll(result);
     } catch (e) {
       searchErrorMessage.value =
           'Failed to search recipes';
@@ -377,6 +394,8 @@ class HomeController extends GetxController {
   // =========================================================
 
   void clearSearch() {
+    _searchDebounce?.cancel();
+
     searchResults.clear();
 
     searchSuggestions.clear();
@@ -390,6 +409,26 @@ class HomeController extends GetxController {
     showSuggestions.value = false;
 
     isSuggestionLoading.value = false;
+
+    searchTextController.clear();
+  }
+
+  // =========================================================
+  // RESET EXPLORE FILTERS
+  // =========================================================
+
+  void resetExploreFilters() {
+    selectedCategory.value = '';
+
+    selectedCountry.value = '';
+
+    categoryRecipes.clear();
+
+    countryRecipes.clear();
+
+    categoryErrorMessage.value = '';
+
+    countryErrorMessage.value = '';
   }
 
   // =========================================================

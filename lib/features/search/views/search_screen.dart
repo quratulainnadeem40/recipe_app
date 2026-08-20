@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:recipe_app/core/routes/app_routes.dart';
-import 'package:recipe_app/features/home/models/country_model.dart';
-import 'package:recipe_app/features/home/data/country_data.dart';
-import 'package:recipe_app/features/home/views/widgets/recipe_card.dart';
-
+import 'package:recipe_app/core/theme/app_colors.dart';
+import 'package:recipe_app/features/home/models/recipe_models.dart';
 import '../controllers/search_controller.dart' as search_controller;
 
 class SearchScreen extends GetView<search_controller.SearchController> {
@@ -14,764 +12,262 @@ class SearchScreen extends GetView<search_controller.SearchController> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     final isDark = theme.brightness == Brightness.dark;
 
-    final backgroundColor = theme.scaffoldBackgroundColor;
+    final backgroundColor = isDark
+        ? AppColors.darkBackground
+        : AppColors.background;
 
-    final surfaceColor = colorScheme.surface;
+    final surfaceColor = isDark
+        ? AppColors.surface
+        : AppColors.surface;
 
-    final primaryColor = colorScheme.primary;
+    final textPrimary = isDark
+        ? AppColors.textPrimary
+        : AppColors.textPrimary;
 
-    final textColor = colorScheme.onSurface;
+    final textSecondary = isDark
+        ? AppColors.textSecondary
+        : AppColors.textSecondary;
 
-    final secondaryTextColor =
-        theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.65) ??
-        colorScheme.onSurface.withValues(alpha: 0.65);
-
-    final borderColor = isDark
-        ? const Color(0xFF444444)
-        : const Color(0xFFE3D8D0);
-
-    final filterColor = isDark
-        ? const Color(0xFF3A2D38)
-        : const Color(0xFFFFEBDD);
+    final dividerColor = isDark
+        ? AppColors.border
+        : AppColors.border;
 
     return Scaffold(
       backgroundColor: backgroundColor,
-
-      appBar: AppBar(
-        backgroundColor: backgroundColor,
-        foregroundColor: textColor,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-        title: const Text(
-          'Search Recipes',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
-        ),
-      ),
-
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+        child: Obx(
+          () => SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // =====================================================
+                // HEADER
+                // =====================================================
+                _buildHeader(context, textPrimary),
 
-          padding: const EdgeInsets.fromLTRB(24, 10, 24, 30),
+                const SizedBox(height: 22),
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            children: [
-              // =====================================================
-              // SEARCH BAR
-              // =====================================================
-              _buildSearchBar(
-                context,
-                surfaceColor,
-                primaryColor,
-                textColor,
-                secondaryTextColor,
-                borderColor,
-              ),
-
-              const SizedBox(height: 30),
-
-              // =====================================================
-              // POPULAR SEARCHES
-              // =====================================================
-              _buildSectionTitle('Popular Searches', textColor),
-
-              const SizedBox(height: 14),
-
-              _buildPopularSearches(surfaceColor, textColor, borderColor),
-
-              const SizedBox(height: 30),
-
-              // =====================================================
-              // EXPLORE BY CUISINE
-              // =====================================================
-              _buildSectionTitle('Explore by Cuisine', textColor),
-
-              const SizedBox(height: 14),
-
-              _buildCuisineSection(surfaceColor, textColor, borderColor),
-
-              const SizedBox(height: 30),
-
-              // =====================================================
-              // QUICK FILTERS
-              // =====================================================
-              _buildSectionTitle('Quick Filters', textColor),
-
-              const SizedBox(height: 14),
-
-              _buildQuickFilters(
-                filterColor,
-                textColor,
-                primaryColor,
-                borderColor,
-              ),
-
-              const SizedBox(height: 35),
-
-              // =====================================================
-              // RESULTS
-              // =====================================================
-              Obx(() {
-                if (controller.isLoading.value) {
-                  return SizedBox(
-                    height: 300,
-                    child: Center(
-                      child: CircularProgressIndicator(color: primaryColor),
-                    ),
-                  );
-                }
-
-                if (controller.errorMessage.value.isNotEmpty) {
-                  return _buildErrorState(textColor, secondaryTextColor);
-                }
-
-                if (controller.filteredResults.isNotEmpty) {
-                  return _buildSearchResults(textColor);
-                }
-
-                return _buildEmptyState(
+                // =====================================================
+                // SEARCH BAR
+                // =====================================================
+                _buildSearchBar(
+                  context,
                   surfaceColor,
-                  textColor,
-                  secondaryTextColor,
-                  primaryColor,
-                  borderColor,
-                );
-              }),
-            ],
+                  textPrimary,
+                  textSecondary,
+                  dividerColor,
+                ),
+
+                const SizedBox(height: 16),
+
+                // =====================================================
+                // FILTERS
+                // =====================================================
+                _buildFilterRow(
+                  context,
+                  surfaceColor,
+                  textPrimary,
+                  textSecondary,
+                  dividerColor,
+                ),
+
+                const SizedBox(height: 14),
+
+                // =====================================================
+                // ACTIVE FILTER CHIPS
+                // =====================================================
+                if (controller.hasActiveFilters)
+                  _buildActiveFilters(textPrimary, textSecondary),
+
+                // =====================================================
+                // RECENT SEARCHES
+                // =====================================================
+                if (controller.recentSearches.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 18),
+                    child: _buildRecentSearches(
+                      surfaceColor,
+                      textPrimary,
+                      textSecondary,
+                      dividerColor,
+                    ),
+                  ),
+
+                const SizedBox(height: 22),
+
+                // =====================================================
+                // RESULTS
+                // =====================================================
+                _buildResults(
+                  surfaceColor,
+                  textPrimary,
+                  textSecondary,
+                  dividerColor,
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  // =============================================================
+  // HEADER
+  // =============================================================
+  Widget _buildHeader(
+    BuildContext context,
+    Color textPrimary,
+  ) {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(
+            minWidth: 40,
+            minHeight: 40,
+          ),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: textPrimary,
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'Explore Recipes',
+          style: TextStyle(
+            color: textPrimary,
+            fontSize: 25,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const Spacer(),
+        const Icon(
+          Icons.tune_rounded,
+          color: AppColors.primary,
+          size: 23,
+        ),
+      ],
     );
   }
 
   // =============================================================
   // SEARCH BAR
   // =============================================================
-
   Widget _buildSearchBar(
     BuildContext context,
     Color surfaceColor,
-    Color primaryColor,
-    Color textColor,
-    Color secondaryTextColor,
-    Color borderColor,
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
   ) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 68,
-
+          height: 58,
           decoration: BoxDecoration(
             color: surfaceColor,
-
-            borderRadius: BorderRadius.circular(20),
-
-            border: Border.all(color: borderColor, width: 1.2),
-
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: dividerColor),
           ),
-
           child: Row(
             children: [
-              // SEARCH ICON
-              Padding(
-                padding: const EdgeInsets.only(left: 18, right: 12),
-
-                child: Icon(
-                  Icons.search_rounded,
-                  color: primaryColor,
-                  size: 30,
-                ),
+              const SizedBox(width: 15),
+              const Icon(
+                Icons.search_rounded,
+                color: AppColors.primary,
+                size: 26,
               ),
-
-              // TEXT FIELD
+              const SizedBox(width: 10),
               Expanded(
                 child: TextField(
-                  textInputAction: TextInputAction.search,
-
-                  onChanged: (value) {
-                    controller.onSearchTextChanged(value);
-                  },
-
+                  controller: controller.searchTextController,
+                  onChanged: controller.onSearchTextChanged,
                   onSubmitted: (value) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-
                     controller.searchRecipes(value);
+                    FocusManager.instance.primaryFocus?.unfocus();
                   },
-
-                  style: TextStyle(color: textColor, fontSize: 17),
-
-                  cursorColor: primaryColor,
-
+                  textInputAction: TextInputAction.search,
+                  style: TextStyle(
+                    color: textPrimary,
+                    fontSize: 15,
+                  ),
+                  cursorColor: AppColors.primary,
                   decoration: InputDecoration(
                     hintText: 'Search recipes...',
-
                     hintStyle: TextStyle(
-                      color: secondaryTextColor,
-                      fontSize: 17,
+                      color: textSecondary,
+                      fontSize: 14,
                     ),
-
                     border: InputBorder.none,
-
                     isDense: true,
-
-                    contentPadding: EdgeInsets.zero,
                   ),
                 ),
               ),
+              Obx(
+                () {
+                  if (controller.searchTextController.text.isEmpty) {
+                    return const SizedBox(width: 8);
+                  }
 
-              // SEARCH BUTTON
-              GestureDetector(
-                onTap: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-
-                  controller.searchRecipes(controller.searchQuery.value);
+                  return IconButton(
+                    onPressed: controller.clearSearch,
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: textSecondary,
+                    ),
+                  );
                 },
-
-                child: Container(
-                  width: 52,
-                  height: 52,
-
-                  margin: const EdgeInsets.only(right: 7),
-
-                  decoration: BoxDecoration(
-                    color: primaryColor,
-
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-
-                  child: const Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Colors.white,
-                    size: 27,
-                  ),
-                ),
               ),
-            ],
-          ),
-        ),
-
-        // =========================================================
-        // SUGGESTIONS
-        // =========================================================
-        Obx(() {
-          final suggestions = controller.suggestions;
-
-          if (controller.searchQuery.value.isEmpty) {
-            return const SizedBox.shrink();
-          }
-
-          if (suggestions.isEmpty && !controller.isSuggestionLoading.value) {
-            return const SizedBox.shrink();
-          }
-
-          return Container(
-            width: double.infinity,
-
-            margin: const EdgeInsets.only(top: 8),
-
-            decoration: BoxDecoration(
-              color: surfaceColor,
-
-              borderRadius: BorderRadius.circular(16),
-
-              border: Border.all(color: borderColor, width: 1.1),
-
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+              Container(
+                width: 43,
+                height: 43,
+                margin: const EdgeInsets.only(right: 7),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(13),
                 ),
-              ],
-            ),
-
-            child: controller.isSuggestionLoading.value && suggestions.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.all(20),
-
-                    child: Center(
-                      child: SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
-                  )
-                : Column(
-                    children: [
-                      for (int index = 0; index < suggestions.length; index++)
-                        _buildSuggestionItem(
-                          suggestions[index],
-                          textColor,
-                          secondaryTextColor,
-                          borderColor,
-                          primaryColor,
-                          index == suggestions.length - 1,
-                        ),
-                    ],
-                  ),
-          );
-        }),
-      ],
-    );
-  }
-
-  // =============================================================
-  // SUGGESTION ITEM
-  // =============================================================
-
-  Widget _buildSuggestionItem(
-    dynamic recipe,
-    Color textColor,
-    Color secondaryTextColor,
-    Color borderColor,
-    Color primaryColor,
-    bool isLast,
-  ) {
-    return InkWell(
-      onTap: () {
-        controller.selectSuggestion(recipe);
-      },
-
-      child: Container(
-        width: double.infinity,
-
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-
-        decoration: BoxDecoration(
-          border: isLast
-              ? null
-              : Border(bottom: BorderSide(color: borderColor, width: 0.8)),
-        ),
-
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-
-              child: SizedBox(
-                width: 52,
-                height: 52,
-
-                child: Image.network(
-                  recipe.image,
-                  fit: BoxFit.cover,
-
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: borderColor,
-
-                      child: Icon(Icons.restaurant_rounded, color: textColor),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    controller.searchRecipes(
+                      controller.searchTextController.text,
                     );
+                    FocusManager.instance.primaryFocus?.unfocus();
                   },
-                ),
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
-                children: [
-                  Text(
-                    recipe.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  icon: const Icon(
+                    Icons.search_rounded,
+                    color: Colors.white,
+                    size: 21,
                   ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    '${recipe.area} • ${recipe.category}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-
-                    style: TextStyle(color: secondaryTextColor, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: primaryColor,
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // =============================================================
-  // SECTION TITLE
-  // =============================================================
-
-  Widget _buildSectionTitle(String title, Color textColor) {
-    return Text(
-      title,
-
-      style: TextStyle(
-        color: textColor,
-        fontSize: 22,
-        fontWeight: FontWeight.w700,
-      ),
-    );
-  }
-
-  // =============================================================
-  // POPULAR SEARCHES
-  // =============================================================
-
-  Widget _buildPopularSearches(
-    Color surfaceColor,
-    Color textColor,
-    Color borderColor,
-  ) {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-
-      children: controller.categories.map((item) {
-        return _buildChip(
-          text: item,
-          surfaceColor: surfaceColor,
-          textColor: textColor,
-          borderColor: borderColor,
-
-          onTap: () {
-            controller.searchRecipes(item);
-          },
-        );
-      }).toList(),
-    );
-  }
-
-  // =============================================================
-  // CUISINE / COUNTRY SECTION
-  // =============================================================
-
-  Widget _buildCuisineSection(
-    Color surfaceColor,
-    Color textColor,
-    Color borderColor,
-  ) {
-    return SizedBox(
-      height: 125,
-
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-
-        itemCount: CountryData.countries.length,
-
-        separatorBuilder: (context, index) {
-          return const SizedBox(width: 12);
-        },
-
-        itemBuilder: (context, index) {
-          final CountryModel country = CountryData.countries[index];
-
-          return _buildCountryItem(
-            country,
-            surfaceColor,
-            textColor,
-            borderColor,
-          );
-        },
-      ),
-    );
-  }
-
-  // =============================================================
-  // COUNTRY ITEM
-  // =============================================================
-
-  Widget _buildCountryItem(
-    CountryModel country,
-    Color surfaceColor,
-    Color textColor,
-    Color borderColor,
-  ) {
-    return InkWell(
-      onTap: () {
-        // Apply country/area filter
-        controller.setArea(country.area);
-      },
-
-      borderRadius: BorderRadius.circular(18),
-
-      child: Container(
-        width: 110,
-
-        padding: const EdgeInsets.all(10),
-
-        decoration: BoxDecoration(
-          color: surfaceColor,
-
-          borderRadius: BorderRadius.circular(18),
-
-          border: Border.all(color: borderColor, width: 1),
-
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Text(country.flag, style: const TextStyle(fontSize: 36)),
-
-            const SizedBox(height: 8),
-
-            Text(
-              country.name,
-
-              maxLines: 1,
-
-              overflow: TextOverflow.ellipsis,
-
-              textAlign: TextAlign.center,
-
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: textColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // =============================================================
-  // NORMAL CHIP
-  // =============================================================
-
-  Widget _buildChip({
-    required String text,
-    required Color surfaceColor,
-    required Color textColor,
-    required Color borderColor,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-
-      borderRadius: BorderRadius.circular(18),
-
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 11),
-
-        decoration: BoxDecoration(
-          color: surfaceColor,
-
-          borderRadius: BorderRadius.circular(18),
-
-          border: Border.all(color: borderColor, width: 1.1),
-        ),
-
-        child: Text(
-          text,
-
-          style: TextStyle(
-            color: textColor,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =============================================================
-  // QUICK FILTERS
-  // =============================================================
-
-  Widget _buildQuickFilters(
-    Color filterColor,
-    Color textColor,
-    Color primaryColor,
-    Color borderColor,
-  ) {
-    final filters = ['Easy', 'Under 30 min', 'Vegetarian'];
-
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-
-      children: filters.map((filter) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 11),
-
-          decoration: BoxDecoration(
-            color: filterColor,
-
-            borderRadius: BorderRadius.circular(18),
-
-            border: Border.all(color: borderColor, width: 1),
-          ),
-
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-
-            children: [
-              Icon(Icons.tune_rounded, color: primaryColor, size: 17),
-
-              const SizedBox(width: 6),
-
-              Text(
-                filter,
-
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-        );
-      }).toList(),
-    );
-  }
-
-  // =============================================================
-  // EMPTY STATE
-  // =============================================================
-
-  Widget _buildEmptyState(
-    Color surfaceColor,
-    Color textColor,
-    Color secondaryTextColor,
-    Color primaryColor,
-    Color borderColor,
-  ) {
-    return SizedBox(
-      width: double.infinity,
-      height: 320,
-
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-
-        children: [
-          Container(
-            width: 88,
-            height: 88,
-
-            decoration: BoxDecoration(
-              color: surfaceColor,
-
-              shape: BoxShape.circle,
-
-              border: Border.all(color: borderColor, width: 1.2),
-            ),
-
-            child: Icon(Icons.search_rounded, color: primaryColor, size: 52),
-          ),
-
-          const SizedBox(height: 22),
-
-          Text(
-            'Search for a recipe',
-
-            textAlign: TextAlign.center,
-
-            style: TextStyle(
-              color: textColor,
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          Text(
-            'Find your favourite recipes by name.',
-
-            textAlign: TextAlign.center,
-
-            style: TextStyle(color: secondaryTextColor, fontSize: 16),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // =============================================================
-  // SEARCH RESULTS
-  // =============================================================
-
-  Widget _buildSearchResults(Color textColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-
-      children: [
-        Text(
-          'Search Results',
-
-          style: TextStyle(
-            color: textColor,
-            fontSize: 23,
-            fontWeight: FontWeight.w700,
-          ),
         ),
 
-        const SizedBox(height: 16),
+        // =========================================================
+        // LIVE SUGGESTIONS
+        // =========================================================
+        Obx(
+          () {
+            if (!controller.showSuggestions.value) {
+              return const SizedBox.shrink();
+            }
 
-        GridView.builder(
-          shrinkWrap: true,
-
-          physics: const NeverScrollableScrollPhysics(),
-
-          itemCount: controller.filteredResults.length,
-
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 15,
-            mainAxisExtent: 260,
-          ),
-
-          itemBuilder: (context, index) {
-            final recipe = controller.filteredResults[index];
-
-            return RecipeCard(
-              recipe: recipe,
-              horizontal: false,
-
-              onTap: () {
-                Get.toNamed(AppRoutes.recipeDetails, arguments: recipe.id);
-              },
+            return _buildSuggestions(
+              surfaceColor,
+              textPrimary,
+              textSecondary,
+              dividerColor,
             );
           },
         ),
@@ -780,47 +276,837 @@ class SearchScreen extends GetView<search_controller.SearchController> {
   }
 
   // =============================================================
-  // ERROR STATE
+  // LIVE SUGGESTIONS
   // =============================================================
-
-  Widget _buildErrorState(Color textColor, Color secondaryTextColor) {
-    return SizedBox(
-      width: double.infinity,
-      height: 250,
-
+  Widget _buildSuggestions(
+    Color surfaceColor,
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: dividerColor),
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-
         children: [
-          const Icon(
-            Icons.error_outline_rounded,
-            color: Colors.redAccent,
-            size: 50,
-          ),
-
-          const SizedBox(height: 12),
-
-          Text(
-            'Something went wrong',
-
-            style: TextStyle(
-              color: textColor,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
+          if (controller.isSuggestionLoading.value)
+            const Padding(
+              padding: EdgeInsets.all(14),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              ),
             ),
-          ),
-
-          const SizedBox(height: 7),
-
-          Text(
-            controller.errorMessage.value,
-
-            textAlign: TextAlign.center,
-
-            style: TextStyle(color: secondaryTextColor, fontSize: 14),
+          ...controller.suggestions.take(5).map(
+            (recipe) {
+              return ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 3,
+                ),
+                leading: _buildRecipeImage(
+                  recipe,
+                  45,
+                  dividerColor,
+                  textSecondary,
+                ),
+                title: Text(
+                  recipe.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                subtitle: Text(
+                  '${recipe.area} • ${recipe.category}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                  color: AppColors.primary,
+                ),
+                onTap: () {
+                  controller.selectSuggestion(recipe);
+                },
+              );
+            },
           ),
         ],
       ),
     );
+  }
+
+  // =============================================================
+  // FILTER ROW
+  // =============================================================
+  Widget _buildFilterRow(
+    BuildContext context,
+    Color surfaceColor,
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
+  ) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: [
+          _buildFilterButton(
+            label: 'Categories',
+            icon: Icons.keyboard_arrow_down_rounded,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            dividerColor: dividerColor,
+            onTap: () {
+              _showCategorySheet(
+                context,
+                surfaceColor,
+                textPrimary,
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          _buildFilterButton(
+            label: 'Cuisine',
+            icon: Icons.keyboard_arrow_down_rounded,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            dividerColor: dividerColor,
+            onTap: () {
+              _showCuisineSheet(
+                context,
+                surfaceColor,
+                textPrimary,
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          _buildFilterButton(
+            label: 'Time',
+            icon: Icons.keyboard_arrow_down_rounded,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            dividerColor: dividerColor,
+            onTap: () {
+              Get.snackbar(
+                'Time',
+                'Time filter will be added next.',
+                snackPosition: SnackPosition.BOTTOM,
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          _buildFilterButton(
+            label: 'Diet',
+            icon: Icons.keyboard_arrow_down_rounded,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            dividerColor: dividerColor,
+            onTap: () {
+              Get.snackbar(
+                'Diet',
+                'Diet filter will be added next.',
+                snackPosition: SnackPosition.BOTTOM,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =============================================================
+  // FILTER BUTTON
+  // =============================================================
+  Widget _buildFilterButton({
+    required String label,
+    required IconData icon,
+    required Color surfaceColor,
+    required Color textPrimary,
+    required Color dividerColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: dividerColor),
+        ),
+        child: Row(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              icon,
+              color: textPrimary,
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =============================================================
+  // ACTIVE FILTERS
+  // =============================================================
+  Widget _buildActiveFilters(
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        if (controller.selectedArea.value != null)
+          _buildActiveChip(
+            text:
+                '${_countryEmoji(controller.selectedArea.value!)} ${controller.selectedArea.value!}',
+            onRemove: controller.clearArea,
+          ),
+        if (controller.selectedCategory.value != null)
+          _buildActiveChip(
+            text: controller.selectedCategory.value!,
+            onRemove: controller.clearCategory,
+          ),
+      ],
+    );
+  }
+
+  // =============================================================
+  // ACTIVE CHIP
+  // =============================================================
+  Widget _buildActiveChip({
+    required String text,
+    required VoidCallback onRemove,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 7,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.25),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            text,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(width: 5),
+          GestureDetector(
+            onTap: onRemove,
+            child: const Icon(
+              Icons.close_rounded,
+              color: AppColors.primary,
+              size: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =============================================================
+  // RECENT SEARCHES
+  // =============================================================
+  Widget _buildRecentSearches(
+    Color surfaceColor,
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Recently Searched',
+              style: TextStyle(
+                color: textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: controller.clearRecentSearches,
+              child: const Text(
+                'Clear all',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: controller.recentSearches.take(5).map(
+              (recipe) {
+                return Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  child: InkWell(
+                    onTap: () {
+                      controller.selectRecipe(recipe);
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: surfaceColor,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: dividerColor),
+                      ),
+                      child: Text(
+                        recipe.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: textPrimary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // =============================================================
+  // RESULTS
+  // =============================================================
+  Widget _buildResults(
+    Color surfaceColor,
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
+  ) {
+    if (controller.isLoading.value) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 60),
+        child: Center(
+          child: CircularProgressIndicator(
+            color: AppColors.primary,
+          ),
+        ),
+      );
+    }
+
+    if (controller.errorMessage.value.isNotEmpty) {
+      return _buildError(
+        textPrimary,
+        textSecondary,
+      );
+    }
+
+    final recipes = controller.filteredResults;
+
+    if (recipes.isEmpty) {
+      return _buildEmptyState(
+        surfaceColor,
+        textPrimary,
+        textSecondary,
+        dividerColor,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Results (${recipes.length})',
+              style: TextStyle(
+                color: textPrimary,
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 13),
+        ...recipes.map(
+          (recipe) {
+            return _buildRecipeCard(
+              recipe,
+              surfaceColor,
+              textPrimary,
+              textSecondary,
+              dividerColor,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // =============================================================
+  // RECIPE CARD
+  // =============================================================
+  Widget _buildRecipeCard(
+    RecipeModel recipe,
+    Color surfaceColor,
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: dividerColor),
+      ),
+      child: Row(
+        children: [
+          _buildRecipeImage(
+            recipe,
+            88,
+            dividerColor,
+            textSecondary,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  recipe.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  '${recipe.area} • ${recipe.category}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textSecondary,
+                    fontSize: 11,
+                  ),
+                ),
+                const SizedBox(height: 9),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.star_rounded,
+                      color: AppColors.primary,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      '4.8',
+                      style: TextStyle(
+                        color: textPrimary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Icon(
+                      Icons.timer_outlined,
+                      color: textSecondary,
+                      size: 15,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      '30 min',
+                      style: TextStyle(
+                        color: textSecondary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            onPressed: () {
+              // Favorite functionality can be connected later.
+            },
+            icon: Icon(
+              Icons.favorite_border_rounded,
+              color: textSecondary,
+              size: 21,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =============================================================
+  // RECIPE IMAGE
+  // =============================================================
+  Widget _buildRecipeImage(
+    RecipeModel recipe,
+    double size,
+    Color dividerColor,
+    Color textSecondary,
+  ) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: Image.network(
+        recipe.image,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return Container(
+            width: size,
+            height: size,
+            color: dividerColor,
+            child: Icon(
+              Icons.restaurant_rounded,
+              color: textSecondary,
+              size: 28,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // =============================================================
+  // EMPTY STATE
+  // =============================================================
+  Widget _buildEmptyState(
+    Color surfaceColor,
+    Color textPrimary,
+    Color textSecondary,
+    Color dividerColor,
+  ) {
+    final hasFilter = controller.hasActiveFilters;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 25),
+      padding: const EdgeInsets.symmetric(
+        vertical: 45,
+        horizontal: 20,
+      ),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: dividerColor),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.10),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.explore_rounded,
+              color: AppColors.primary,
+              size: 36,
+            ),
+          ),
+          const SizedBox(height: 15),
+          Text(
+            hasFilter ? 'No recipes found' : 'Start exploring',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: textPrimary,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            hasFilter
+                ? 'Try another country or category.'
+                : 'Search for a recipe or select a filter.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: textSecondary,
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =============================================================
+  // ERROR
+  // =============================================================
+  Widget _buildError(
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 25),
+      padding: const EdgeInsets.all(25),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            color: AppColors.error,
+            size: 48,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Something went wrong',
+            style: TextStyle(
+              color: textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            controller.errorMessage.value,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: textSecondary,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =============================================================
+  // CATEGORY BOTTOM SHEET
+  // =============================================================
+  void _showCategorySheet(
+    BuildContext context,
+    Color surfaceColor,
+    Color textPrimary,
+  ) {
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(25),
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 25),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Categories',
+                style: TextStyle(
+                  color: textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: controller.categories.map(
+                  (category) {
+                    return ActionChip(
+                      label: Text(category),
+                      onPressed: () {
+                        Get.back();
+                        controller.setCategory(category);
+                      },
+                    );
+                  },
+                ).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =============================================================
+  // CUISINE BOTTOM SHEET
+  // =============================================================
+  void _showCuisineSheet(
+    BuildContext context,
+    Color surfaceColor,
+    Color textPrimary,
+  ) {
+    Get.bottomSheet(
+      Container(
+        height: MediaQuery.of(context).size.height * 0.65,
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(25),
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Text(
+                      'Cuisine',
+                      style: TextStyle(
+                        color: textPrimary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: Get.back,
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: controller.areas.length,
+                  itemBuilder: (context, index) {
+                    final area = controller.areas[index];
+
+                    return ListTile(
+                      leading: Text(
+                        _countryEmoji(area),
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                      title: Text(area),
+                      trailing: controller.selectedArea.value == area
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: AppColors.primary,
+                            )
+                          : null,
+                      onTap: () {
+                        Get.back();
+                        controller.setArea(area);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =============================================================
+  // COUNTRY EMOJI
+  // =============================================================
+  String _countryEmoji(String country) {
+    switch (country.toLowerCase()) {
+      case 'pakistani':
+      case 'pakistan':
+        return '🇵🇰';
+      case 'indian':
+      case 'india':
+        return '🇮🇳';
+      case 'italian':
+      case 'italy':
+        return '🇮🇹';
+      case 'chinese':
+      case 'china':
+        return '🇨🇳';
+      case 'mexican':
+      case 'mexico':
+        return '🇲🇽';
+      case 'japanese':
+      case 'japan':
+        return '🇯🇵';
+      case 'american':
+        return '🇺🇸';
+      case 'british':
+        return '🇬🇧';
+      case 'canadian':
+        return '🇨🇦';
+      case 'french':
+      case 'france':
+        return '🇫🇷';
+      case 'greek':
+      case 'greece':
+        return '🇬🇷';
+      case 'spanish':
+      case 'spain':
+        return '🇪🇸';
+      case 'thai':
+      case 'thailand':
+        return '🇹🇭';
+      case 'turkish':
+      case 'turkey':
+        return '🇹🇷';
+      default:
+        return '🌎';
+    }
   }
 }

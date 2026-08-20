@@ -2,123 +2,121 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../controllers/search_controller.dart'
+import 'package:recipe_app/core/theme/app_colors.dart';
+import 'package:recipe_app/features/search/controllers/search_controller.dart'
     as search_controller;
 
 class SearchFilter extends StatelessWidget {
-  const SearchFilter({
-    super.key,
-  });
+  const SearchFilter({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final search_controller.SearchController controller =
-        Get.find<search_controller.SearchController>();
+    final controller = Get.find<search_controller.SearchController>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Obx(() {
-      final hasFilters = controller.hasActiveFilters;
+      final hasCategory = controller.selectedCategory.value != null;
+      final hasArea = controller.selectedArea.value != null;
+      final hasFilters = hasCategory || hasArea;
 
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          // =========================================================
-          // WIDE SCREEN
-          // =========================================================
-
-          if (constraints.maxWidth >= 600) {
-            return Row(
-              children: [
-                Expanded(
-                  child: _FilterDropdown(
-                    icon: Icons.category_outlined,
-                    label: 'Category',
-                    value: controller.selectedCategory.value,
-                    items: controller.categories,
-                    onChanged: controller.setCategory,
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: _FilterDropdown(
-                    icon: Icons.public_rounded,
-                    label: 'Cuisine',
-                    value: controller.selectedArea.value,
-                    items: controller.areas,
-                    onChanged: controller.setArea,
-                  ),
-                ),
-
-                if (hasFilters) ...[
-                  const SizedBox(width: 6),
-                  _ClearFilterButton(
-                    onPressed: controller.clearFilters,
-                  ),
-                ],
-              ],
-            );
-          }
-
-          // =========================================================
-          // SMALL SCREEN
-          // =========================================================
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: _FilterDropdown(
-                      icon: Icons.category_outlined,
-                      label: 'Category',
-                      value: controller.selectedCategory.value,
-                      items: controller.categories,
-                      onChanged: controller.setCategory,
-                    ),
-                  ),
-
-                  const SizedBox(width: 8),
-
-                  Expanded(
-                    child: _FilterDropdown(
-                      icon: Icons.public_rounded,
-                      label: 'Cuisine',
-                      value: controller.selectedArea.value,
-                      items: controller.areas,
-                      onChanged: controller.setArea,
-                    ),
-                  ),
-                ],
+              // =========================================================
+              // CATEGORY DROPDOWN
+              // =========================================================
+              Expanded(
+                child: _FilterDropdown(
+                  icon: Icons.restaurant_menu_rounded,
+                  label: 'Category',
+                  value: controller.selectedCategory.value,
+                  items: controller.categories,
+                  onChanged: controller.setCategory,
+                ),
               ),
 
-              if (hasFilters) ...[
-                const SizedBox(height: 8),
+              const SizedBox(width: 10),
 
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    onPressed: controller.clearFilters,
-                    icon: const Icon(
-                      Icons.filter_alt_off_rounded,
-                      size: 18,
+              // =========================================================
+              // COUNTRY / CUISINE DROPDOWN
+              // =========================================================
+              Expanded(
+                child: _FilterDropdown(
+                  icon: Icons.public_rounded,
+                  label: 'Country',
+                  value: controller.selectedArea.value,
+                  items: controller.areas,
+                  onChanged: controller.setArea,
+                ),
+              ),
+            ],
+          ),
+
+          // =========================================================
+          // CLEAR FILTERS BUTTON & ACTIVE BADGES
+          // =========================================================
+          if (hasFilters) ...[
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        if (hasCategory) ...[
+                          _FilterBadge(
+                            label: controller.selectedCategory.value!,
+                            onClear: () => controller.setCategory(null),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        if (hasArea) ...[
+                          _FilterBadge(
+                            label: controller.selectedArea.value!,
+                            onClear: () => controller.setArea(null),
+                          ),
+                        ],
+                      ],
                     ),
-                    label: const Text(
-                      'Clear Filters',
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    controller.setCategory(null);
+                    controller.setArea(null);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    foregroundColor: AppColors.primary,
+                  ),
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    size: 16,
+                  ),
+                  label: const Text(
+                    'Clear filters',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ],
-            ],
-          );
-        },
+            ),
+          ],
+        ],
       );
     });
   }
 }
 
 // =============================================================
-// FILTER DROPDOWN
+// THEME-AWARE FILTER DROPDOWN
 // =============================================================
 
 class _FilterDropdown extends StatelessWidget {
@@ -139,156 +137,94 @@ class _FilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final surfaceColor = isDark
+        ? theme.colorScheme.surfaceContainerHighest
+        : theme.colorScheme.surface;
+
+    final textColor = theme.colorScheme.onSurface;
+    final secondaryColor = theme.colorScheme.onSurfaceVariant;
+
+    final borderColor = isDark
+        ? Colors.white10
+        : theme.dividerColor.withValues(alpha: 0.15);
+
+    final validValue = items.contains(value) ? value : null;
 
     return Container(
-      height: 50,
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: theme.dividerColor.withValues(
-            alpha: 0.12,
-          ),
-        ),
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor),
       ),
       child: DropdownButtonHideUnderline(
-        child: DropdownButton<String?>(
-          value: value,
+        child: DropdownButton<String>(
+          value: validValue,
           isExpanded: true,
-          isDense: true,
-          menuMaxHeight: 320,
-
-          // =======================================================
-          // DROPDOWN ICON
-          // =======================================================
-
-          icon: Padding(
-            padding: const EdgeInsets.only(
-              right: 8,
-            ),
-            child: Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 21,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: secondaryColor,
           ),
+          dropdownColor: surfaceColor,
 
-          // =======================================================
+          // ==============================
           // HINT
-          // =======================================================
-
-          hint: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  size: 18,
-                  color: theme.colorScheme.primary,
-                ),
-
-                const SizedBox(width: 7),
-
-                Expanded(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface,
-                    ),
+          // ==============================
+          hint: Row(
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: secondaryColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
 
-          // =======================================================
-          // MENU ITEMS
-          // =======================================================
-
+          // ==============================
+          // DROPDOWN ITEMS
+          // ==============================
           items: [
-            DropdownMenuItem<String?>(
+            DropdownMenuItem<String>(
               value: null,
-              child: Row(
-                children: [
-                  Icon(
-                    icon,
-                    size: 17,
-                    color: theme.colorScheme.primary,
-                  ),
-
-                  const SizedBox(width: 8),
-
-                  Expanded(
-                    child: Text(
-                      'All $label',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                'All $label\s',
+                style: TextStyle(
+                  color: secondaryColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-
-            ...items.map(
-              (item) {
-                return DropdownMenuItem<String?>(
-                  value: item,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 2,
-                    ),
-                    child: Text(
-                      item,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
+            ...items.toSet().map((item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(
+                  item,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }),
           ],
-
-          // =======================================================
-          // SELECTED ITEM
-          // =======================================================
-
-          selectedItemBuilder: (context) {
-            return [
-              _SelectedFilterItem(
-                icon: icon,
-                text: label,
-              ),
-
-              ...items.map(
-                (item) {
-                  return _SelectedFilterItem(
-                    icon: icon,
-                    text: item,
-                  );
-                },
-              ),
-            ];
-          },
-
-          // =======================================================
-          // CHANGE
-          // =======================================================
-
           onChanged: onChanged,
         ),
       ),
@@ -297,72 +233,50 @@ class _FilterDropdown extends StatelessWidget {
 }
 
 // =============================================================
-// SELECTED FILTER ITEM
+// ACTIVE FILTER BADGE CHIP
 // =============================================================
 
-class _SelectedFilterItem extends StatelessWidget {
-  final IconData icon;
-  final String text;
+class _FilterBadge extends StatelessWidget {
+  final String label;
+  final VoidCallback onClear;
 
-  const _SelectedFilterItem({
-    required this.icon,
-    required this.text,
+  const _FilterBadge({
+    required this.label,
+    required this.onClear,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.25),
+        ),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 18,
-            color: theme.colorScheme.primary,
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-
-          const SizedBox(width: 7),
-
-          Expanded(
-            child: Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-              ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: onClear,
+            child: const Icon(
+              Icons.close_rounded,
+              size: 14,
+              color: AppColors.primary,
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// =============================================================
-// CLEAR FILTER BUTTON
-// =============================================================
-
-class _ClearFilterButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const _ClearFilterButton({
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: 'Clear filters',
-      onPressed: onPressed,
-      icon: const Icon(
-        Icons.filter_alt_off_rounded,
       ),
     );
   }

@@ -25,9 +25,7 @@ class ProfileOptionTile extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     // Theme-aware primary color
-    final primaryColor = isDark
-        ? AppColors.darkPrimary
-        : AppColors.primary;
+    final primaryColor = AppColors.primary;
 
     // Use custom color for special actions
     final effectiveIconColor = iconColor ?? primaryColor;

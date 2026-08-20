@@ -9,81 +9,68 @@ class CountryData {
       flag: '🇵🇰',
       area: 'Pakistani',
     ),
-
     CountryModel(
       name: 'India',
       flag: '🇮🇳',
       area: 'Indian',
     ),
-
     CountryModel(
       name: 'Italy',
       flag: '🇮🇹',
       area: 'Italian',
     ),
-
     CountryModel(
       name: 'France',
       flag: '🇫🇷',
       area: 'French',
     ),
-
     CountryModel(
       name: 'China',
       flag: '🇨🇳',
       area: 'Chinese',
     ),
-
     CountryModel(
       name: 'Japan',
       flag: '🇯🇵',
       area: 'Japanese',
     ),
-
     CountryModel(
       name: 'Mexico',
       flag: '🇲🇽',
       area: 'Mexican',
     ),
-
     CountryModel(
       name: 'Thailand',
       flag: '🇹🇭',
       area: 'Thai',
     ),
-
     CountryModel(
       name: 'Turkey',
       flag: '🇹🇷',
       area: 'Turkish',
     ),
-
     CountryModel(
       name: 'United States',
       flag: '🇺🇸',
       area: 'American',
     ),
-
     CountryModel(
-      name: 'British',
+      name: 'United Kingdom',
       flag: '🇬🇧',
       area: 'British',
     ),
-
     CountryModel(
-      name: 'Canadian',
+      name: 'Canada',
       flag: '🇨🇦',
       area: 'Canadian',
     ),
-
     CountryModel(
-      name: 'Greek',
+      name: 'Greece',
       flag: '🇬🇷',
       area: 'Greek',
     ),
-
     CountryModel(
-      name: 'Spanish',
+      name: 'Spain',
       flag: '🇪🇸',
       area: 'Spanish',
     ),

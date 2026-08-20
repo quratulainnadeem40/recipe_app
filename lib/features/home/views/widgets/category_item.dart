@@ -1,78 +1,75 @@
 import 'package:flutter/material.dart';
-
 import '../../../../core/theme/app_colors.dart';
 
 class CategoryItem extends StatelessWidget {
   final String title;
+  final String? imagePath;
   final IconData? icon;
   final VoidCallback? onTap;
 
   const CategoryItem({
     super.key,
     required this.title,
+    this.imagePath,
     this.icon,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 100,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 10,
-        ),
+        width: 68,
+        height: 78,
         decoration: BoxDecoration(
-          // Light mode → white card
-          // Dark mode → dark surface card
-          color: isDark
-              ? AppColors.darkSurface
-              : AppColors.lightSurface,
-
-          borderRadius: BorderRadius.circular(16),
-
-          boxShadow: [
+          color: AppColors.categoryCard,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: const [
             BoxShadow(
-              color: Colors.black.withValues(
-                alpha: isDark ? 0.25 : 0.08,
-              ),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+              color: AppColors.shadow,
+              blurRadius: 6,
+              offset: Offset(0, 3),
             ),
           ],
         ),
-
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon ?? Icons.restaurant_menu,
-              size: 30,
-              color: isDark
-                  ? AppColors.darkPrimary
-                  : AppColors.orange,
+            // Category Icon or Image Asset
+            SizedBox(
+              height: 34,
+              width: 34,
+              child: imagePath != null
+                  ? Image.asset(
+                      imagePath!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        icon ?? Icons.fastfood_rounded,
+                        color: AppColors.textWhite,
+                        size: 26,
+                      ),
+                    )
+                  : Icon(
+                      icon ?? Icons.fastfood_rounded,
+                      color: AppColors.textWhite,
+                      size: 26,
+                    ),
             ),
+            const SizedBox(height: 6),
 
-            const SizedBox(height: 8),
-
+            // Category Label Text
             Text(
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
+              style: const TextStyle(
+                color: AppColors.textWhite,
+                fontSize: 10.5,
                 fontWeight: FontWeight.w600,
-
-                // Theme-aware text
-                color: isDark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.textPrimary,
+                letterSpacing: -0.2,
               ),
             ),
           ],

@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../controllers/search_controller.dart'
+import 'package:recipe_app/core/theme/app_colors.dart';
+import 'package:recipe_app/features/home/models/recipe_models.dart';
+import 'package:recipe_app/features/search/controllers/search_controller.dart'
     as search_controller;
 
-import '../../../home/models/recipe_models.dart';
-
 class SearchSuggestions extends StatelessWidget {
-  const SearchSuggestions({
-    super.key,
-  });
+  const SearchSuggestions({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller =
-        Get.find<search_controller.SearchController>();
+    final controller = Get.find<search_controller.SearchController>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Obx(
       () {
         // =====================================================
         // NO QUERY
         // =====================================================
-
         if (controller.searchQuery.value.trim().isEmpty) {
           return const SizedBox.shrink();
         }
@@ -29,32 +27,39 @@ class SearchSuggestions extends StatelessWidget {
         // =====================================================
         // LOADING
         // =====================================================
-
         if (controller.isSuggestionLoading.value) {
           return Container(
-            margin: const EdgeInsets.only(
-              top: 8,
-            ),
+            margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surface,
-              borderRadius:
-                  BorderRadius.circular(14),
+              color: isDark
+                  ? theme.colorScheme.surfaceContainerHighest
+                  : theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white10
+                    : theme.colorScheme.outline.withValues(alpha: 0.12),
+              ),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                SizedBox(
-                  width: 20,
-                  height: 20,
+                const SizedBox(
+                  width: 18,
+                  height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
+                    color: AppColors.primary,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
                   'Finding recipes...',
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -64,70 +69,57 @@ class SearchSuggestions extends StatelessWidget {
         // =====================================================
         // NO SUGGESTIONS
         // =====================================================
-
         if (controller.suggestions.isEmpty) {
           return const SizedBox.shrink();
         }
 
         // =====================================================
-        // SUGGESTION LIST
+        // SUGGESTION LIST CONTAINER
         // =====================================================
+        final containerBg = isDark
+            ? theme.colorScheme.surfaceContainerHighest
+            : theme.colorScheme.surface;
+
+        final borderColor = isDark
+            ? Colors.white10
+            : theme.colorScheme.outline.withValues(alpha: 0.12);
 
         return Container(
-          margin: const EdgeInsets.only(
-            top: 8,
-          ),
-          constraints: const BoxConstraints(
-            maxHeight: 380,
-          ),
+          margin: const EdgeInsets.only(top: 8),
+          constraints: const BoxConstraints(maxHeight: 380),
           decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .surface,
-            borderRadius:
-                BorderRadius.circular(14),
-            border: Border.all(
-              color: Theme.of(context)
-                  .colorScheme
-                  .outline
-                  .withValues(alpha: 0.15),
-            ),
-            boxShadow: const [
-              BoxShadow(
-                blurRadius: 12,
-                offset: Offset(0, 4),
-                color: Colors.black12,
-              ),
-            ],
+            color: containerBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: borderColor),
+            boxShadow: isDark
+                ? []
+                : [
+                    BoxShadow(
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                      color: Colors.black.withValues(alpha: 0.08),
+                    ),
+                  ],
           ),
           child: ListView.separated(
             shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(
-              vertical: 6,
-            ),
-            itemCount:
-                controller.suggestions.length,
-            separatorBuilder:
-                (context, index) {
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            itemCount: controller.suggestions.length,
+            separatorBuilder: (context, index) {
               return Divider(
                 height: 1,
-                color: Theme.of(context)
-                    .colorScheme
-                    .outline
-                    .withValues(alpha: 0.10),
+                color: isDark
+                    ? Colors.white10
+                    : theme.colorScheme.outline.withValues(alpha: 0.08),
               );
             },
-            itemBuilder:
-                (context, index) {
-              final recipe =
-                  controller.suggestions[index];
+            itemBuilder: (context, index) {
+              final recipe = controller.suggestions[index];
 
               return _SuggestionItem(
                 recipe: recipe,
                 onTap: () {
-                  controller.selectSuggestion(
-                    recipe,
-                  );
+                  controller.selectSuggestion(recipe);
                 },
               );
             },
@@ -155,45 +147,37 @@ class _SuggestionItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // IMPORTANT:
-    // Material + Ink fixes the Flutter
-    // "ListTile background color or ink splashes"
-    // warning.
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 7,
+            horizontal: 12,
+            vertical: 8,
           ),
           child: Row(
             children: [
               // =================================================
-              // IMAGE
+              // RECIPE IMAGE
               // =================================================
-
               ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
                 child: Image.network(
                   recipe.image,
-                  width: 48,
-                  height: 48,
+                  width: 46,
+                  height: 46,
                   fit: BoxFit.cover,
-                  errorBuilder:
-                      (context, error, stackTrace) {
+                  errorBuilder: (context, error, stackTrace) {
                     return Container(
-                      width: 48,
-                      height: 48,
-                      color: theme
-                          .colorScheme
-                          .surfaceContainerHighest,
-                      child: const Icon(
-                        Icons
-                            .restaurant_rounded,
+                      width: 46,
+                      height: 46,
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      child: Icon(
+                        Icons.restaurant_rounded,
+                        size: 20,
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     );
                   },
@@ -205,36 +189,28 @@ class _SuggestionItem extends StatelessWidget {
               // =================================================
               // RECIPE INFORMATION
               // =================================================
-
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       recipe.name,
                       maxLines: 1,
-                      overflow:
-                          TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
                         fontSize: 14,
-                        fontWeight:
-                            FontWeight.w600,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
-
-                    const SizedBox(height: 4),
-
+                    const SizedBox(height: 3),
                     Text(
                       '${recipe.area} • ${recipe.category}',
                       maxLines: 1,
-                      overflow:
-                          TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
-                        color: theme
-                            .colorScheme
-                            .onSurfaceVariant,
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -243,10 +219,10 @@ class _SuggestionItem extends StatelessWidget {
 
               const SizedBox(width: 8),
 
-              const Icon(
-                Icons
-                    .arrow_forward_ios_rounded,
-                size: 14,
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 13,
+                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
               ),
             ],
           ),

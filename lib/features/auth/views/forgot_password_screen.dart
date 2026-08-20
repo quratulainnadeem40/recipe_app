@@ -19,10 +19,10 @@ class ForgotPasswordScreen extends GetView<AuthController> {
     final formKey = GlobalKey<FormState>();
 
     return Scaffold(
-      backgroundColor: AppColors.lightBackground,
+      backgroundColor: AppColors.background,
 
       appBar: AppBar(
-        backgroundColor: AppColors.lightBackground,
+        backgroundColor: AppColors.darkBackground,
         title: const Text(
           'Forgot Password',
         ),
