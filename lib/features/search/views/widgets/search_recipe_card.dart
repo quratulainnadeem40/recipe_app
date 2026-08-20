@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,140 +18,265 @@ class SearchRecipeCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final cardBackground = isDark
-        ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4)
-        : theme.colorScheme.surface;
+    final surface = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
 
-    final borderColor = isDark
-        ? Colors.white10
-        : theme.dividerColor.withValues(alpha: 0.12);
+    final primaryText = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: borderColor),
-        boxShadow: isDark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          onTap: () {
-            Get.toNamed(
-              AppRoutes.recipeDetails,
-              arguments: recipe.id,
-            );
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // =====================================================
-              // RECIPE IMAGE
-              // =====================================================
-              AspectRatio(
-                aspectRatio: 1.3,
-                child: Image.network(
-                  recipe.image,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      child: Center(
-                        child: Icon(
-                          Icons.restaurant_rounded,
-                          size: 36,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    );
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
+    final secondaryText = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
 
-                    return Container(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      child: const Center(
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+    final border = isDark
+        ? AppColors.darkBorder
+        : AppColors.border;
 
-              // =====================================================
-              // RECIPE INFORMATION
-              // =====================================================
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // RECIPE NAME
-                    Text(
-                      recipe.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface,
-                        height: 1.25,
-                      ),
-                    ),
+    return InkWell(
+      onTap: () {
+        if (recipe.id.trim().isEmpty) {
+          return;
+        }
 
-                    const SizedBox(height: 8),
-
-                    // AREA & CATEGORY CHIP
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '${recipe.area} • ${recipe.category}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        Get.toNamed(
+          AppRoutes.recipeDetails,
+          arguments: recipe.id,
+        );
+      },
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: border,
           ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // =====================================================
+            // RECIPE IMAGE
+            // =====================================================
+
+            SizedBox(
+              height: 135,
+              width: double.infinity,
+              child: _buildImage(
+                recipe.image,
+                surface,
+                secondaryText,
+              ),
+            ),
+
+            // =====================================================
+            // RECIPE INFORMATION
+            // =====================================================
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                11,
+                10,
+                11,
+                11,
+              ),
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    recipe.name.trim().isNotEmpty
+                        ? recipe.name
+                        : 'Unknown Recipe',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: primaryText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                    ),
+                  ),
+
+                  const SizedBox(height: 7),
+
+                  // =================================================
+                  // AREA + CATEGORY
+                  // =================================================
+
+                  Text(
+                    _meta(recipe),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: secondaryText,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 9),
+
+                  // =================================================
+                  // BOTTOM INFO
+                  // =================================================
+
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        color: AppColors.ratingStar,
+                        size: 16,
+                      ),
+
+                      const SizedBox(width: 3),
+
+                      Text(
+                        '4.8',
+                        style: TextStyle(
+                          color: primaryText,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+
+                      const Spacer(),
+
+                      const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: AppColors.primary,
+                        size: 17,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  // =============================================================
+  // IMAGE
+  // =============================================================
+
+  Widget _buildImage(
+    String imageUrl,
+    Color background,
+    Color iconColor,
+  ) {
+    final url = imageUrl.trim();
+
+    if (url.isEmpty) {
+      return _placeholder(
+        background,
+        iconColor,
+      );
+    }
+
+    return Image.network(
+      url,
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.cover,
+
+      // ---------------------------------------------------------
+      // ERROR
+      // ---------------------------------------------------------
+
+      errorBuilder: (
+        context,
+        error,
+        stackTrace,
+      ) {
+        return _placeholder(
+          background,
+          iconColor,
+        );
+      },
+
+      // ---------------------------------------------------------
+      // LOADING
+      // ---------------------------------------------------------
+
+      loadingBuilder: (
+        context,
+        child,
+        loadingProgress,
+      ) {
+        if (loadingProgress == null) {
+          return child;
+        }
+
+        return _placeholder(
+          background,
+          iconColor,
+          loading: true,
+        );
+      },
+    );
+  }
+
+  // =============================================================
+  // PLACEHOLDER
+  // =============================================================
+
+  Widget _placeholder(
+    Color background,
+    Color iconColor, {
+    bool loading = false,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: background,
+      child: Center(
+        child: loading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.2,
+                  color: AppColors.primary,
+                ),
+              )
+            : Icon(
+                Icons.restaurant_rounded,
+                color: iconColor,
+                size: 34,
+              ),
+      ),
+    );
+  }
+
+  // =============================================================
+  // META
+  // =============================================================
+
+  String _meta(
+    RecipeModel recipe,
+  ) {
+    final area = recipe.area.trim();
+    final category = recipe.category.trim();
+
+    if (area.isNotEmpty && category.isNotEmpty) {
+      return '$area • $category';
+    }
+
+    if (area.isNotEmpty) {
+      return area;
+    }
+
+    if (category.isNotEmpty) {
+      return category;
+    }
+
+    return 'Recipe';
   }
 }

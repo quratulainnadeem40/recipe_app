@@ -1,49 +1,83 @@
-
 import 'package:get/get.dart';
 
-import '../controllers/navigation_controller.dart';
-
-import '../../home/bindings/home_binding.dart';
-import '../../profile/bindings/profile_binding.dart';
-import '../../favorites/controllers/favorites_controller.dart';
-import '../../search/bindings/search_binding.dart';
+import 'package:recipe_app/core/services/api_service.dart';
+import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
+import 'package:recipe_app/features/home/controllers/home_controller.dart';
+import 'package:recipe_app/features/home/repositories/home_repository.dart';
+import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
+import 'package:recipe_app/features/profile/controllers/profile_controller.dart';
+import 'package:recipe_app/features/search/controllers/search_controller.dart';
 
 class NavigationBinding extends Bindings {
   @override
   void dependencies() {
-    // =========================================================
+    // ============================================================
+    // API SERVICE
+    // ============================================================
+
+    Get.lazyPut<ApiService>(
+      () => ApiService(),
+      fenix: true,
+    );
+
+    // ============================================================
     // NAVIGATION CONTROLLER
-    // =========================================================
+    // ============================================================
 
     Get.lazyPut<NavigationController>(
       () => NavigationController(),
+      fenix: true,
     );
 
-    // =========================================================
-    // HOME CONTROLLER + REPOSITORY
-    // =========================================================
+    // ============================================================
+    // HOME REPOSITORY
+    // ============================================================
 
-    HomeBinding().dependencies();
+    Get.lazyPut<HomeRepository>(
+      () => HomeRepository(
+        apiService: Get.find<ApiService>(),
+      ),
+      fenix: true,
+    );
 
-    // =========================================================
-    // PROFILE CONTROLLER
-    // =========================================================
+    // ============================================================
+    // HOME CONTROLLER
+    // ============================================================
 
-    ProfileBinding().dependencies();
+    Get.lazyPut<HomeController>(
+      () => HomeController(
+        repository: Get.find<HomeRepository>(),
+      ),
+      fenix: true,
+    );
 
-    // =========================================================
-    // FAVORITES CONTROLLER
-    // =========================================================
+    // ============================================================
+    // SEARCH CONTROLLER
+    // ============================================================
+
+    Get.lazyPut<SearchController>(
+      () => SearchController(
+        repository: Get.find<HomeRepository>(),
+      ),
+      fenix: true,
+    );
+
+    // ============================================================
+    // FAVORITES
+    // ============================================================
 
     Get.lazyPut<FavoritesController>(
       () => FavoritesController(),
+      fenix: true,
     );
 
-    // =========================================================
-    // SEARCH CONTROLLER + REPOSITORY
-    // =========================================================
+    // ============================================================
+    // PROFILE
+    // ============================================================
 
-    SearchBinding().dependencies();
+    Get.lazyPut<ProfileController>(
+      () => ProfileController(),
+      fenix: true,
+    );
   }
 }
-

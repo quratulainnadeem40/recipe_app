@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,35 +10,104 @@ class ChangePasswordScreen extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
+    // =========================================================
+    // THEME
+    // =========================================================
+
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    // =========================================================
+    // COLORS
+    // =========================================================
+
+    final backgroundColor = isDark
+        ? AppColors.darkBackground
+        : AppColors.background;
+
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
+
+    final primaryTextColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    final secondaryTextColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    final borderColor = isDark
+        ? AppColors.darkBorder
+        : AppColors.border;
+
+    final iconColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    // =========================================================
+    // SCREEN
+    // =========================================================
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
+
+      // =======================================================
+      // APP BAR
+      // =======================================================
+
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
+        backgroundColor: backgroundColor,
+
+        surfaceTintColor: Colors.transparent,
+
+        iconTheme: IconThemeData(
+          color: isDark
+              ? AppColors.darkTextPrimary
+              : AppColors.primary,
+        ),
+
         title: Text(
           'Change Password',
+
           style: AppTextStyles.headingMedium.copyWith(
-            color: AppColors.primary,
+            color: primaryTextColor,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
+
+      // =======================================================
+      // BODY
+      // =======================================================
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
+
           child: Form(
             key: controller.changePasswordFormKey,
+
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
               children: [
-                // =====================================================
+                // =================================================
                 // HEADER
-                // =====================================================
+                // =================================================
 
                 Text(
                   'Update your password',
+
                   style: AppTextStyles.headingSmall.copyWith(
-                    color: AppColors.primary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.primary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -47,27 +115,118 @@ class ChangePasswordScreen extends GetView<ProfileController> {
 
                 Text(
                   'Enter your current password and choose a new password.',
-                  style: AppTextStyles.bodyMedium,
+
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: secondaryTextColor,
+                    height: 1.5,
+                  ),
                 ),
 
                 const SizedBox(height: 28),
 
-                // =====================================================
+                // =================================================
                 // CURRENT PASSWORD
-                // =====================================================
+                // =================================================
 
                 TextFormField(
-                  controller: controller.currentPasswordController,
+                  controller:
+                      controller.currentPasswordController,
+
                   obscureText: true,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
+
+                  textInputAction:
+                      TextInputAction.next,
+
+                  style: TextStyle(
+                    color: primaryTextColor,
+                    fontSize: 14,
+                  ),
+
+                  cursorColor:
+                      AppColors.primary,
+
+                  decoration: InputDecoration(
                     labelText: 'Current Password',
+
+                    labelStyle: TextStyle(
+                      color: secondaryTextColor,
+                    ),
+
+                    floatingLabelStyle:
+                        const TextStyle(
+                      color: AppColors.primary,
+                    ),
+
                     prefixIcon: Icon(
                       Icons.lock_outline_rounded,
+                      color: iconColor,
+                    ),
+
+                    filled: true,
+                    fillColor: surfaceColor,
+
+                    contentPadding:
+                        const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: borderColor,
+                      ),
+                    ),
+
+                    enabledBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: borderColor,
+                      ),
+                    ),
+
+                    focusedBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide:
+                          const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
+
+                    errorBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: AppColors.error,
+                      ),
+                    ),
+
+                    focusedErrorBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: AppColors.error,
+                        width: 1.5,
+                      ),
+                    ),
+
+                    errorStyle: TextStyle(
+                      color: AppColors.error,
+                      fontSize: 11,
                     ),
                   ),
+
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
+                    if (value == null ||
+                        value.trim().isEmpty) {
                       return 'Please enter your current password';
                     }
 
@@ -77,22 +236,109 @@ class ChangePasswordScreen extends GetView<ProfileController> {
 
                 const SizedBox(height: 16),
 
-                // =====================================================
+                // =================================================
                 // NEW PASSWORD
-                // =====================================================
+                // =================================================
 
                 TextFormField(
-                  controller: controller.newPasswordController,
+                  controller:
+                      controller.newPasswordController,
+
                   obscureText: true,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
+
+                  textInputAction:
+                      TextInputAction.next,
+
+                  style: TextStyle(
+                    color: primaryTextColor,
+                    fontSize: 14,
+                  ),
+
+                  cursorColor:
+                      AppColors.primary,
+
+                  decoration: InputDecoration(
                     labelText: 'New Password',
+
+                    labelStyle: TextStyle(
+                      color: secondaryTextColor,
+                    ),
+
+                    floatingLabelStyle:
+                        const TextStyle(
+                      color: AppColors.primary,
+                    ),
+
                     prefixIcon: Icon(
                       Icons.lock_outline_rounded,
+                      color: iconColor,
+                    ),
+
+                    filled: true,
+                    fillColor: surfaceColor,
+
+                    contentPadding:
+                        const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: borderColor,
+                      ),
+                    ),
+
+                    enabledBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: borderColor,
+                      ),
+                    ),
+
+                    focusedBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide:
+                          const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
+
+                    errorBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: AppColors.error,
+                      ),
+                    ),
+
+                    focusedErrorBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: AppColors.error,
+                        width: 1.5,
+                      ),
+                    ),
+
+                    errorStyle: TextStyle(
+                      color: AppColors.error,
+                      fontSize: 11,
                     ),
                   ),
+
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
+                    if (value == null ||
+                        value.trim().isEmpty) {
                       return 'Please enter a new password';
                     }
 
@@ -106,27 +352,117 @@ class ChangePasswordScreen extends GetView<ProfileController> {
 
                 const SizedBox(height: 16),
 
-                // =====================================================
+                // =================================================
                 // CONFIRM PASSWORD
-                // =====================================================
+                // =================================================
 
                 TextFormField(
-                  controller: controller.confirmPasswordController,
+                  controller:
+                      controller.confirmPasswordController,
+
                   obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm New Password',
+
+                  textInputAction:
+                      TextInputAction.done,
+
+                  style: TextStyle(
+                    color: primaryTextColor,
+                    fontSize: 14,
+                  ),
+
+                  cursorColor:
+                      AppColors.primary,
+
+                  decoration: InputDecoration(
+                    labelText:
+                        'Confirm New Password',
+
+                    labelStyle: TextStyle(
+                      color: secondaryTextColor,
+                    ),
+
+                    floatingLabelStyle:
+                        const TextStyle(
+                      color: AppColors.primary,
+                    ),
+
                     prefixIcon: Icon(
                       Icons.lock_outline_rounded,
+                      color: iconColor,
+                    ),
+
+                    filled: true,
+                    fillColor: surfaceColor,
+
+                    contentPadding:
+                        const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: borderColor,
+                      ),
+                    ),
+
+                    enabledBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: borderColor,
+                      ),
+                    ),
+
+                    focusedBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide:
+                          const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
+
+                    errorBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: AppColors.error,
+                      ),
+                    ),
+
+                    focusedErrorBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      borderSide: BorderSide(
+                        color: AppColors.error,
+                        width: 1.5,
+                      ),
+                    ),
+
+                    errorStyle: TextStyle(
+                      color: AppColors.error,
+                      fontSize: 11,
                     ),
                   ),
+
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
+                    if (value == null ||
+                        value.trim().isEmpty) {
                       return 'Please confirm your new password';
                     }
 
                     if (value !=
-                        controller.newPasswordController.text) {
+                        controller
+                            .newPasswordController
+                            .text) {
                       return 'Passwords do not match';
                     }
 
@@ -136,30 +472,82 @@ class ChangePasswordScreen extends GetView<ProfileController> {
 
                 const SizedBox(height: 30),
 
-                // =====================================================
+                // =================================================
                 // CHANGE PASSWORD BUTTON
-                // =====================================================
+                // =================================================
 
                 SizedBox(
                   width: double.infinity,
                   height: 52,
+
                   child: Obx(
                     () => ElevatedButton(
                       onPressed:
-                          controller.isChangingPassword.value
+                          controller
+                                  .isChangingPassword
+                                  .value
                               ? null
-                              : controller.changePassword,
+                              : controller
+                                  .changePassword,
+
+                      style:
+                          ElevatedButton.styleFrom(
+                        backgroundColor:
+                            AppColors.primary,
+
+                        foregroundColor:
+                            AppColors.textWhite,
+
+                        disabledBackgroundColor:
+                            AppColors.primary
+                                .withValues(
+                          alpha: 0.55,
+                        ),
+
+                        disabledForegroundColor:
+                            AppColors.textWhite
+                                .withValues(
+                          alpha: 0.8,
+                        ),
+
+                        elevation: 0,
+
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(
+                            28,
+                          ),
+                        ),
+                      ),
+
                       child:
-                          controller.isChangingPassword.value
+                          controller
+                                  .isChangingPassword
+                                  .value
                               ? const SizedBox(
                                   height: 22,
                                   width: 22,
-                                  child: CircularProgressIndicator(
+
+                                  child:
+                                      CircularProgressIndicator(
                                     strokeWidth: 2,
+                                    color:
+                                        AppColors.textWhite,
                                   ),
                                 )
-                              : const Text(
+                              : Text(
                                   'Change Password',
+
+                                  style:
+                                      AppTextStyles
+                                          .button
+                                          .copyWith(
+                                    color:
+                                        AppColors.textWhite,
+                                    fontWeight:
+                                        FontWeight.w700,
+                                  ),
                                 ),
                     ),
                   ),
@@ -167,17 +555,26 @@ class ChangePasswordScreen extends GetView<ProfileController> {
 
                 const SizedBox(height: 16),
 
-                // =====================================================
+                // =================================================
                 // PASSWORD REQUIREMENT
-                // =====================================================
+                // =================================================
 
                 Center(
                   child: Text(
                     'Password must contain at least 6 characters.',
-                    style: AppTextStyles.bodySmall,
-                    textAlign: TextAlign.center,
+
+                    style:
+                        AppTextStyles.bodySmall.copyWith(
+                      color: secondaryTextColor,
+                      height: 1.4,
+                    ),
+
+                    textAlign:
+                        TextAlign.center,
                   ),
                 ),
+
+                const SizedBox(height: 10),
               ],
             ),
           ),

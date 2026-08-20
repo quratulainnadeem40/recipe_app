@@ -17,20 +17,65 @@ class AuthHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    // =========================================================
+    // THEME COLORS
+    // =========================================================
+
+    final textPrimary = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    final textSecondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    final iconColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textWhite;
+
+    final iconBackground = isDark
+        ? AppColors.primaryDark
+        : AppColors.primary;
+
+    // =========================================================
+    // HEADER
+    // =========================================================
+
     return Column(
       children: [
+        // =====================================================
+        // ICON
+        // =====================================================
+
         if (icon != null) ...[
           const SizedBox(height: 20),
 
           Container(
+            width: 76,
+            height: 76,
             padding: const EdgeInsets.all(18),
+
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: iconBackground,
               borderRadius: BorderRadius.circular(24),
+
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withOpacity(0.30)
+                      : AppColors.shadow,
+                  blurRadius: 12,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
+
             child: Icon(
               icon,
-              color: AppColors.surface,
+              color: iconColor,
               size: 40,
             ),
           ),
@@ -38,22 +83,34 @@ class AuthHeader extends StatelessWidget {
           const SizedBox(height: 25),
         ],
 
+        // =====================================================
+        // TITLE
+        // =====================================================
+
         Text(
           title,
           textAlign: TextAlign.center,
+
           style: AppTextStyles.headingLarge.copyWith(
-            color: AppColors.primary,
+            color: textPrimary,
             fontSize: 28,
+            fontWeight: FontWeight.w700,
           ),
         ),
 
         const SizedBox(height: 8),
 
+        // =====================================================
+        // SUBTITLE
+        // =====================================================
+
         Text(
           subtitle,
           textAlign: TextAlign.center,
+
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: textSecondary,
+            height: 1.5,
           ),
         ),
       ],

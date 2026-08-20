@@ -8,40 +8,32 @@ class TermsAndConditionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // =========================================================
-    // THEME
-    // =========================================================
-
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     // =========================================================
-    // COLORS
+    // THEME COLORS
     // =========================================================
 
     final backgroundColor = isDark
         ? AppColors.darkBackground
         : AppColors.background;
 
-    final headingColor = isDark
-        ? AppColors.textWhite
-        : AppColors.primary;
-
-    final bodyColor = isDark
-        ? AppColors.textWhite.withOpacity(0.85)
+    final primaryTextColor = isDark
+        ? AppColors.darkTextPrimary
         : AppColors.textPrimary;
 
-    final secondaryColor = isDark
-        ? AppColors.textWhite.withOpacity(0.65)
+    final secondaryTextColor = isDark
+        ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
 
-    final appBarColor = isDark
-        ? AppColors.darkBackground
-        : AppColors.background;
+    final borderColor = isDark
+        ? AppColors.darkBorder
+        : AppColors.border;
 
-    // =========================================================
-    // SCREEN
-    // =========================================================
+    final headingColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.primary;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -53,12 +45,12 @@ class TermsAndConditionsScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: appBarColor,
+
+        backgroundColor: backgroundColor,
+        surfaceTintColor: Colors.transparent,
 
         iconTheme: IconThemeData(
-          color: isDark
-              ? AppColors.textWhite
-              : AppColors.primary,
+          color: primaryTextColor,
         ),
 
         title: Text(
@@ -75,7 +67,12 @@ class TermsAndConditionsScreen extends StatelessWidget {
       // =======================================================
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(
+          20,
+          8,
+          20,
+          30,
+        ),
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,15 +82,15 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'Terms & Conditions',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'Welcome to COOKmate. By using this application, '
               'you agree to these Terms & Conditions. Please read '
               'them carefully before using the application.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -101,16 +98,16 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'Use of the Application',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'COOKmate provides recipe-related content and features '
               'for personal and informational use. You agree to use '
               'the application responsibly and in accordance with '
               'applicable laws.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -118,16 +115,16 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'User Accounts',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'You are responsible for maintaining the security of '
               'your account and for the activity performed through '
               'your account. You should provide accurate information '
               'when creating or updating your account.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -135,16 +132,16 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'Recipe Content',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'Recipe information displayed in COOKmate may come from '
               'third-party or open-source recipe services. COOKmate '
               'does not guarantee that every recipe is accurate, '
               'complete, or suitable for every user.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -152,16 +149,16 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'User Responsibility',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'Users are responsible for checking recipe ingredients, '
               'preparation instructions, allergies, dietary requirements, '
               'and food-safety considerations before preparing or '
               'consuming any recipe.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -169,17 +166,17 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'Intellectual Property',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'The COOKmate application, including its original design, '
               'branding, and application code, may be protected by '
               'applicable intellectual-property laws. Third-party '
               'content remains subject to its respective licenses '
               'and ownership rights.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -187,16 +184,16 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'Third-Party Services',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'COOKmate may use third-party services to provide certain '
               'features, including authentication, storage, and recipe '
               'data. Your use of those services may also be subject to '
               'their respective terms and policies.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -204,15 +201,15 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'Account Termination',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'You may stop using COOKmate at any time. COOKmate may '
               'restrict or terminate access when necessary to protect '
               'the application, its users, or its services.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -220,15 +217,15 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'Changes to These Terms',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'These Terms & Conditions may be updated from time to '
               'time. Continued use of COOKmate after changes are '
               'published means that you accept the updated terms.',
+              primaryTextColor,
             ),
 
             // ===================================================
@@ -236,14 +233,14 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // ===================================================
 
             _title(
-              context,
               'Contact',
+              headingColor,
             ),
 
             _paragraph(
-              context,
               'If you have questions about these Terms & Conditions, '
               'please contact the COOKmate development team.',
+              primaryTextColor,
             ),
 
             const SizedBox(height: 20),
@@ -252,14 +249,32 @@ class TermsAndConditionsScreen extends StatelessWidget {
             // LAST UPDATED
             // ===================================================
 
-            Text(
-              'Last updated: August 2026',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: secondaryColor,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.darkSurface
+                    : AppColors.surface,
+
+                borderRadius: BorderRadius.circular(12),
+
+                border: Border.all(
+                  color: borderColor,
+                ),
+              ),
+
+              child: Text(
+                'Last updated: August 2026',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: secondaryTextColor,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
           ],
         ),
       ),
@@ -271,25 +286,20 @@ class TermsAndConditionsScreen extends StatelessWidget {
   // =============================================================
 
   Widget _title(
-    BuildContext context,
     String title,
+    Color color,
   ) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
-
-    final headingColor = isDark
-        ? AppColors.textWhite
-        : AppColors.primary;
-
     return Padding(
       padding: const EdgeInsets.only(
-        top: 20,
+        top: 22,
         bottom: 8,
       ),
+
       child: Text(
         title,
+
         style: AppTextStyles.headingSmall.copyWith(
-          color: headingColor,
+          color: color,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -301,20 +311,14 @@ class TermsAndConditionsScreen extends StatelessWidget {
   // =============================================================
 
   Widget _paragraph(
-    BuildContext context,
     String text,
+    Color color,
   ) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
-
-    final bodyColor = isDark
-        ? AppColors.textWhite.withOpacity(0.85)
-        : AppColors.textPrimary;
-
     return Text(
       text,
+
       style: AppTextStyles.bodyMedium.copyWith(
-        color: bodyColor,
+        color: color,
         height: 1.6,
       ),
     );

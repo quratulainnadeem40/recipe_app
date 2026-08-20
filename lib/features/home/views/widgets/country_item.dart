@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:recipe_app/core/theme/app_colors.dart';
-import 'package:recipe_app/features/home/models/country_model.dart';
+import 'package:recipe_app/features/home/data/country_data.dart';
 
 class CountryItem extends StatelessWidget {
   final CountryModel country;
@@ -18,70 +19,118 @@ class CountryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return GestureDetector(
+    final isDark = theme.brightness == Brightness.dark;
+
+    final surface = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
+
+    final primaryText = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    return InkWell(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Circular Flag Container with Selected Ring
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isSelected
-                  ? AppColors.tagGreenBg
-                  : theme.colorScheme.surface,
-              border: Border.all(
-                color: isSelected
-                    ? AppColors.tagGreen
-                    : theme.colorScheme.outline.withValues(alpha: 0.2),
-                width: isSelected ? 2.5 : 1.0,
-              ),
-              boxShadow: [
-                if (isSelected)
-                  BoxShadow(
-                    color: AppColors.tagGreen.withValues(alpha: 0.25),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  )
-                else
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-              ],
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              country.flag,
-              style: const TextStyle(
-                fontSize: 26,
-              ),
-            ),
+      borderRadius: BorderRadius.circular(18),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: 92,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : AppColors.border,
+            width: isSelected ? 1.5 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // =====================================================
+            // FLAG
+            // =====================================================
 
-          const SizedBox(height: 6),
+            ClipOval(
+              child: Image.network(
+                country.flagUrl,
+                width: 42,
+                height: 42,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) {
+                  return Container(
+                    width: 42,
+                    height: 42,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.chipBackground,
+                    ),
+                    child: const Icon(
+                      Icons.public_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                  );
+                },
+                loadingBuilder: (
+                  context,
+                  child,
+                  loadingProgress,
+                ) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
 
-          // Country Name Label
-          SizedBox(
-            width: 64,
-            child: Text(
+                  return Container(
+                    width: 42,
+                    height: 42,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.chipBackground,
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            // =====================================================
+            // COUNTRY NAME
+            // =====================================================
+
+            Text(
               country.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isSelected
-                    ? AppColors.tagGreen
-                    : theme.colorScheme.onSurface,
-                fontSize: 11.5,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: primaryText,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

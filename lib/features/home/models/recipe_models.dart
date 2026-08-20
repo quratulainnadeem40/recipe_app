@@ -6,77 +6,57 @@ class RecipeModel {
   final String area;
   final String shortInfo;
 
-  RecipeModel({
+  const RecipeModel({
     required this.id,
     required this.name,
     required this.image,
-    required this.category,
-    required this.area,
-    required this.shortInfo,
+    this.category = '',
+    this.area = '',
+    this.shortInfo = '',
   });
 
   factory RecipeModel.fromJson(
-    Map<String, dynamic> json,
-  ) {
-    final String category =
-        json['strCategory']?.toString() ?? 'Recipe';
-
-    final String area =
-        json['strArea']?.toString() ?? 'International';
-
+    Map<String, dynamic> json, {
+    String fallbackCategory = '',
+    String fallbackArea = '',
+  }) {
     return RecipeModel(
-      id: json['idMeal']?.toString() ?? '',
-      name: json['strMeal']?.toString() ?? '',
-      image: json['strMealThumb']?.toString() ?? '',
-      category: category,
-      area: area,
-      shortInfo: _getShortInfo(category),
+      id: (json['idMeal'] ?? json['id'] ?? '').toString(),
+      name: (json['strMeal'] ?? json['name'] ?? '').toString(),
+      image: (json['strMealThumb'] ?? json['image'] ?? '').toString(),
+      category: (
+        json['strCategory'] ??
+        json['category'] ??
+        fallbackCategory
+      ).toString(),
+      area: (
+        json['strArea'] ??
+        json['area'] ??
+        fallbackArea
+      ).toString(),
+      shortInfo: (
+        json['strInstructions'] ??
+        json['shortInfo'] ??
+        ''
+      ).toString(),
     );
   }
 
-  static String _getShortInfo(String category) {
-    switch (category.toLowerCase()) {
-      case 'chicken':
-        return 'Tender spiced chicken dish';
-
-      case 'beef':
-        return 'Rich savory beef dish';
-
-      case 'lamb':
-        return 'Juicy aromatic lamb dish';
-
-      case 'pasta':
-        return 'Delicious Italian pasta dish';
-
-      case 'seafood':
-        return 'Fresh flavorful seafood dish';
-
-      case 'vegetarian':
-        return 'Fresh healthy vegetable dish';
-
-      case 'dessert':
-        return 'Sweet delicious dessert treat';
-
-      case 'side':
-        return 'Perfect flavorful side dish';
-
-      case 'starter':
-        return 'Tasty appetizer to enjoy';
-
-      case 'breakfast':
-        return 'Delicious morning breakfast meal';
-
-      case 'miscellaneous':
-        return 'Delicious homemade comfort food';
-
-      case 'pork':
-        return 'Tender flavorful pork dish';
-
-      case 'goat':
-        return 'Rich aromatic goat dish';
-
-      default:
-        return 'Delicious homemade recipe';
-    }
+  RecipeModel copyWith({
+    String? id,
+    String? name,
+    String? image,
+    String? category,
+    String? area,
+    String? shortInfo,
+  }) {
+    return RecipeModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      image: image ?? this.image,
+      category: category ?? this.category,
+      area: area ?? this.area,
+      shortInfo: shortInfo ?? this.shortInfo,
+    );
   }
 }

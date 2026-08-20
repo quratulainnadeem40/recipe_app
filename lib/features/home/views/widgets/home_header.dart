@@ -1,94 +1,54 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/core/theme/app_colors.dart';
+<<<<<<< HEAD
 import 'package:recipe_app/core/theme/app_text_styles.dart';
 import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
+=======
+>>>>>>> cf67ec1 (Update profile UI and theme colors)
 
 class HomeHeader extends StatelessWidget {
-  final String? userName;
   final VoidCallback? onNotificationTap;
-  final VoidCallback? onMenuTap;
 
-  const HomeHeader({
-    super.key,
-    this.userName,
-    this.onNotificationTap,
-    this.onMenuTap,
-  });
-
-  Future<String> _getUserName() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return 'User';
-    }
-
-    // Use passed name first.
-    if (userName != null &&
-        userName!.trim().isNotEmpty &&
-        userName!.trim() != 'User') {
-      return userName!.trim();
-    }
-
-    // Get name from Firestore.
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      if (snapshot.exists) {
-        final data = snapshot.data();
-        final String? name = data?['name']?.toString().trim();
-
-        if (name != null && name.isNotEmpty) {
-          return name;
-        }
-      }
-    } catch (e) {
-      debugPrint('Failed to get user name: $e');
-    }
-
-    // Firebase display name.
-    final String? displayName = user.displayName?.trim();
-
-    if (displayName != null && displayName.isNotEmpty) {
-      return displayName;
-    }
-
-    return 'User';
-  }
+  const HomeHeader({super.key, this.onNotificationTap});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final notificationController = Get.find<NotificationController>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final textPrimary = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    final textSecondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    final notificationBackground = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
+
+    final notificationBorder = isDark ? AppColors.darkBorder : AppColors.border;
+
+    return Row(
       children: [
-        // =====================================================
-        // TOP BAR: MENU ICON | COOKMATE LOGO | NOTIFICATION
-        // =====================================================
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Drawer / Menu Button
-            IconButton(
-              icon: Icon(
-                Icons.menu_rounded,
-                color: theme.colorScheme.onSurface,
-                size: 26,
+        // ==================================================
+        // GREETING
+        // ==================================================
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hello, Chef 👋',
+                style: TextStyle(
+                  color: textPrimary,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                ),
               ),
-              onPressed: onMenuTap ?? () => Scaffold.of(context).openDrawer(),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
 
+<<<<<<< HEAD
             // COOKmate Branding Logo
             RichText(
               text: TextSpan(
@@ -169,18 +129,32 @@ class HomeHeader extends StatelessWidget {
               );
             }),
           ],
+=======
+              const SizedBox(height: 5),
+
+              Text(
+                'What would you like to cook today?',
+                style: TextStyle(
+                  color: textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+>>>>>>> cf67ec1 (Update profile UI and theme colors)
         ),
 
-        const SizedBox(height: 20),
+        const SizedBox(width: 12),
 
-        // =====================================================
-        // GREETING & HEADLINE (FIREBASE ASYNC NAME)
-        // =====================================================
-        FutureBuilder<String>(
-          future: _getUserName(),
-          builder: (context, snapshot) {
-            final String name = snapshot.data ?? 'User';
+        // ==================================================
+        // NOTIFICATION BUTTON
+        // ==================================================
+        Material(
+          color: Colors.transparent,
 
+<<<<<<< HEAD
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -192,21 +166,40 @@ class HomeHeader extends StatelessWidget {
                     color: theme.colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
+=======
+          child: InkWell(
+            onTap: onNotificationTap,
+
+            borderRadius: BorderRadius.circular(14),
+
+            child: Container(
+              width: 46,
+              height: 46,
+
+              decoration: BoxDecoration(
+                color: notificationBackground,
+
+                borderRadius: BorderRadius.circular(14),
+
+                border: Border.all(color: notificationBorder, width: 1),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.shadow,
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+>>>>>>> cf67ec1 (Update profile UI and theme colors)
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Discover, Cook,\nEnjoy!',
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurface,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                  ),
-                ),
-              ],
-            );
-          },
+                ],
+              ),
+
+              child: const Icon(
+                Icons.notifications_none_rounded,
+                color: AppColors.primary,
+                size: 24,
+              ),
+            ),
+          ),
         ),
       ],
     );

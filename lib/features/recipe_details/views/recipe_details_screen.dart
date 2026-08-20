@@ -1,323 +1,199 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:recipe_app/core/theme/app_colors.dart';
-import 'package:recipe_app/features/recipe_details/controllers/recipe_details_controller.dart';
-import 'package:recipe_app/features/recipe_details/model/recipe_detail_model.dart';
+import '../../../core/theme/app_colors.dart';
+import '../controllers/recipe_details_controller.dart';
+import '../model/recipe_detail_model.dart';
+import 'widgets/cooking_voice_bar.dart';
 
-class RecipeDetailsScreen
-    extends GetView<RecipeDetailsController> {
-  const RecipeDetailsScreen({super.key});
+class RecipeDetailScreen extends GetView<RecipeDetailsController> {
+  const RecipeDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        title: const Text(
-          'Recipe Details',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ),
-      body: Obx(() {
-        // =====================================================
-        // LOADING
-        // =====================================================
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Scaffold(
+          body: _RecipeLoadingView(),
+        );
+      }
 
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primary,
-            ),
-          );
-        }
-
-        // =====================================================
-        // ERROR
-        // =====================================================
-
-        if (controller.errorMessage.value.isNotEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 60,
-                    color: AppColors.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    controller.errorMessage.value,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: controller.retry,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        // =====================================================
-        // RECIPE
-        // =====================================================
-
-        final RecipeDetailsModel? recipe =
-            controller.recipe.value;
-
-        if (recipe == null) {
-          return const Center(
-            child: Text(
-              'Recipe not found.',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: controller.retry,
-          child: SingleChildScrollView(
-            physics:
-                const AlwaysScrollableScrollPhysics(),
-            padding:
-                const EdgeInsets.only(bottom: 30),
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                // =================================================
-                // IMAGE
-                // =================================================
-
-                _buildRecipeImage(recipe),
-
-                // =================================================
-                // CONTENT
-                // =================================================
-
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    20,
-                    20,
-                    20,
-                    0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      // =================================================
-                      // RECIPE NAME
-                      // =================================================
-
-                      Text(
-                        recipe.name,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // =================================================
-                      // CATEGORY + AREA
-                      // =================================================
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildInfoChip(
-                              Icons.category_outlined,
-                              recipe.category,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _buildInfoChip(
-                              Icons.public,
-                              recipe.area,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // =================================================
-                      // VOICE PLAYER
-                      // =================================================
-
-                      _buildVoicePlayer(),
-
-                      const SizedBox(height: 28),
-
-                      // =================================================
-                      // INGREDIENTS
-                      // =================================================
-
-                      _buildSectionTitle(
-                        'Ingredients',
-                        Icons.restaurant_menu,
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      _buildIngredients(recipe),
-
-                      const SizedBox(height: 28),
-
-                      // =================================================
-                      // INSTRUCTIONS
-                      // =================================================
-
-                      _buildSectionTitle(
-                        'Cooking Instructions',
-                        Icons.menu_book_outlined,
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      _buildInstructions(recipe),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+      if (controller.errorMessage.value.isNotEmpty) {
+        return Scaffold(
+          body: _RecipeErrorView(
+            message: controller.errorMessage.value,
+            onRetry: controller.retry,
           ),
         );
-      }),
-    );
-  }
+      }
 
-  // ===========================================================
-  // RECIPE IMAGE
-  // ===========================================================
+      final recipe = controller.recipeDetails.value;
 
-  Widget _buildRecipeImage(
-    RecipeDetailsModel recipe,
-  ) {
-    return SizedBox(
-      width: double.infinity,
-      height: 280,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(28),
-          bottomRight: Radius.circular(28),
-        ),
-        child: recipe.image.trim().isEmpty
-            ? Container(
-                color: AppColors.inputBackground,
-                child: const Center(
-                  child: Icon(
-                    Icons.restaurant,
-                    size: 70,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              )
-            : Image.network(
-                recipe.image,
-                fit: BoxFit.cover,
-                errorBuilder:
-                    (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.inputBackground,
-                    child: const Center(
-                      child: Icon(
-                        Icons.broken_image_outlined,
-                        size: 60,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  );
-                },
-                loadingBuilder:
-                    (context, child, progress) {
-                  if (progress == null) {
-                    return child;
-                  }
-
-                  return const Center(
-                    child:
-                        CircularProgressIndicator(
-                      color: AppColors.primary,
-                    ),
-                  );
-                },
-              ),
-      ),
-    );
-  }
-
-  // ===========================================================
-  // INFO CHIP
-  // ===========================================================
-
-  Widget _buildInfoChip(
-    IconData icon,
-    String text,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 11,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius:
-            BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.border,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 19,
-            color: AppColors.primary,
+      if (recipe == null) {
+        return Scaffold(
+          body: _RecipeErrorView(
+            message: 'Recipe details not available.',
+            onRetry: controller.retry,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text.trim().isEmpty
-                  ? 'N/A'
-                  : text,
-              maxLines: 1,
-              overflow:
-                  TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+        );
+      }
+
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: _RecipeContent(recipe: recipe),
+        bottomNavigationBar: const CookingVoiceBar(),
+      );
+    });
+  }
+}
+
+// =============================================================
+// RECIPE CONTENT
+// =============================================================
+
+class _RecipeContent extends StatelessWidget {
+  final RecipeDetailsModel recipe;
+
+  const _RecipeContent({
+    required this.recipe,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<RecipeDetailsController>();
+
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(
+          child: _HeroSection(recipe: recipe),
+        ),
+
+        SliverToBoxAdapter(
+          child: _RecipeHeader(recipe: recipe),
+        ),
+
+        SliverToBoxAdapter(
+          child: _RecipeMeta(recipe: recipe),
+        ),
+
+        SliverToBoxAdapter(
+          child: _IngredientsSection(recipe: recipe),
+        ),
+
+        SliverToBoxAdapter(
+          child: _InstructionsHeader(
+            totalSteps: controller.totalSteps,
+          ),
+        ),
+
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            4,
+            16,
+            30,
+          ),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return _InstructionCard(
+                  stepNumber: index + 1,
+                  instruction:
+                      controller.instructionSteps[index],
+                  index: index,
+                );
+              },
+              childCount: controller.instructionSteps.length,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================
+// HERO SECTION
+// =============================================================
+
+class _HeroSection extends StatelessWidget {
+  final RecipeDetailsModel recipe;
+
+  const _HeroSection({
+    required this.recipe,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<RecipeDetailsController>();
+
+    return SizedBox(
+      height: 330,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Hero(
+            tag: 'recipe-image-${recipe.id}',
+            child: recipe.thumbUrl.isNotEmpty
+                ? Image.network(
+                    recipe.thumbUrl,
+                    fit: BoxFit.cover,
+                    loadingBuilder:
+                        (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      }
+
+                      return const _ImageLoading();
+                    },
+                    errorBuilder: (_, __, ___) {
+                      return const _ImageError();
+                    },
+                  )
+                : const _ImageError(),
+          ),
+
+          // Hero gradient
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.50),
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Back
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 12,
+            left: 16,
+            child: _CircleButton(
+              icon: Icons.arrow_back_rounded,
+              onTap: Get.back,
+            ),
+          ),
+
+          // Favorite
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 12,
+            right: 16,
+            child: Obx(
+              () => _CircleButton(
+                icon: controller.isFavorite.value
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                iconColor: controller.isFavorite.value
+                    ? Colors.redAccent
+                    : Colors.white,
+                onTap: controller.toggleFavorite,
               ),
             ),
           ),
@@ -325,166 +201,633 @@ class RecipeDetailsScreen
       ),
     );
   }
+}
 
-  // ===========================================================
-  // VOICE PLAYER
-  // ===========================================================
+// =============================================================
+// RECIPE HEADER
+// =============================================================
 
-  Widget _buildVoicePlayer() {
-    return Obx(() {
-      final bool isSpeaking =
-          controller.isSpeaking.value;
+class _RecipeHeader extends StatelessWidget {
+  final RecipeDetailsModel recipe;
 
-      final bool isPaused =
-          controller.isPaused.value;
+  const _RecipeHeader({
+    required this.recipe,
+  });
 
-      final bool isLoading =
-          controller.isVoiceLoading.value;
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-      final String voiceError =
-          controller.voiceError.value;
+    final subtitle = _buildSubtitle(recipe);
 
-      final double speed =
-          controller.playbackSpeed.value;
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
 
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius:
-              BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color:
-                  AppColors.shadow,
-              blurRadius: 15,
-              offset:
-                  const Offset(0, 6),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        20,
+        22,
+        20,
+        8,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            recipe.name,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: AppColors.primary,
+              height: 1.15,
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              const Icon(
+                Icons.public_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 7),
+
+              Expanded(
+                child: Text(
+                  subtitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: secondaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          if (recipe.tags.isNotEmpty) ...[
+            const SizedBox(height: 14),
+
+            SizedBox(
+              height: 34,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: recipe.tags.length,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  return _TagChip(
+                    text: recipe.tags[index],
+                  );
+                },
+              ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  String _buildSubtitle(RecipeDetailsModel recipe) {
+    final area = recipe.area.trim();
+    final category = recipe.category.trim();
+
+    if (area.isNotEmpty && category.isNotEmpty) {
+      return '$area • $category';
+    }
+
+    if (area.isNotEmpty) {
+      return area;
+    }
+
+    if (category.isNotEmpty) {
+      return category;
+    }
+
+    return 'Delicious Recipe';
+  }
+}
+
+// =============================================================
+// META
+// =============================================================
+
+class _RecipeMeta extends StatelessWidget {
+  final RecipeDetailsModel recipe;
+
+  const _RecipeMeta({
+    required this.recipe,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        16,
+        14,
+        16,
+        8,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _MetaCard(
+              icon: Icons.restaurant_menu_rounded,
+              title: 'Category',
+              value: recipe.category.isEmpty
+                  ? 'Recipe'
+                  : recipe.category,
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: _MetaCard(
+              icon: Icons.public_rounded,
+              title: 'Cuisine',
+              value: recipe.area.isEmpty
+                  ? 'International'
+                  : recipe.area,
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: _MetaCard(
+              icon: Icons.shopping_basket_rounded,
+              title: 'Ingredients',
+              value: '${recipe.ingredients.length}',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================
+// META CARD
+// =============================================================
+
+class _MetaCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+
+  const _MetaCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final cardColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
+
+    final borderColor = isDark
+        ? AppColors.darkBorder
+        : AppColors.border;
+
+    final secondaryText = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 13,
+      ),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: borderColor,
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            size: 21,
+            color: AppColors.primary,
+          ),
+
+          const SizedBox(height: 7),
+
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: secondaryText,
+            ),
+          ),
+
+          const SizedBox(height: 2),
+
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================
+// INGREDIENTS SECTION
+// =============================================================
+
+class _IngredientsSection extends StatelessWidget {
+  final RecipeDetailsModel recipe;
+
+  const _IngredientsSection({
+    required this.recipe,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    if (recipe.ingredients.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final cardColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
+
+    final borderColor = isDark
+        ? AppColors.darkBorder
+        : AppColors.border;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        20,
+        24,
+        20,
+        8,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Ingredients',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.textPrimary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+
+              Text(
+                '${recipe.ingredients.length} items',
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          Container(
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: borderColor,
+              ),
+            ),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(
+                vertical: 6,
+              ),
+              itemCount: recipe.ingredients.length,
+              separatorBuilder: (_, __) {
+                return Divider(
+                  height: 1,
+                  indent: 72,
+                  endIndent: 16,
+                  color: borderColor,
+                );
+              },
+              itemBuilder: (context, index) {
+                return _IngredientRow(
+                  item: recipe.ingredients[index],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================
+// INGREDIENT ROW
+// =============================================================
+
+class _IngredientRow extends StatelessWidget {
+  final IngredientItem item;
+
+  const _IngredientRow({
+    required this.item,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final iconBackground = isDark
+        ? AppColors.primary.withValues(alpha: 0.16)
+        : AppColors.primaryLight;
+
+    final primaryText = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 11,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: iconBackground,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(
+              Icons.restaurant_rounded,
+              size: 20,
+              color: AppColors.primary,
+            ),
+          ),
+
+          const SizedBox(width: 13),
+
+          Expanded(
+            child: Text(
+              _capitalize(item.name),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: primaryText,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          if (item.measure.isNotEmpty)
+            Flexible(
+              child: Text(
+                item.measure,
+                maxLines: 2,
+                textAlign: TextAlign.end,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _capitalize(String value) {
+    if (value.isEmpty) {
+      return value;
+    }
+
+    return value[0].toUpperCase() + value.substring(1);
+  }
+}
+
+// =============================================================
+// INSTRUCTIONS HEADER
+// =============================================================
+
+class _InstructionsHeader extends StatelessWidget {
+  final int totalSteps;
+
+  const _InstructionsHeader({
+    required this.totalSteps,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final chipBackground = isDark
+        ? AppColors.primary.withValues(alpha: 0.15)
+        : AppColors.primaryLight;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        20,
+        28,
+        20,
+        12,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Cooking Instructions',
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.textPrimary,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+
+          if (totalSteps > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 11,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: chipBackground,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '$totalSteps steps',
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================
+// INSTRUCTION CARD
+// =============================================================
+
+class _InstructionCard extends StatelessWidget {
+  final int stepNumber;
+  final String instruction;
+  final int index;
+
+  const _InstructionCard({
+    required this.stepNumber,
+    required this.instruction,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<RecipeDetailsController>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final cardColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
+
+    final borderColor = isDark
+        ? AppColors.darkBorder
+        : AppColors.border;
+
+    final inactiveCircle = isDark
+        ? AppColors.primary.withValues(alpha: 0.15)
+        : AppColors.primaryLight;
+
+    return Obx(() {
+      final isCurrent =
+          controller.currentStepIndex.value == index;
+
+      final isSpeaking =
+          controller.isSpeaking.value && isCurrent;
+
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(17),
+        decoration: BoxDecoration(
+          color: isCurrent
+              ? (isDark
+                  ? AppColors.primary.withValues(alpha: 0.13)
+                  : AppColors.primaryLight)
+              : cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isCurrent
+                ? AppColors.primary.withValues(alpha: 0.45)
+                : borderColor,
+            width: isCurrent ? 1.4 : 1,
+          ),
         ),
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // =================================================
-            // HEADER
-            // =================================================
-
             Row(
               children: [
                 Container(
-                  width: 45,
-                  height: 45,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
-                    color: AppColors.primary
-                        .withOpacity(0.10),
+                    color: isCurrent
+                        ? AppColors.primary
+                        : inactiveCircle,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.record_voice_over,
-                    color:
-                        AppColors.primary,
+                  alignment: Alignment.center,
+                  child: Text(
+                    stepNumber.toString().padLeft(2, '0'),
+                    style: TextStyle(
+                      color: isCurrent
+                          ? Colors.white
+                          : AppColors.primary,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
 
-                const SizedBox(width: 12),
+                const Spacer(),
 
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Recipe Voice',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight:
-                              FontWeight.w800,
-                          color: AppColors.textPrimary,
-                        ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    onTap: () {
+                      controller.selectStep(index);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7,
                       ),
-                      SizedBox(height: 3),
-                      Text(
-                        'Listen to the complete recipe',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isSpeaking
+                                ? Icons.volume_up_rounded
+                                : Icons.volume_up_outlined,
+                            size: 19,
+                            color: AppColors.primary,
+                          ),
 
-                // =================================================
-                // SPEED MENU
-                // =================================================
+                          const SizedBox(width: 5),
 
-                PopupMenuButton<double>(
-                  tooltip:
-                      'Voice Speed',
-                  onSelected:
-                      controller
-                          .setSpeechSpeed,
-                  itemBuilder:
-                      (context) {
-                    return const [
-                      PopupMenuItem<double>(
-                        value: 0.5,
-                        child:
-                            Text('0.5x'),
-                      ),
-                      PopupMenuItem<double>(
-                        value: 0.75,
-                        child:
-                            Text('0.75x'),
-                      ),
-                      PopupMenuItem<double>(
-                        value: 1.0,
-                        child:
-                            Text('1.0x'),
-                      ),
-                      PopupMenuItem<double>(
-                        value: 1.25,
-                        child:
-                            Text('1.25x'),
-                      ),
-                      PopupMenuItem<double>(
-                        value: 1.5,
-                        child:
-                            Text('1.5x'),
-                      ),
-                      PopupMenuItem<double>(
-                        value: 2.0,
-                        child:
-                            Text('2.0x'),
-                      ),
-                    ];
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 7,
-                    ),
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          AppColors.inputBackground,
-                      borderRadius:
-                          BorderRadius.circular(
-                        10,
-                      ),
-                    ),
-                    child: Text(
-                      '${speed.toStringAsFixed(speed == speed.roundToDouble() ? 1 : 2)}x',
-                      style:
-                          const TextStyle(
-                        fontSize: 12,
-                        fontWeight:
-                            FontWeight.w700,
-                        color: AppColors.textPrimary,
+                          Text(
+                            isSpeaking ? 'Speaking' : 'Listen',
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -492,436 +835,275 @@ class RecipeDetailsScreen
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
 
-            // =================================================
-            // STATUS
-            // =================================================
-
-            Container(
-              width: double.infinity,
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
-              ),
-              decoration:
-                  BoxDecoration(
-                color:
-                    AppColors.primaryLight,
-                borderRadius:
-                    BorderRadius.circular(
-                  14,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    isSpeaking
-                        ? Icons.volume_up
-                        : isPaused
-                            ? Icons.pause_circle_outline
-                            : isLoading
-                                ? Icons.hourglass_top
-                                : Icons.headphones,
-                    color:
-                        AppColors.primary,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      isLoading
-                          ? 'Starting recipe voice...'
-                          : isSpeaking
-                              ? 'Recipe voice is playing'
-                              : isPaused
-                                  ? 'Recipe voice is paused'
-                                  : 'Ready to play recipe voice',
-                      style:
-                          const TextStyle(
-                        fontSize: 13,
-                        fontWeight:
-                            FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                ],
+            Text(
+              instruction,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.textPrimary,
+                height: 1.65,
+                fontWeight:
+                    isCurrent ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // =================================================
-            // MAIN CONTROL
-            // =================================================
-
-            Center(
-              child: SizedBox(
-                width: 68,
-                height: 68,
-                child: isLoading
-                    ? Container(
-                        decoration:
-                            const BoxDecoration(
-                          color:
-                              AppColors.primary,
-                          shape:
-                              BoxShape.circle,
-                        ),
-                        child:
-                            const Padding(
-                          padding:
-                              EdgeInsets.all(
-                            19,
-                          ),
-                          child:
-                              CircularProgressIndicator(
-                            strokeWidth: 3,
-                            valueColor:
-                                AlwaysStoppedAnimation<
-                                    Color>(
-                              AppColors.textWhite,
-                            ),
-                          ),
-                        ),
-                      )
-                    : FloatingActionButton(
-                        elevation: 0,
-                        backgroundColor:
-                            AppColors.primary,
-                        onPressed: () {
-                          if (isSpeaking) {
-                            controller
-                                .pauseRecipe();
-                            return;
-                          }
-
-                          if (isPaused) {
-                            controller
-                                .resumeRecipe();
-                            return;
-                          }
-
-                          controller
-                              .speakRecipe();
-                        },
-                        child: Icon(
-                          isSpeaking
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                          size: 34,
-                          color: AppColors.textWhite,
-                        ),
-                      ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            // =================================================
-            // BUTTON LABEL
-            // =================================================
-
-            Center(
-              child: Text(
-                isLoading
-                    ? 'Starting voice...'
-                    : isSpeaking
-                        ? 'Pause'
-                        : isPaused
-                            ? 'Resume'
-                            : 'Play Recipe',
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight:
-                      FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
-
-            // =================================================
-            // STOP
-            // =================================================
-
-            if (isSpeaking || isPaused) ...[
-              const SizedBox(height: 8),
-              Center(
-                child: TextButton.icon(
-                  onPressed: () {
-                    controller
-                        .stopRecipe();
-                  },
-                  icon: const Icon(
-                    Icons.stop_circle_outlined,
-                    size: 20,
-                    color: AppColors.primary,
-                  ),
-                  label: const Text(
-                    'Stop Voice',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-
-            // =================================================
-            // ERROR
-            //
-            // Only REAL errors are shown.
-            // Chrome SpeechSynthesisErrorEvent is filtered
-            // inside controller.
-            // =================================================
-
-            if (voiceError.isNotEmpty)
-              Container(
-                width: double.infinity,
-                margin:
-                    const EdgeInsets.only(
-                  top: 10,
-                ),
-                padding:
-                    const EdgeInsets.all(12),
-                decoration:
-                    BoxDecoration(
-                  color: AppColors.error
-                      .withOpacity(0.06),
-                  borderRadius:
-                      BorderRadius.circular(
-                    12,
-                  ),
-                  border: Border.all(
-                    color: AppColors.error
-                        .withOpacity(0.15),
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color:
-                          AppColors.error,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        voiceError,
-                        style:
-                            const TextStyle(
-                          color:
-                              AppColors.error,
-                          fontSize: 12,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
           ],
         ),
       );
     });
   }
+}
 
-  // ===========================================================
-  // SECTION TITLE
-  // ===========================================================
+// =============================================================
+// TAG CHIP
+// =============================================================
 
-  Widget _buildSectionTitle(
-    String title,
-    IconData icon,
-  ) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          color: AppColors.primary,
-          size: 23,
-        ),
-        const SizedBox(width: 9),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
-    );
-  }
+class _TagChip extends StatelessWidget {
+  final String text;
 
-  // ===========================================================
-  // INGREDIENTS
-  // ===========================================================
+  const _TagChip({
+    required this.text,
+  });
 
-  Widget _buildIngredients(
-    RecipeDetailsModel recipe,
-  ) {
-    if (recipe.ingredients.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding:
-            const EdgeInsets.all(16),
-        decoration:
-            BoxDecoration(
-          color: AppColors.surface,
-          borderRadius:
-              BorderRadius.circular(16),
-        ),
-        child: const Text(
-          'No ingredients available.',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-          ),
-        ),
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      children: List.generate(
-        recipe.ingredients.length,
-        (index) {
-          final String ingredient =
-              recipe.ingredients[index]
-                  .trim();
-
-          if (ingredient.isEmpty) {
-            return const SizedBox
-                .shrink();
-          }
-
-          final String measure =
-              index <
-                      recipe.measures
-                          .length
-                  ? recipe
-                      .measures[index]
-                      .trim()
-                  : '';
-
-          return Container(
-            width: double.infinity,
-            margin:
-                const EdgeInsets.only(
-              bottom: 10,
-            ),
-            padding:
-                const EdgeInsets.all(15),
-            decoration:
-                BoxDecoration(
-              color: AppColors.surface,
-              borderRadius:
-                  BorderRadius.circular(
-                15,
-              ),
-              border: Border.all(
-                color:
-                    AppColors.border,
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  margin:
-                      const EdgeInsets.only(
-                    top: 6,
-                  ),
-                  decoration:
-                      const BoxDecoration(
-                    color:
-                        AppColors.primary,
-                    shape:
-                        BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    measure.isEmpty
-                        ? ingredient
-                        : '$measure  $ingredient',
-                    style:
-                        const TextStyle(
-                      fontSize: 15,
-                      height: 1.4,
-                      fontWeight:
-                          FontWeight.w500,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  // ===========================================================
-  // INSTRUCTIONS
-  // ===========================================================
-
-  Widget _buildInstructions(
-    RecipeDetailsModel recipe,
-  ) {
-    final String instructions =
-        recipe.instructions.trim();
-
-    if (instructions.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding:
-            const EdgeInsets.all(16),
-        decoration:
-            BoxDecoration(
-          color: AppColors.surface,
-          borderRadius:
-              BorderRadius.circular(16),
-        ),
-        child: const Text(
-          'No cooking instructions available.',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-          ),
-        ),
-      );
-    }
+    final background = isDark
+        ? AppColors.primary.withValues(alpha: 0.15)
+        : AppColors.primaryLight;
 
     return Container(
-      width: double.infinity,
-      padding:
-          const EdgeInsets.all(18),
-      decoration:
-          BoxDecoration(
-        color: AppColors.surface,
-        borderRadius:
-            BorderRadius.circular(18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 7,
+      ),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color:
-              AppColors.border,
+          color: AppColors.primary.withValues(alpha: 0.15),
         ),
       ),
       child: Text(
-        instructions,
-        style:
-            const TextStyle(
-          fontSize: 15,
-          height: 1.65,
-          color: AppColors.textPrimary,
+        text,
+        style: const TextStyle(
+          color: AppColors.primary,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================
+// CIRCLE BUTTON
+// =============================================================
+
+class _CircleButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color iconColor;
+
+  const _CircleButton({
+    required this.icon,
+    required this.onTap,
+    this.iconColor = Colors.white,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.42),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Icon(
+            icon,
+            color: iconColor,
+            size: 23,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================
+// IMAGE LOADING
+// =============================================================
+
+class _ImageLoading extends StatelessWidget {
+  const _ImageLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      color: isDark
+          ? AppColors.darkBackground
+          : AppColors.primaryLight,
+      child: const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================
+// IMAGE ERROR
+// =============================================================
+
+class _ImageError extends StatelessWidget {
+  const _ImageError();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      color: isDark
+          ? AppColors.darkBackground
+          : AppColors.primaryLight,
+      child: const Center(
+        child: Icon(
+          Icons.restaurant_rounded,
+          size: 70,
+          color: AppColors.primary,
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================
+// LOADING SCREEN
+// =============================================================
+
+class _RecipeLoadingView extends StatelessWidget {
+  const _RecipeLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================
+// ERROR SCREEN
+// =============================================================
+
+class _RecipeErrorView extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _RecipeErrorView({
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final circleBackground = isDark
+        ? AppColors.primary.withValues(alpha: 0.15)
+        : AppColors.primaryLight;
+
+    final primaryText = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    final secondaryText = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    return Container(
+      color: theme.scaffoldBackgroundColor,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  color: circleBackground,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.restaurant_rounded,
+                  size: 38,
+                  color: AppColors.primary,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              Text(
+                'Recipe Not Available',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: primaryText,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: secondaryText,
+                ),
+              ),
+
+              const SizedBox(height: 22),
+
+              ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                ),
+                label: const Text('Try Again'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 22,
+                    vertical: 13,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

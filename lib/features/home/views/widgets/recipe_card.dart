@@ -1,188 +1,382 @@
 import 'package:flutter/material.dart';
+
 import 'package:recipe_app/core/theme/app_colors.dart';
+import '../../models/recipe_models.dart';
 
 class RecipeCard extends StatelessWidget {
-  final dynamic recipe; // Replace with your RecipeModel
+  final RecipeModel recipe;
   final bool horizontal;
-  final VoidCallback onTap;
-  final VoidCallback? onFavoriteTap;
+  final VoidCallback? onTap;
 
   const RecipeCard({
     super.key,
     required this.recipe,
-    this.horizontal = true,
-    required this.onTap,
-    this.onFavoriteTap,
+    this.horizontal = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Handling property fallbacks for safety
-    final String title = recipe.title ?? recipe.name ?? 'Recipe Title';
-    final String image = recipe.image ?? recipe.imageUrl ?? '';
-    final String rating = (recipe.rating ?? 4.8).toString();
-    final String prepTime = recipe.time ?? recipe.prepTime ?? '30 min';
-    final String cuisine = recipe.cuisine ?? recipe.category ?? 'Pakistani';
-    final bool isFavorite = recipe.isFavorite ?? false;
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    final cardColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
+
+    final textPrimary = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    final textSecondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    final placeholderColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.inputBackground;
+
+    final card = Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+
+        borderRadius:
+            BorderRadius.circular(16),
+
+        border: Border.all(
+          color: isDark
+              ? AppColors.darkBorder
+              : AppColors.border,
+          width: 1,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadow,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+
+      child: horizontal
+          ? _buildHorizontalCard(
+              textPrimary,
+              textSecondary,
+            )
+          : _buildVerticalCard(
+              textPrimary,
+              textSecondary,
+            ),
+    );
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: horizontal ? 155 : double.infinity,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 8,
-              offset: Offset(0, 3),
+      child: card,
+    );
+  }
+
+  // ============================================================
+  // VERTICAL CARD
+  // ============================================================
+
+  Widget _buildVerticalCard(
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+        AspectRatio(
+          aspectRatio: 1.15,
+
+          child: _buildImage(
+            borderRadius:
+                const BorderRadius.vertical(
+              top: Radius.circular(16),
             ),
-          ],
+          ),
         ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image Stack Container
-            Stack(
-              children: [
-                // Recipe Image
-                SizedBox(
-                  height: horizontal ? 110 : 130,
-                  width: double.infinity,
-                  child: image.isNotEmpty
-                      ? Image.network(
-                          image,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholder(),
-                        )
-                      : _buildPlaceholder(),
-                ),
 
-                // Prep Time Tag (Top Left Badge)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.55),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          color: Colors.white,
-                          size: 11,
-                        ),
-                        const SizedBox(width: 3),
-                        Text(
-                          prepTime,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+        Padding(
+          padding:
+              const EdgeInsets.fromLTRB(
+            10,
+            9,
+            10,
+            11,
+          ),
+
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+
+            children: [
+              // ==================================================
+              // RECIPE NAME
+              // ==================================================
+
+              Text(
+                recipe.name.trim().isNotEmpty
+                    ? recipe.name
+                    : 'Unknown Recipe',
+
+                maxLines: 2,
+                overflow:
+                    TextOverflow.ellipsis,
+
+                style: TextStyle(
+                  fontWeight:
+                      FontWeight.w700,
+                  fontSize: 14,
+                  height: 1.2,
+                  color: textPrimary,
+                ),
+              ),
+
+              const SizedBox(height: 5),
+
+              // ==================================================
+              // CATEGORY
+              // ==================================================
+
+              if (recipe.category
+                  .trim()
+                  .isNotEmpty)
+                Text(
+                  recipe.category,
+
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
+
+                  style: TextStyle(
+                    color: textSecondary,
+                    fontSize: 11,
+                    fontWeight:
+                        FontWeight.w500,
                   ),
                 ),
 
-                // Favorite Heart Button (Top Right)
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: GestureDetector(
-                    onTap: onFavoriteTap,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                        color: isFavorite ? AppColors.primary : AppColors.textHint,
-                        size: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              // ==================================================
+              // AREA
+              // ==================================================
 
-            // Card Body Info
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    title,
+              if (recipe.area
+                  .trim()
+                  .isNotEmpty)
+                Padding(
+                  padding:
+                      const EdgeInsets.only(
+                    top: 3,
+                  ),
+
+                  child: Text(
+                    recipe.area,
+
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style: TextStyle(
+                      color: textSecondary
+                          .withValues(
+                        alpha: 0.75,
+                      ),
+                      fontSize: 10,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
-                  // Cuisine Tag
-                  Text(
-                    cuisine,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
+  // ============================================================
+  // HORIZONTAL CARD
+  // ============================================================
 
-                  // Rating Row
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star_rounded,
-                        color: AppColors.ratingStar,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 3),
-                      Text(
-                        rating,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+  Widget _buildHorizontalCard(
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    return SizedBox(
+      width: 210,
+
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
+        children: [
+          AspectRatio(
+            aspectRatio: 1.15,
+
+            child: _buildImage(
+              borderRadius:
+                  const BorderRadius.vertical(
+                top: Radius.circular(16),
               ),
             ),
-          ],
+          ),
+
+          Padding(
+            padding:
+                const EdgeInsets.fromLTRB(
+              10,
+              9,
+              10,
+              11,
+            ),
+
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                // ==================================================
+                // RECIPE NAME
+                // ==================================================
+
+                Text(
+                  recipe.name.trim().isNotEmpty
+                      ? recipe.name
+                      : 'Unknown Recipe',
+
+                  maxLines: 2,
+                  overflow:
+                      TextOverflow.ellipsis,
+
+                  style: TextStyle(
+                    fontWeight:
+                        FontWeight.w700,
+                    fontSize: 14,
+                    height: 1.2,
+                    color: textPrimary,
+                  ),
+                ),
+
+                const SizedBox(height: 5),
+
+                // ==================================================
+                // CATEGORY
+                // ==================================================
+
+                if (recipe.category
+                    .trim()
+                    .isNotEmpty)
+                  Text(
+                    recipe.category,
+
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style: TextStyle(
+                      color: textSecondary,
+                      fontSize: 11,
+                      fontWeight:
+                          FontWeight.w500,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // IMAGE
+  // ============================================================
+
+  Widget _buildImage({
+    required BorderRadius borderRadius,
+  }) {
+    final imageUrl =
+        recipe.image.trim();
+
+    return ClipRRect(
+      borderRadius: borderRadius,
+
+      child: imageUrl.isEmpty
+          ? _imagePlaceholder()
+          : Image.network(
+              imageUrl,
+
+              width: double.infinity,
+              height: double.infinity,
+
+              fit: BoxFit.cover,
+
+              errorBuilder: (
+                context,
+                error,
+                stackTrace,
+              ) {
+                return _imagePlaceholder();
+              },
+
+              loadingBuilder: (
+                context,
+                child,
+                loadingProgress,
+              ) {
+                if (loadingProgress == null) {
+                  return child;
+                }
+
+                return _imageLoading();
+              },
+            ),
+    );
+  }
+
+  // ============================================================
+  // IMAGE PLACEHOLDER
+  // ============================================================
+
+  Widget _imagePlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+
+      color: AppColors.primaryLight,
+
+      child: const Center(
+        child: Icon(
+          Icons.restaurant_rounded,
+          color: AppColors.primary,
+          size: 34,
         ),
       ),
     );
   }
 
-  Widget _buildPlaceholder() {
+  // ============================================================
+  // IMAGE LOADING
+  // ============================================================
+
+  Widget _imageLoading() {
     return Container(
-      color: AppColors.chipBackground,
+      width: double.infinity,
+      height: double.infinity,
+
+      color: AppColors.primaryLight,
+
       child: const Center(
-        child: Icon(
-          Icons.restaurant_rounded,
-          color: AppColors.textHint,
-          size: 32,
+        child: SizedBox(
+          width: 22,
+          height: 22,
+
+          child: CircularProgressIndicator(
+            color: AppColors.primary,
+            strokeWidth: 2,
+          ),
         ),
       ),
     );

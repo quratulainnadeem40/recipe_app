@@ -15,163 +15,267 @@ class ProfileScreen extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
 
-    final primaryColor = AppColors.primary;
+    // ============================================================
+    // THEME COLORS
+    // ============================================================
 
-    final backgroundColor = theme.scaffoldBackgroundColor;
+    final backgroundColor = isDark
+        ? AppColors.darkBackground
+        : AppColors.background;
+
+    final surfaceColor = isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
+
+    final primaryText = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    final secondaryText = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    final borderColor = isDark
+        ? AppColors.darkBorder
+        : AppColors.border;
+
+    // Soft maroon for selected/brand areas
+    final softPrimaryColor = isDark
+        ? AppColors.primary.withValues(alpha: 0.14)
+        : AppColors.primaryLight;
 
     return Scaffold(
       backgroundColor: backgroundColor,
 
-      // =====================================================
+      // ==========================================================
       // APP BAR
-      // =====================================================
+      // ==========================================================
+
       appBar: AppBar(
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: true,
+
         backgroundColor: backgroundColor,
+        surfaceTintColor: Colors.transparent,
+
+        iconTheme: IconThemeData(
+          color: primaryText,
+        ),
+
         title: Text(
           'My Profile',
           style: AppTextStyles.headingMedium.copyWith(
-            color: primaryColor,
-            fontWeight: FontWeight.w700,
+            color: primaryText,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),
 
-      // =====================================================
+      // ==========================================================
       // BODY
-      // =====================================================
+      // ==========================================================
+
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          physics: const BouncingScrollPhysics(),
+
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
+
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // =====================================================
+              // ====================================================
               // PROFILE HEADER
-              // =====================================================
+              // ====================================================
+
               Obx(
                 () => ProfileHeader(
-                  name: controller.user.value?.name ?? 'COOKmate User',
-                  email: controller.user.value?.email ?? '',
-                  profileImageBytes: controller.profileImageBytes.value,
-                  onImageTap: controller.pickProfileImage,
+                  name:
+                      controller.user.value?.name ??
+                          'COOKmate User',
+
+                  email:
+                      controller.user.value?.email ?? '',
+
+                  profileImageBytes:
+                      controller.profileImageBytes.value,
+
+                  onImageTap:
+                      controller.pickProfileImage,
                 ),
               ),
 
               const SizedBox(height: 30),
 
-              // =====================================================
+              // ====================================================
               // ACCOUNT
-              // =====================================================
-              _sectionTitle(context, 'Account'),
+              // ====================================================
 
-              const SizedBox(height: 8),
+              _sectionTitle(
+                'Account',
+                primaryText,
+              ),
 
-              ProfileOptionTile(
+              const SizedBox(height: 10),
+
+              _buildProfileOption(
+                context,
+                surfaceColor: surfaceColor,
+                borderColor: borderColor,
+                primaryText: primaryText,
+                secondaryText: secondaryText,
+                softPrimaryColor: softPrimaryColor,
                 icon: Icons.person_outline_rounded,
                 title: 'Account Settings',
+                subtitle: 'Manage your account information',
                 onTap: () {
-                  Get.toNamed(AppRoutes.accountSettings);
+                  Get.toNamed(
+                    AppRoutes.accountSettings,
+                  );
                 },
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 22),
 
-              // =====================================================
+              // ====================================================
               // APPEARANCE
-              // =====================================================
-              _sectionTitle(context, 'Appearance'),
+              // ====================================================
 
-              const SizedBox(height: 8),
-
-              Obx(
-                () => ThemeSwitchTile(
-                  value: controller.isDarkMode.value,
-                  onChanged: controller.toggleTheme,
-                ),
+              _sectionTitle(
+                'Appearance',
+                primaryText,
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
 
-              // =====================================================
+              _buildThemeOption(
+                context,
+                surfaceColor: surfaceColor,
+                borderColor: borderColor,
+                primaryText: primaryText,
+                secondaryText: secondaryText,
+                softPrimaryColor: softPrimaryColor,
+              ),
+
+              const SizedBox(height: 22),
+
+              // ====================================================
               // INFORMATION
-              // =====================================================
-              _sectionTitle(context, 'Information'),
+              // ====================================================
 
-              const SizedBox(height: 8),
+              _sectionTitle(
+                'Information',
+                primaryText,
+              ),
 
-              // -----------------------------------------------------
-              // PRIVACY POLICY
-              // -----------------------------------------------------
-              ProfileOptionTile(
+              const SizedBox(height: 10),
+
+              _buildProfileOption(
+                context,
+                surfaceColor: surfaceColor,
+                borderColor: borderColor,
+                primaryText: primaryText,
+                secondaryText: secondaryText,
+                softPrimaryColor: softPrimaryColor,
                 icon: Icons.privacy_tip_outlined,
                 title: 'Privacy Policy',
+                subtitle: 'Read our privacy policy',
                 onTap: () {
-                  Get.toNamed(AppRoutes.privacyPolicy);
+                  Get.toNamed(
+                    AppRoutes.privacyPolicy,
+                  );
                 },
               ),
 
               const SizedBox(height: 8),
 
-              // -----------------------------------------------------
-              // TERMS & CONDITIONS
-              // -----------------------------------------------------
-              ProfileOptionTile(
+              _buildProfileOption(
+                context,
+                surfaceColor: surfaceColor,
+                borderColor: borderColor,
+                primaryText: primaryText,
+                secondaryText: secondaryText,
+                softPrimaryColor: softPrimaryColor,
                 icon: Icons.description_outlined,
                 title: 'Terms & Conditions',
+                subtitle: 'Review terms and conditions',
                 onTap: () {
-                  Get.toNamed(AppRoutes.termsAndConditions);
+                  Get.toNamed(
+                    AppRoutes.termsAndConditions,
+                  );
                 },
               ),
 
               const SizedBox(height: 8),
 
-              // -----------------------------------------------------
-              // FEEDBACK
-              // -----------------------------------------------------
-              ProfileOptionTile(
+              _buildProfileOption(
+                context,
+                surfaceColor: surfaceColor,
+                borderColor: borderColor,
+                primaryText: primaryText,
+                secondaryText: secondaryText,
+                softPrimaryColor: softPrimaryColor,
                 icon: Icons.feedback_outlined,
                 title: 'Feedback',
+                subtitle: 'Share your thoughts with us',
                 onTap: () {
-                  Get.toNamed(AppRoutes.feedback);
+                  Get.toNamed(
+                    AppRoutes.feedback,
+                  );
                 },
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 22),
 
-              // =====================================================
+              // ====================================================
               // ACCOUNT ACTIONS
-              // =====================================================
-              _sectionTitle(context, 'Account Actions'),
+              // ====================================================
 
-              const SizedBox(height: 8),
+              _sectionTitle(
+                'Account Actions',
+                primaryText,
+              ),
 
-              // -----------------------------------------------------
-              // DELETE ACCOUNT
-              // -----------------------------------------------------
-              ProfileOptionTile(
+              const SizedBox(height: 10),
+
+              _buildProfileOption(
+                context,
+                surfaceColor: surfaceColor,
+                borderColor: borderColor,
+                primaryText: primaryText,
+                secondaryText: secondaryText,
+                softPrimaryColor: softPrimaryColor,
                 icon: Icons.delete_outline_rounded,
                 title: 'Delete Account',
+                subtitle: 'Permanently delete your account',
                 iconColor: AppColors.error,
                 onTap: controller.deleteAccount,
               ),
 
               const SizedBox(height: 8),
 
-              // -----------------------------------------------------
-              // LOGOUT
-              // -----------------------------------------------------
-              ProfileOptionTile(
+              _buildProfileOption(
+                context,
+                surfaceColor: surfaceColor,
+                borderColor: borderColor,
+                primaryText: primaryText,
+                secondaryText: secondaryText,
+                softPrimaryColor: softPrimaryColor,
                 icon: Icons.logout_rounded,
                 title: 'Logout',
+                subtitle: 'Sign out from your account',
                 iconColor: AppColors.primary,
                 onTap: controller.logout,
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -179,23 +283,340 @@ class ProfileScreen extends GetView<ProfileController> {
     );
   }
 
-  // ===============================================================
+  // ================================================================
   // SECTION TITLE
-  // ===============================================================
+  // ================================================================
 
-  Widget _sectionTitle(BuildContext context, String title) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Widget _sectionTitle(
+    String title,
+    Color primaryText,
+  ) {
+    return Text(
+      title,
+      style: AppTextStyles.labelLarge.copyWith(
+        color: AppColors.primary,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.2,
+      ),
+    );
+  }
 
-    final primaryColor = AppColors.primary;
+  // ================================================================
+  // PROFILE OPTION
+  // ================================================================
 
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: AppTextStyles.labelLarge.copyWith(
-          color: primaryColor,
-          fontWeight: FontWeight.w700,
+  Widget _buildProfileOption(
+    BuildContext context, {
+    required Color surfaceColor,
+    required Color borderColor,
+    required Color primaryText,
+    required Color secondaryText,
+    required Color softPrimaryColor,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    Color? iconColor,
+  }) {
+    final finalIconColor =
+        iconColor ?? AppColors.primary;
+
+    return Material(
+      color: Colors.transparent,
+
+      child: InkWell(
+        onTap: onTap,
+
+        borderRadius: BorderRadius.circular(17),
+
+        splashColor:
+            AppColors.primary.withValues(alpha: 0.08),
+
+        highlightColor:
+            AppColors.primary.withValues(alpha: 0.04),
+
+        child: Container(
+          width: double.infinity,
+
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 13,
+          ),
+
+          decoration: BoxDecoration(
+            color: surfaceColor,
+
+            borderRadius:
+                BorderRadius.circular(17),
+
+            border: Border.all(
+              color: borderColor,
+            ),
+
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(
+                  alpha: Theme.of(context).brightness ==
+                          Brightness.dark
+                      ? 0.12
+                      : 0.04,
+                ),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+
+          child: Row(
+            children: [
+              // ==================================================
+              // ICON
+              // ==================================================
+
+              Container(
+                width: 45,
+                height: 45,
+
+                decoration: BoxDecoration(
+                  color: iconColor == AppColors.error
+                      ? AppColors.error.withValues(
+                          alpha: 0.10,
+                        )
+                      : softPrimaryColor,
+
+                  borderRadius:
+                      BorderRadius.circular(13),
+                ),
+
+                child: Icon(
+                  icon,
+
+                  size: 22,
+
+                  color: finalIconColor,
+                ),
+              ),
+
+              const SizedBox(width: 13),
+
+              // ==================================================
+              // TEXT
+              // ==================================================
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+                  children: [
+                    Text(
+                      title,
+
+                      maxLines: 1,
+                      overflow:
+                          TextOverflow.ellipsis,
+
+                      style: TextStyle(
+                        color: primaryText,
+                        fontSize: 14,
+                        fontWeight:
+                            FontWeight.w700,
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    Text(
+                      subtitle,
+
+                      maxLines: 1,
+                      overflow:
+                          TextOverflow.ellipsis,
+
+                      style: TextStyle(
+                        color: secondaryText,
+                        fontSize: 11,
+                        fontWeight:
+                            FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              // ==================================================
+              // ARROW
+              // ==================================================
+
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+
+                size: 15,
+
+                color: secondaryText.withValues(
+                  alpha: 0.55,
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  // ================================================================
+  // THEME OPTION
+  // ================================================================
+
+  Widget _buildThemeOption(
+    BuildContext context, {
+    required Color surfaceColor,
+    required Color borderColor,
+    required Color primaryText,
+    required Color secondaryText,
+    required Color softPrimaryColor,
+  }) {
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 10,
+      ),
+
+      decoration: BoxDecoration(
+        color: surfaceColor,
+
+        borderRadius:
+            BorderRadius.circular(17),
+
+        border: Border.all(
+          color: borderColor,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: Theme.of(context).brightness ==
+                      Brightness.dark
+                  ? 0.12
+                  : 0.04,
+            ),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+          // ======================================================
+          // THEME ICON
+          // ======================================================
+
+          Container(
+            width: 45,
+            height: 45,
+
+            decoration: BoxDecoration(
+              color: softPrimaryColor,
+              borderRadius:
+                  BorderRadius.circular(13),
+            ),
+
+            child: Icon(
+              Theme.of(context).brightness ==
+                      Brightness.dark
+                  ? Icons.dark_mode_rounded
+                  : Icons.light_mode_rounded,
+
+              size: 22,
+
+              color: AppColors.primary,
+            ),
+          ),
+
+          const SizedBox(width: 13),
+
+          // ======================================================
+          // THEME TEXT
+          // ======================================================
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  'Dark Mode',
+
+                  style: TextStyle(
+                    color: primaryText,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Obx(
+                  () => Text(
+                    controller.isDarkMode.value
+                        ? 'Dark appearance enabled'
+                        : 'Light appearance enabled',
+
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style: TextStyle(
+                      color: secondaryText,
+                      fontSize: 11,
+                      fontWeight:
+                          FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ======================================================
+          // SWITCH
+          // ======================================================
+
+          Obx(
+            () => Switch(
+              value:
+                  controller.isDarkMode.value,
+
+              onChanged:
+                  controller.toggleTheme,
+
+              activeColor:
+                  AppColors.primary,
+
+              activeTrackColor:
+                  AppColors.primary.withValues(
+                alpha: 0.35,
+              ),
+
+              inactiveThumbColor:
+                  secondaryText,
+
+              inactiveTrackColor:
+                  borderColor,
+
+              trackOutlineColor:
+                  WidgetStateProperty.all(
+                Colors.transparent,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

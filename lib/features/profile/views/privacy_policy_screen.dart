@@ -12,8 +12,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
     // THEME
     // =========================================================
 
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
 
     // =========================================================
     // COLORS
@@ -23,21 +23,21 @@ class PrivacyPolicyScreen extends StatelessWidget {
         ? AppColors.darkBackground
         : AppColors.background;
 
-    final headingColor = isDark
-        ? AppColors.textWhite
-        : AppColors.primary;
-
-    final bodyColor = isDark
-        ? AppColors.textWhite.withOpacity(0.85)
-        : AppColors.textPrimary;
-
-    final secondaryColor = isDark
-        ? AppColors.textWhite.withOpacity(0.65)
-        : AppColors.textSecondary;
-
     final appBarColor = isDark
         ? AppColors.darkBackground
         : AppColors.background;
+
+    final headingColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.primary;
+
+    final bodyColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
 
     // =========================================================
     // SCREEN
@@ -54,10 +54,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         backgroundColor: appBarColor,
+        surfaceTintColor: Colors.transparent,
 
         iconTheme: IconThemeData(
           color: isDark
-              ? AppColors.textWhite
+              ? AppColors.darkTextPrimary
               : AppColors.primary,
         ),
 
@@ -74,120 +75,165 @@ class PrivacyPolicyScreen extends StatelessWidget {
       // BODY
       // =======================================================
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            20,
+            8,
+            20,
+            30,
+          ),
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
 
-          children: [
-            _title(
-              context,
-              'Privacy Policy',
-            ),
+            children: [
+              // =================================================
+              // INTRODUCTION
+              // =================================================
 
-            _paragraph(
-              context,
-              'Your privacy is important to us. This Privacy Policy '
-              'explains how COOKmate handles information when you use '
-              'the application.',
-            ),
-
-            _title(
-              context,
-              'Information We Collect',
-            ),
-
-            _paragraph(
-              context,
-              'COOKmate may collect information such as your name, '
-              'email address, account information, and information '
-              'you provide while using the application.',
-            ),
-
-            _title(
-              context,
-              'How We Use Information',
-            ),
-
-            _paragraph(
-              context,
-              'Information may be used to provide and improve the '
-              'application, manage your account, provide personalized '
-              'features, and maintain application security.',
-            ),
-
-            _title(
-              context,
-              'Account Information',
-            ),
-
-            _paragraph(
-              context,
-              'Your account information is used to authenticate you '
-              'and provide access to features associated with your '
-              'COOKmate account.',
-            ),
-
-            _title(
-              context,
-              'Data Security',
-            ),
-
-            _paragraph(
-              context,
-              'We take reasonable measures to protect information '
-              'associated with your account. However, no method of '
-              'electronic storage or transmission can be guaranteed '
-              'to be completely secure.',
-            ),
-
-            _title(
-              context,
-              'Third-Party Services',
-            ),
-
-            _paragraph(
-              context,
-              'COOKmate may use third-party services such as Firebase '
-              'to provide authentication and application services. '
-              'Those services may process information according to '
-              'their own privacy policies.',
-            ),
-
-            _title(
-              context,
-              'Changes to This Policy',
-            ),
-
-            _paragraph(
-              context,
-              'This Privacy Policy may be updated from time to time. '
-              'Any changes will be reflected on this page.',
-            ),
-
-            _title(
-              context,
-              'Contact',
-            ),
-
-            _paragraph(
-              context,
-              'If you have questions about this Privacy Policy, '
-              'please contact the COOKmate development team.',
-            ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              'Last updated: August 2026',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: secondaryColor,
+              _title(
+                context,
+                'Privacy Policy',
               ),
-            ),
 
-            const SizedBox(height: 30),
-          ],
+              _paragraph(
+                context,
+                'Your privacy is important to us. This Privacy Policy '
+                'explains how COOKmate handles information when you use '
+                'the application.',
+              ),
+
+              // =================================================
+              // INFORMATION WE COLLECT
+              // =================================================
+
+              _title(
+                context,
+                'Information We Collect',
+              ),
+
+              _paragraph(
+                context,
+                'COOKmate may collect information such as your name, '
+                'email address, account information, and information '
+                'you provide while using the application.',
+              ),
+
+              // =================================================
+              // HOW WE USE INFORMATION
+              // =================================================
+
+              _title(
+                context,
+                'How We Use Information',
+              ),
+
+              _paragraph(
+                context,
+                'Information may be used to provide and improve the '
+                'application, manage your account, provide personalized '
+                'features, and maintain application security.',
+              ),
+
+              // =================================================
+              // ACCOUNT INFORMATION
+              // =================================================
+
+              _title(
+                context,
+                'Account Information',
+              ),
+
+              _paragraph(
+                context,
+                'Your account information is used to authenticate you '
+                'and provide access to features associated with your '
+                'COOKmate account.',
+              ),
+
+              // =================================================
+              // DATA SECURITY
+              // =================================================
+
+              _title(
+                context,
+                'Data Security',
+              ),
+
+              _paragraph(
+                context,
+                'We take reasonable measures to protect information '
+                'associated with your account. However, no method of '
+                'electronic storage or transmission can be guaranteed '
+                'to be completely secure.',
+              ),
+
+              // =================================================
+              // THIRD-PARTY SERVICES
+              // =================================================
+
+              _title(
+                context,
+                'Third-Party Services',
+              ),
+
+              _paragraph(
+                context,
+                'COOKmate may use third-party services such as Firebase '
+                'to provide authentication and application services. '
+                'Those services may process information according to '
+                'their own privacy policies.',
+              ),
+
+              // =================================================
+              // CHANGES
+              // =================================================
+
+              _title(
+                context,
+                'Changes to This Policy',
+              ),
+
+              _paragraph(
+                context,
+                'This Privacy Policy may be updated from time to time. '
+                'Any changes will be reflected on this page.',
+              ),
+
+              // =================================================
+              // CONTACT
+              // =================================================
+
+              _title(
+                context,
+                'Contact',
+              ),
+
+              _paragraph(
+                context,
+                'If you have questions about this Privacy Policy, '
+                'please contact the COOKmate development team.',
+              ),
+
+              const SizedBox(height: 20),
+
+              // =================================================
+              // LAST UPDATED
+              // =================================================
+
+              Text(
+                'Last updated: August 2026',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: secondaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
@@ -202,16 +248,17 @@ class PrivacyPolicyScreen extends StatelessWidget {
     String title,
   ) {
     final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+        Theme.of(context).brightness ==
+            Brightness.dark;
 
     final headingColor = isDark
-        ? AppColors.textWhite
+        ? AppColors.darkTextPrimary
         : AppColors.primary;
 
     return Padding(
       padding: const EdgeInsets.only(
-        top: 20,
-        bottom: 8,
+        top: 22,
+        bottom: 9,
       ),
 
       child: Text(
@@ -234,10 +281,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
     String text,
   ) {
     final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+        Theme.of(context).brightness ==
+            Brightness.dark;
 
     final bodyColor = isDark
-        ? AppColors.textWhite.withOpacity(0.85)
+        ? AppColors.darkTextSecondary
         : AppColors.textPrimary;
 
     return Text(

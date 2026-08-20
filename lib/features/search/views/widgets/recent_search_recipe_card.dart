@@ -1,12 +1,11 @@
-
 import 'package:flutter/material.dart';
-import 'package:recipe_app/features/home/models/recipe_models.dart';
+import 'package:recipe_app/features/recipe_details/model/recipe_detail_model.dart';
 
-class CustomSearchRecipeCard extends StatelessWidget {
-  final RecipeModel recipe;
+class RecentSearchRecipeCard extends StatelessWidget {
+  final RecipeDetailsModel recipe;
   final VoidCallback onTap;
 
-  const CustomSearchRecipeCard({
+  const RecentSearchRecipeCard({
     super.key,
     required this.recipe,
     required this.onTap,
@@ -14,63 +13,36 @@ class CustomSearchRecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Image.network(
-                  recipe.image,
-                  width: 78,
-                  height: 78,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 78,
-                    height: 78,
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: const Icon(Icons.restaurant_rounded),
-                  ),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 120,
+        margin: const EdgeInsets.only(right: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                recipe.thumbUrl, // Fixed: Changed recipe.image to recipe.thumbUrl
+                height: 80,
+                width: 120,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  height: 80,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.fastfood),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      recipe.name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${recipe.category} • ${recipe.area}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              recipe.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+            ),
+          ],
         ),
       ),
     );

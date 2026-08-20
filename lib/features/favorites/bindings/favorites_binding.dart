@@ -1,13 +1,12 @@
 import 'package:get/get.dart';
+import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
+import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
 
-import '../controllers/favorites_controller.dart';
 
-class FavoritesBinding extends Bindings {
+class   NavigationBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<FavoritesController>(
-      () => FavoritesController(),
-      fenix: true,
-    );
+    Get.put<FavoritesController>(FavoritesController(), permanent: true);
+    Get.lazyPut<NavigationController>(() => NavigationController());
   }
 }

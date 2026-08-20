@@ -1,49 +1,116 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import 'package:recipe_app/core/routes/app_routes.dart';
+import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/features/home/models/recipe_models.dart';
-import 'package:recipe_app/features/home/views/widgets/recipe_card.dart';
+import 'recipe_card.dart';
 
 class RecipeHorizontalList extends StatelessWidget {
   final List<RecipeModel> recipes;
-  final Function(RecipeModel)? onRecipeTap;
 
   const RecipeHorizontalList({
     super.key,
     required this.recipes,
-    this.onRecipeTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    final textSecondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+
+    // ============================================================
+    // EMPTY STATE
+    // ============================================================
+
     if (recipes.isEmpty) {
-      return const SizedBox(
-        height: 260,
+      return SizedBox(
+        height: 220,
+
         child: Center(
-          child: Text(
-            'No recipes found',
-            style: TextStyle(
-              fontSize: 15,
-            ),
+          child: Column(
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.all(14),
+
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  shape: BoxShape.circle,
+                ),
+
+                child: const Icon(
+                  Icons.restaurant_menu_rounded,
+                  color: AppColors.primary,
+                  size: 28,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Text(
+                'No trending recipes found',
+
+                style: TextStyle(
+                  color: textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
 
+    // ============================================================
+    // HORIZONTAL RECIPE LIST
+    // ============================================================
+
     return SizedBox(
-      height: 260,
+      height: 220,
+
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
+
+        physics:
+            const BouncingScrollPhysics(),
+
         itemCount: recipes.length,
+
         itemBuilder: (context, index) {
           final recipe = recipes[index];
 
-          return RecipeCard(
-            recipe: recipe,
-            horizontal: true,
-            onTap: () {
-              onRecipeTap?.call(recipe);
-            },
+          return Container(
+            width: 160,
+
+            margin:
+                const EdgeInsets.only(
+              right: 12,
+            ),
+
+            child: RecipeCard(
+              recipe: recipe,
+              horizontal: true,
+
+              onTap: () {
+                if (recipe.id.trim().isEmpty) {
+                  return;
+                }
+
+                Get.toNamed(
+                  AppRoutes.recipeDetails,
+                  arguments: recipe.id,
+                );
+              },
+            ),
           );
         },
       ),

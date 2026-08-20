@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
 
-import 'package:recipe_app/features/home/models/recipe_models.dart';
-import 'package:recipe_app/features/recipe_details/model/recipe_detail_model.dart';
-import 'package:recipe_app/features/recipe_details/repositories/recipe_detail_repository.dart';
+import '../model/recipe_detail_model.dart';
+import '../repositories/recipe_detail_repository.dart';
 
 class RecipeDetailsController extends GetxController {
   final RecipeDetailsRepository repository;
@@ -13,553 +11,631 @@ class RecipeDetailsController extends GetxController {
     required this.repository,
   });
 
-  // =========================================================
-  // RECIPE
-  // =========================================================
+  // ===========================================================
+  // TTS
+  // ===========================================================
 
-  final Rxn<RecipeDetailsModel> recipe = Rxn<RecipeDetailsModel>();
-  final RxBool isLoading = false.obs;
+  final FlutterTts _tts = FlutterTts();
+
+  // ===========================================================
+  // RECIPE DATA
+  // ===========================================================
+
+  final Rxn<RecipeDetailsModel> recipeDetails =
+      Rxn<RecipeDetailsModel>();
+
+  final RxBool isLoading = true.obs;
   final RxString errorMessage = ''.obs;
-  final RxInt currentImageIndex = 0.obs;
 
-  String? recipeId;
+  // ===========================================================
+  // FAVORITE
+  // ===========================================================
 
-  // =========================================================
-  // TTS / VOICE
-  // =========================================================
+  final RxBool isFavorite = false.obs;
 
-  final FlutterTts flutterTts = FlutterTts();
+  // ===========================================================
+  // COOKING STATE
+  // ===========================================================
+
+  final RxInt currentStepIndex = 0.obs;
 
   final RxBool isSpeaking = false.obs;
+
   final RxBool isPaused = false.obs;
-  final RxBool isVoiceLoading = false.obs;
-  final RxDouble playbackSpeed = 1.0.obs;
-  final RxString voiceError = ''.obs;
 
-  final Rx<Duration> audioPosition = Duration.zero.obs;
-  final Rx<Duration> audioDuration = Duration.zero.obs;
+  final RxBool isCooking = false.obs;
 
-  // =========================================================
-  // INTERNAL STATE
-  // =========================================================
+  // ===========================================================
+  // VOICE TYPE
+  // ===========================================================
 
-  bool _voiceInitialized = false;
-  bool _isStopping = false;
-  bool _ignoreSpeechError = false;
+  final RxString voiceMode = 'none'.obs;
 
-  List<String> _speechSentences = [];
-  int _currentSentenceIndex = 0;
+  // none
+  // ingredient
+  // instruction
 
-  // =========================================================
-  // INIT
-  // =========================================================
+  // ===========================================================
+  // INITIALIZATION
+  // ===========================================================
 
   @override
   void onInit() {
     super.onInit();
-    _initializeVoice();
-    _handleArguments();
-  }
 
-  // =========================================================
-  // INITIALIZE VOICE
-  // =========================================================
+    _setupTts();
 
-  Future<void> _initializeVoice() async {
-    if (_voiceInitialized) return;
+    final String? recipeId =
+        Get.arguments?.toString();
 
-    try {
-      await flutterTts.setLanguage('en-US');
-      await flutterTts.setVolume(1.0);
-      await flutterTts.setPitch(1.0);
-      await flutterTts.setSpeechRate(_speechRate(playbackSpeed.value));
-
-      flutterTts.setStartHandler(() {
-        if (_isStopping) return;
-
-        isVoiceLoading.value = false;
-        isSpeaking.value = true;
-        isPaused.value = false;
-        voiceError.value = '';
-      });
-
-      flutterTts.setCompletionHandler(() {
-        if (_isStopping || isPaused.value) return;
-
-        _currentSentenceIndex++;
-
-        if (_currentSentenceIndex < _speechSentences.length) {
-          _speakCurrentSentence();
-        } else {
-          _finishSpeech();
-        }
-      });
-
-      flutterTts.setErrorHandler((dynamic message) {
-        if (_isStopping || _ignoreSpeechError) return;
-
-        final String error = message.toString().toLowerCase();
-
-        if (_isNormalBrowserSpeechError(error)) {
-          isVoiceLoading.value = false;
-          voiceError.value = '';
-          return;
-        }
-
-        isVoiceLoading.value = false;
-        isSpeaking.value = false;
-        isPaused.value = false;
-        voiceError.value = 'Voice playback failed.';
-      });
-
-      flutterTts.setCancelHandler(() {
-        if (_isStopping || _ignoreSpeechError) return;
-
-        isVoiceLoading.value = false;
-        isSpeaking.value = false;
-        voiceError.value = '';
-      });
-
-      _voiceInitialized = true;
-    } catch (_) {
-      _voiceInitialized = false;
-      voiceError.value = 'Unable to initialize voice.';
-    }
-  }
-
-  // =========================================================
-  // MAIN ACTION BUTTON TRIGGER (Play / Pause / Resume)
-  // =========================================================
-
-  Future<void> togglePlayPause() async {
-    if (isSpeaking.value) {
-      await pauseRecipe();
-    } else if (isPaused.value) {
-      await resumeRecipe();
+    if (recipeId != null &&
+        recipeId.isNotEmpty) {
+      fetchDetails(recipeId);
     } else {
-      await speakRecipe();
+      isLoading.value = false;
+      errorMessage.value =
+          'Invalid Recipe ID';
     }
   }
 
-  // =========================================================
-  // ARGUMENTS & FETCH
-  // =========================================================
+  // ===========================================================
+  // SETUP TTS
+  // ===========================================================
 
-  void _handleArguments() {
-    final dynamic arguments = Get.arguments;
+  Future<void> _setupTts() async {
+    await _tts.setLanguage('en-US');
 
-    if (arguments is RecipeModel) {
-      final String id = arguments.id.trim();
-      if (id.isNotEmpty) {
-        recipeId = id;
-        getRecipeDetails(id);
-      } else {
-        errorMessage.value = 'Recipe ID not found.';
+    await _tts.setSpeechRate(0.45);
+
+    await _tts.setPitch(1.0);
+
+    await _tts.setVolume(1.0);
+
+    await _tts.awaitSpeakCompletion(true);
+
+    _tts.setStartHandler(() {
+      isSpeaking.value = true;
+      isPaused.value = false;
+    });
+
+    _tts.setCompletionHandler(() {
+      isSpeaking.value = false;
+      isPaused.value = false;
+      voiceMode.value = 'none';
+
+      // Automatically move to next instruction
+      // only during Start Cooking mode.
+      if (isCooking.value &&
+          instructionSteps.isNotEmpty) {
+        if (currentStepIndex.value <
+            instructionSteps.length - 1) {
+          currentStepIndex.value++;
+          _speakCurrentInstruction();
+        } else {
+          isCooking.value = false;
+        }
       }
-      return;
-    }
+    });
 
-    if (arguments is String) {
-      final String id = arguments.trim();
-      if (id.isNotEmpty) {
-        recipeId = id;
-        getRecipeDetails(id);
-      } else {
-        errorMessage.value = 'Recipe ID not found.';
-      }
-      return;
-    }
+    _tts.setCancelHandler(() {
+      isSpeaking.value = false;
+      isPaused.value = false;
+    });
 
-    errorMessage.value = 'Recipe information not found.';
+    _tts.setErrorHandler((message) {
+      isSpeaking.value = false;
+      isPaused.value = false;
+      voiceMode.value = 'none';
+    });
   }
 
-  Future<void> getRecipeDetails(String id) async {
-    final String cleanId = id.trim();
+  // ===========================================================
+  // FETCH DETAILS
+  // ===========================================================
 
-    if (cleanId.isEmpty) {
-      recipe.value = null;
-      errorMessage.value = 'Recipe ID not found.';
-      return;
-    }
-
+  Future<void> fetchDetails(String id) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      currentImageIndex.value = 0;
 
-      await _silentStop();
+      await stopVoice();
 
-      final RecipeDetailsModel result =
-          await repository.getRecipeDetails(cleanId);
+      final details =
+          await repository.getRecipeDetails(id);
 
-      if (result.id.trim().isEmpty) {
-        recipe.value = null;
-        errorMessage.value = 'Recipe details not found.';
-        return;
-      }
+      recipeDetails.value = details;
 
-      recipe.value = result;
-      recipeId = result.id.trim();
-    } catch (_) {
-      recipe.value = null;
-      errorMessage.value = 'Failed to load recipe details.';
+      currentStepIndex.value = 0;
+    } catch (e) {
+      errorMessage.value =
+          e.toString().replaceAll(
+                'Exception: ',
+                '',
+              );
     } finally {
       isLoading.value = false;
     }
   }
 
-  // =========================================================
-  // SENTENCES BUILDER
-  // =========================================================
-
-  List<String> _buildRecipeSentences() {
-    final RecipeDetailsModel? currentRecipe = recipe.value;
-    if (currentRecipe == null) return [];
-
-    final List<String> sentences = [];
-
-    final String name = currentRecipe.name.trim();
-    if (name.isNotEmpty) {
-      sentences.add('Today we are going to make $name.');
-    }
-
-    final String category = currentRecipe.category.trim();
-    if (category.isNotEmpty) {
-      sentences.add('Category: $category.');
-    }
-
-    final String area = currentRecipe.area.trim();
-    if (area.isNotEmpty) {
-      sentences.add('Cuisine: $area.');
-    }
-
-    sentences.add('Here are the ingredients you will need.');
-
-    for (int i = 0; i < currentRecipe.ingredients.length; i++) {
-      final String ingredient = currentRecipe.ingredients[i].trim();
-      if (ingredient.isEmpty) continue;
-
-      String measure = '';
-      if (i < currentRecipe.measures.length) {
-        measure = currentRecipe.measures[i].trim();
-      }
-
-      if (measure.isNotEmpty) {
-        sentences.add('$measure of $ingredient.');
-      } else {
-        sentences.add('$ingredient.');
-      }
-    }
-
-    sentences.add('Now let us start cooking.');
-
-    final String instructions = currentRecipe.instructions.trim();
-    if (instructions.isNotEmpty) {
-      final rawSteps = instructions.split(RegExp(r'(?<=[.!?])|\n+'));
-      for (var step in rawSteps) {
-        final cleanStep = step.trim();
-        if (cleanStep.isNotEmpty) {
-          sentences.add(cleanStep);
-        }
-      }
-    }
-
-    return sentences;
-  }
-
-  // =========================================================
-  // SPEAK
-  // =========================================================
-
-  Future<void> speakRecipe() async {
-    final sentences = _buildRecipeSentences();
-    if (sentences.isEmpty) {
-      voiceError.value = 'No recipe text is available.';
-      return;
-    }
-
-    try {
-      voiceError.value = '';
-
-      if (!_voiceInitialized) {
-        await _initializeVoice();
-      }
-
-      if (!_voiceInitialized) {
-        isVoiceLoading.value = false;
-        voiceError.value = 'Unable to initialize voice.';
-        return;
-      }
-
-      await _silentStop();
-
-      _speechSentences = sentences;
-      _currentSentenceIndex = 0;
-
-      isVoiceLoading.value = true;
-      isSpeaking.value = false;
-      isPaused.value = false;
-
-      await _speakCurrentSentence();
-    } catch (e) {
-      isVoiceLoading.value = false;
-      isSpeaking.value = false;
-      isPaused.value = false;
-      if (!_isNormalBrowserSpeechError(e.toString().toLowerCase())) {
-        voiceError.value = 'Unable to play recipe voice.';
-      }
-    }
-  }
-
-  Future<void> _speakCurrentSentence() async {
-    if (_speechSentences.isEmpty ||
-        _currentSentenceIndex >= _speechSentences.length) {
-      _finishSpeech();
-      return;
-    }
-
-    await _applyVoiceSettings();
-
-    final String currentText = _speechSentences[_currentSentenceIndex];
-    if (currentText.trim().isEmpty) {
-      _currentSentenceIndex++;
-      await _speakCurrentSentence();
-      return;
-    }
-
-    isSpeaking.value = true;
-    isPaused.value = false;
-    isVoiceLoading.value = false;
-
-    await flutterTts.speak(currentText);
-  }
-
-  // =========================================================
-  // PAUSE
-  // =========================================================
-
-  Future<void> pauseRecipe() async {
-    try {
-      voiceError.value = '';
-      _ignoreSpeechError = true;
-
-      // Unset states manually before calling engine stop
-      isSpeaking.value = false;
-      isPaused.value = true;
-      isVoiceLoading.value = false;
-
-      await flutterTts.stop();
-    } catch (_) {
-      isSpeaking.value = false;
-      isPaused.value = true;
-      isVoiceLoading.value = false;
-    } finally {
-      _ignoreSpeechError = false;
-    }
-  }
-
-  // =========================================================
-  // RESUME
-  // =========================================================
-
-  Future<void> resumeRecipe() async {
-    if (_speechSentences.isEmpty) {
-      // Agar list khali ho toh dobara full recipe list build karke Play karain
-      await speakRecipe();
-      return;
-    }
-
-    try {
-      voiceError.value = '';
-      _ignoreSpeechError = true;
-
-      await flutterTts.stop();
-      await Future.delayed(const Duration(milliseconds: 100));
-
-      isVoiceLoading.value = true;
-      isPaused.value = false;
-
-      await _speakCurrentSentence();
-    } catch (e) {
-      isVoiceLoading.value = false;
-      isSpeaking.value = false;
-      isPaused.value = true;
-      if (!_isNormalBrowserSpeechError(e.toString().toLowerCase())) {
-        voiceError.value = 'Unable to resume voice.';
-      }
-    } finally {
-      _ignoreSpeechError = false;
-    }
-  }
-
-  // =========================================================
-  // STOP
-  // =========================================================
-
-  Future<void> stopRecipe({bool showMessage = true}) async {
-    try {
-      _isStopping = true;
-      _ignoreSpeechError = true;
-
-      voiceError.value = '';
-
-      try {
-        await flutterTts.stop();
-      } catch (_) {}
-
-      isSpeaking.value = false;
-      isPaused.value = false;
-      isVoiceLoading.value = false;
-
-      _speechSentences = [];
-      _currentSentenceIndex = 0;
-
-      audioPosition.value = Duration.zero;
-      audioDuration.value = Duration.zero;
-
-      if (showMessage) {
-        Get.snackbar(
-          'Voice Stopped',
-          'Recipe voice has been stopped.',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 2),
-          icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-        );
-      }
-    } catch (_) {
-      voiceError.value = '';
-    } finally {
-      _ignoreSpeechError = false;
-      _isStopping = false;
-    }
-  }
-
-  Future<void> _silentStop() async {
-    _isStopping = true;
-    _ignoreSpeechError = true;
-
-    try {
-      await flutterTts.stop();
-    } catch (_) {
-    } finally {
-      isSpeaking.value = false;
-      isPaused.value = false;
-      isVoiceLoading.value = false;
-      _ignoreSpeechError = false;
-      _isStopping = false;
-    }
-  }
-
-  Future<void> _applyVoiceSettings() async {
-    await flutterTts.setLanguage('en-US');
-    await flutterTts.setVolume(1.0);
-    await flutterTts.setPitch(1.0);
-    await flutterTts.setSpeechRate(_speechRate(playbackSpeed.value));
-  }
-
-  Future<void> setSpeechSpeed(double speed) async {
-    final double cleanSpeed = speed.clamp(0.5, 2.0).toDouble();
-    playbackSpeed.value = cleanSpeed;
-    voiceError.value = '';
-
-    try {
-      await flutterTts.setSpeechRate(_speechRate(cleanSpeed));
-
-      if (isSpeaking.value) {
-        await flutterTts.stop();
-        await _speakCurrentSentence();
-      }
-    } catch (_) {
-      voiceError.value = 'Unable to change voice speed.';
-    }
-  }
-
-  double _speechRate(double speed) {
-    if (speed <= 0.5) return 0.25;
-    if (speed <= 0.75) return 0.35;
-    if (speed <= 1.0) return 0.50;
-    if (speed <= 1.25) return 0.58;
-    if (speed <= 1.5) return 0.65;
-    return 0.75;
-  }
-
-  void _finishSpeech() {
-    isVoiceLoading.value = false;
-    isSpeaking.value = false;
-    isPaused.value = false;
-    _currentSentenceIndex = 0;
-    voiceError.value = '';
-  }
-
-  bool _isNormalBrowserSpeechError(String error) {
-    final String text = error.toLowerCase();
-    return text.contains('speechsynthesiserrorevent') ||
-        text.contains('speechsynthesis error') ||
-        text.contains('[object speechsynthesis') ||
-        text.contains('interrupted') ||
-        text.contains('cancel') ||
-        text.contains('canceled') ||
-        text.contains('cancelled');
-  }
-
-  Future<void> seekTo(Duration position) async {}
-  Future<void> skipForward() async {}
-  Future<void> skipBackward() async {}
-
-  String formatDuration(Duration duration) {
-    final int hours = duration.inHours;
-    final int minutes = duration.inMinutes.remainder(60);
-    final int seconds = duration.inSeconds.remainder(60);
-
-    if (hours > 0) {
-      return '${hours.toString().padLeft(2, '0')}:'
-          '${minutes.toString().padLeft(2, '0')}:'
-          '${seconds.toString().padLeft(2, '0')}';
-    }
-
-    return '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}';
-  }
-
-  void changeImage(int index) {
-    if (index < 0) return;
-    currentImageIndex.value = index;
-  }
+  // ===========================================================
+  // RETRY
+  // ===========================================================
 
   Future<void> retry() async {
-    final String? id = recipeId;
-    if (id != null && id.trim().isNotEmpty) {
-      await getRecipeDetails(id);
+    final String? recipeId =
+        Get.arguments?.toString();
+
+    if (recipeId == null ||
+        recipeId.isEmpty) {
+      errorMessage.value =
+          'Invalid Recipe ID';
       return;
     }
-    _handleArguments();
+
+    await fetchDetails(recipeId);
   }
+
+  // ===========================================================
+  // INSTRUCTION STEPS
+  // ===========================================================
+
+  List<String> get instructionSteps {
+    final recipe = recipeDetails.value;
+
+    if (recipe == null) {
+      return [];
+    }
+
+    return _splitInstructions(
+      recipe.instructions,
+    );
+  }
+
+  // ===========================================================
+  // TOTAL STEPS
+  // ===========================================================
+
+  int get totalSteps {
+    return instructionSteps.length;
+  }
+
+  // ===========================================================
+  // CURRENT STEP NUMBER
+  // ===========================================================
+
+  int get currentStepNumber {
+    if (totalSteps == 0) {
+      return 0;
+    }
+
+    return currentStepIndex.value + 1;
+  }
+
+  // ===========================================================
+  // CURRENT INSTRUCTION
+  // ===========================================================
+
+  String get currentInstruction {
+    if (instructionSteps.isEmpty) {
+      return '';
+    }
+
+    final int index =
+        currentStepIndex.value;
+
+    if (index < 0 ||
+        index >= instructionSteps.length) {
+      return '';
+    }
+
+    return instructionSteps[index];
+  }
+
+  // ===========================================================
+  // COOKING PROGRESS
+  // ===========================================================
+
+  double get cookingProgress {
+    if (totalSteps == 0) {
+      return 0;
+    }
+
+    return currentStepNumber / totalSteps;
+  }
+
+  // ===========================================================
+  // SPLIT INSTRUCTIONS
+  // ===========================================================
+
+  List<String> _splitInstructions(
+    String instructions,
+  ) {
+    if (instructions.trim().isEmpty) {
+      return [];
+    }
+
+    final cleaned =
+        instructions
+            .replaceAll('\r\n', '\n')
+            .replaceAll('\r', '\n')
+            .trim();
+
+    // First try newline-based instructions.
+    final lines = cleaned
+        .split('\n')
+        .map(
+          (e) => e.trim(),
+        )
+        .where(
+          (e) => e.isNotEmpty,
+        )
+        .toList();
+
+    if (lines.length > 1) {
+      return lines
+          .map(_cleanStepText)
+          .where(
+            (e) => e.isNotEmpty,
+          )
+          .toList();
+    }
+
+    // If API gives one large paragraph,
+    // split using sentence endings.
+    final sentences = cleaned
+        .split(
+          RegExp(
+            r'(?<=[.!?])\s+',
+          ),
+        )
+        .map(
+          (e) => e.trim(),
+        )
+        .where(
+          (e) => e.isNotEmpty,
+        )
+        .toList();
+
+    if (sentences.isNotEmpty) {
+      return sentences
+          .map(_cleanStepText)
+          .where(
+            (e) => e.isNotEmpty,
+          )
+          .toList();
+    }
+
+    return [_cleanStepText(cleaned)];
+  }
+
+  // ===========================================================
+  // CLEAN STEP
+  // ===========================================================
+
+  String _cleanStepText(String value) {
+    return value
+        .replaceFirst(
+          RegExp(
+            r'^\s*\d+[\.\)\-:]\s*',
+          ),
+          '',
+        )
+        .replaceFirst(
+          RegExp(
+            r'^\s*(step)\s*\d+[\.\:\-]?\s*',
+            caseSensitive: false,
+          ),
+          '',
+        )
+        .trim();
+  }
+
+  // ===========================================================
+  // SELECT STEP
+  // ===========================================================
+
+  Future<void> selectStep(int index) async {
+    if (index < 0 ||
+        index >= instructionSteps.length) {
+      return;
+    }
+
+    isCooking.value = false;
+
+    await stopVoice();
+
+    currentStepIndex.value = index;
+
+    await speakInstruction(
+      index,
+    );
+  }
+
+  // ===========================================================
+  // SPEAK ONE INSTRUCTION
+  // ===========================================================
+
+  Future<void> speakInstruction(
+    int index,
+  ) async {
+    if (index < 0 ||
+        index >= instructionSteps.length) {
+      return;
+    }
+
+    isCooking.value = false;
+
+    await stopVoice();
+
+    currentStepIndex.value = index;
+
+    voiceMode.value = 'instruction';
+
+    final text =
+        'Step ${index + 1}. '
+        '${instructionSteps[index]}';
+
+    await _tts.speak(text);
+  }
+
+  // ===========================================================
+  // START COOKING
+  // ===========================================================
+
+  Future<void> startCooking() async {
+    if (instructionSteps.isEmpty) {
+      return;
+    }
+
+    await stopVoice();
+
+    isCooking.value = true;
+
+    if (currentStepIndex.value >=
+        instructionSteps.length) {
+      currentStepIndex.value = 0;
+    }
+
+    await _speakCurrentInstruction();
+  }
+
+  // ===========================================================
+  // SPEAK CURRENT INSTRUCTION
+  // ===========================================================
+
+  Future<void> _speakCurrentInstruction() async {
+    if (!isCooking.value) {
+      return;
+    }
+
+    if (currentStepIndex.value < 0 ||
+        currentStepIndex.value >=
+            instructionSteps.length) {
+      isCooking.value = false;
+      return;
+    }
+
+    await stopVoice();
+
+    voiceMode.value = 'instruction';
+
+    final text =
+        'Step ${currentStepIndex.value + 1}. '
+        '${instructionSteps[currentStepIndex.value]}';
+
+    await _tts.speak(text);
+  }
+
+  // ===========================================================
+  // NEXT STEP
+  // ===========================================================
+
+  Future<void> nextStep() async {
+    if (instructionSteps.isEmpty) {
+      return;
+    }
+
+    await stopVoice();
+
+    if (currentStepIndex.value <
+        instructionSteps.length - 1) {
+      currentStepIndex.value++;
+    } else {
+      currentStepIndex.value = 0;
+    }
+
+    if (isCooking.value) {
+      await _speakCurrentInstruction();
+    }
+  }
+
+  // ===========================================================
+  // PREVIOUS STEP
+  // ===========================================================
+
+  Future<void> previousStep() async {
+    if (instructionSteps.isEmpty) {
+      return;
+    }
+
+    await stopVoice();
+
+    if (currentStepIndex.value > 0) {
+      currentStepIndex.value--;
+    } else {
+      currentStepIndex.value =
+          instructionSteps.length - 1;
+    }
+
+    if (isCooking.value) {
+      await _speakCurrentInstruction();
+    }
+  }
+
+  // ===========================================================
+  // REPEAT CURRENT STEP
+  // ===========================================================
+
+  Future<void> repeatStep() async {
+    if (instructionSteps.isEmpty) {
+      return;
+    }
+
+    await stopVoice();
+
+    if (isCooking.value) {
+      await _speakCurrentInstruction();
+    } else {
+      await speakInstruction(
+        currentStepIndex.value,
+      );
+    }
+  }
+
+  // ===========================================================
+  // PAUSE
+  // ===========================================================
+
+  Future<void> pauseVoice() async {
+    if (!isSpeaking.value) {
+      return;
+    }
+
+    await _tts.pause();
+
+    isPaused.value = true;
+  }
+
+  // ===========================================================
+  // RESUME
+  // ===========================================================
+
+  Future<void> resumeVoice() async {
+  if (!isPaused.value) {
+    return;
+  }
+
+  try {
+    await _tts.stop();
+
+    isPaused.value = false;
+    isSpeaking.value = false;
+
+    if (voiceMode.value == 'ingredient') {
+      await speakIngredients();
+      return;
+    }
+
+    if (voiceMode.value == 'instruction') {
+      if (isCooking.value) {
+        await _speakCurrentInstruction();
+      } else {
+        await speakInstruction(
+          currentStepIndex.value,
+        );
+      }
+    }
+  } catch (e) {
+    isPaused.value = false;
+    isSpeaking.value = false;
+  }
+}
+  // ===========================================================
+  // STOP VOICE
+  // ===========================================================
+
+  Future<void> stopVoice() async {
+    try {
+      await _tts.stop();
+    } catch (_) {}
+
+    isSpeaking.value = false;
+    isPaused.value = false;
+    voiceMode.value = 'none';
+  }
+
+  // ===========================================================
+  // INGREDIENT VOICE
+  // ===========================================================
+
+  Future<void> speakIngredients() async {
+    final recipe = recipeDetails.value;
+
+    if (recipe == null ||
+        recipe.ingredients.isEmpty) {
+      return;
+    }
+
+    isCooking.value = false;
+
+    await stopVoice();
+
+    voiceMode.value = 'ingredient';
+
+    final buffer = StringBuffer();
+
+    buffer.write(
+      'Ingredients for ${recipe.name}. ',
+    );
+
+    for (int i = 0;
+        i < recipe.ingredients.length;
+        i++) {
+      final ingredient =
+          recipe.ingredients[i];
+
+      final name =
+          ingredient.name.trim();
+
+      final measure =
+          ingredient.measure.trim();
+
+      if (name.isEmpty) {
+        continue;
+      }
+
+      buffer.write(
+        '${i + 1}. $name',
+      );
+
+      if (measure.isNotEmpty) {
+        buffer.write(
+          ', $measure',
+        );
+      }
+
+      buffer.write('. ');
+    }
+
+    await _tts.speak(
+      buffer.toString(),
+    );
+  }
+
+  // ===========================================================
+  // STOP INGREDIENT VOICE
+  // ===========================================================
+
+  Future<void> stopIngredientsVoice() async {
+    await stopVoice();
+  }
+
+  // ===========================================================
+  // FAVORITE
+  // ===========================================================
+
+  void toggleFavorite() {
+    isFavorite.value =
+        !isFavorite.value;
+  }
+
+  // ===========================================================
+  // DISPOSE
+  // ===========================================================
 
   @override
   void onClose() {
-    _isStopping = true;
-    _ignoreSpeechError = true;
-
-    flutterTts.stop();
-
-    recipe.value = null;
-    errorMessage.value = '';
-    recipeId = null;
-
-    isSpeaking.value = false;
-    isPaused.value = false;
-    isVoiceLoading.value = false;
-
-    playbackSpeed.value = 1.0;
-    voiceError.value = '';
-
-    audioPosition.value = Duration.zero;
-    audioDuration.value = Duration.zero;
-
-    _speechSentences = [];
-    _currentSentenceIndex = 0;
-    _voiceInitialized = false;
-
+    _tts.stop();
     super.onClose();
   }
 }
