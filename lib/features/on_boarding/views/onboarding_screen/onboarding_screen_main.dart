@@ -26,6 +26,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
 
           PageView(
             controller: controller.pageController,
+            physics: const NeverScrollableScrollPhysics(),
             onPageChanged: controller.changePage,
             children: [
               Onboarding1(
@@ -49,18 +50,44 @@ class OnboardingScreen extends GetView<OnboardingController> {
 
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
-            right: 20,
+            right: 30,
             child: TextButton(
               onPressed: controller.skip,
               child: Text(
                 'Skip',
                 style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryDark,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
+          Positioned(
+            right: 30,
+            bottom: MediaQuery.of(context).padding.bottom + 30,
+            child: Obx(
+              () => GestureDetector(
+                onTap: controller.nextPage,
+                child: Container(
+                  width: 55,
+                  height: 55,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryDark,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    controller.currentPage.value == 2
+                        ? Icons.check
+                        : Icons.arrow_forward,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      
         ],
       ),
     );
