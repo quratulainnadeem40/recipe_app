@@ -14,12 +14,13 @@ class CountryData {
   CountryData._();
 
   static const List<CountryModel> countries = [
-    CountryModel(
-      name: 'American',
-      area: 'American',
-      flagUrl:
-          'https://www.themealdb.com/images/icons/flags/big/64/us.png',
-    ),
+    
+     CountryModel(
+  name: 'Pakistani',
+  area: 'Pakistani',
+  flagUrl:
+      'https://flagcdn.com/w320/pk.png',
+),
     CountryModel(
       name: 'British',
       area: 'British',

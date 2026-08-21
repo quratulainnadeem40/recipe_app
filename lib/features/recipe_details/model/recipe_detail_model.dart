@@ -1,45 +1,89 @@
-class IngredientItem {
-  final String name;
-  final String measure;
+// ============================================================
+// RECIPE MODEL
+// ============================================================
 
-  const IngredientItem({
-    required this.name,
-    required this.measure,
-  });
-}
-
-class RecipeDetailsModel {
+class Recipe {
   final String id;
   final String name;
+
+  // ==========================================================
+  // BASIC INFORMATION
+  // ==========================================================
+
+  final String cuisine;
   final String category;
-  final String area;
+  final String difficulty;
+
+  // ==========================================================
+  // RATING
+  // ==========================================================
+
+  final double rating;
+  final int reviews;
+
+  // ==========================================================
+  // TIME
+  // ==========================================================
+
+  final int prepTime;
+
+  // ==========================================================
+  // IMAGE
+  // ==========================================================
+
+  final String imageUrl;
+
+  // ==========================================================
+  // RECIPE CONTENT
+  // ==========================================================
+
+  final List<String> ingredients;
+  final List<String> steps;
+
+  // ==========================================================
+  // EXTRA RECIPE DETAIL DATA
+  // ==========================================================
+
   final String instructions;
-  final String thumbUrl;
   final String youtubeUrl;
   final List<String> tags;
-  final List<IngredientItem> ingredients;
 
-  const RecipeDetailsModel({
+  // ==========================================================
+  // FAVORITE
+  // ==========================================================
+
+  bool isFavorite;
+
+  // ==========================================================
+  // CONSTRUCTOR
+  // ==========================================================
+
+  Recipe({
     required this.id,
     required this.name,
+    required this.cuisine,
     required this.category,
-    required this.area,
-    required this.instructions,
-    required this.thumbUrl,
-    required this.youtubeUrl,
-    required this.tags,
+    required this.rating,
+    required this.reviews,
+    required this.difficulty,
+    required this.imageUrl,
+    required this.prepTime,
     required this.ingredients,
+    required this.steps,
+    this.instructions = '',
+    this.youtubeUrl = '',
+    this.tags = const [],
+    this.isFavorite = false,
   });
 
-  factory RecipeDetailsModel.fromJson(
+  // ==========================================================
+  // JSON → RECIPE
+  // ==========================================================
+
+  factory Recipe.fromJson(
     Map<String, dynamic> json,
   ) {
-    final List<IngredientItem> parsedIngredients = [];
-
-    // =========================================================
-    // INGREDIENTS
-    // TheMealDB: strIngredient1 ... strIngredient20
-    // =========================================================
+    final List<String> parsedIngredients = [];
 
     for (int i = 1; i <= 20; i++) {
       final String ingredient =
@@ -49,18 +93,19 @@ class RecipeDetailsModel {
           (json['strMeasure$i'] ?? '').toString().trim();
 
       if (ingredient.isNotEmpty) {
-        parsedIngredients.add(
-          IngredientItem(
-            name: ingredient,
-            measure: measure,
-          ),
-        );
+        if (measure.isNotEmpty) {
+          parsedIngredients.add(
+            '$measure $ingredient',
+          );
+        } else {
+          parsedIngredients.add(ingredient);
+        }
       }
     }
 
-    // =========================================================
+    // ========================================================
     // TAGS
-    // =========================================================
+    // ========================================================
 
     final List<String> parsedTags = [];
 
@@ -76,98 +121,209 @@ class RecipeDetailsModel {
       );
     }
 
-    // =========================================================
-    // MAIN IMAGE
-    // =========================================================
+    // ========================================================
+    // INSTRUCTIONS
+    // ========================================================
 
-    final String image =
-        (json['strMealThumb'] ?? '').toString().trim();
+    final String parsedInstructions =
+        (json['strInstructions'] ?? '').toString().trim();
 
-    // =========================================================
-    // RETURN MODEL
-    // =========================================================
+    final List<String> parsedSteps = [];
 
-    return RecipeDetailsModel(
-      id: (json['idMeal'] ?? '').toString(),
+    if (parsedInstructions.isNotEmpty) {
+      parsedSteps.addAll(
+        parsedInstructions
+            .split(RegExp(r'\r?\n+'))
+            .map((step) => step.trim())
+            .where((step) => step.isNotEmpty),
+      );
+
+      if (parsedSteps.isEmpty) {
+        parsedSteps.add(parsedInstructions);
+      }
+    }
+
+    // ========================================================
+    // RETURN
+    // ========================================================
+
+    return Recipe(
+      id: (json['idMeal'] ?? '').toString().trim(),
+
       name: (json['strMeal'] ?? '').toString().trim(),
-      category: (json['strCategory'] ?? '').toString().trim(),
-      area: (json['strArea'] ?? '').toString().trim(),
-      instructions:
-          (json['strInstructions'] ?? '').toString().trim(),
-      thumbUrl: image,
+
+      cuisine:
+          (json['strArea'] ?? '').toString().trim(),
+
+      category:
+          (json['strCategory'] ?? '').toString().trim(),
+
+      rating:
+          double.tryParse(
+                (json['rating'] ?? '0').toString(),
+              ) ??
+              0.0,
+
+      reviews:
+          int.tryParse(
+                (json['reviews'] ?? '0').toString(),
+              ) ??
+              0,
+
+      difficulty:
+          (json['difficulty'] ?? 'Easy').toString().trim(),
+
+      imageUrl:
+          (json['strMealThumb'] ?? '').toString().trim(),
+
+      prepTime:
+          int.tryParse(
+                (json['prepTime'] ?? '0').toString(),
+              ) ??
+              0,
+
+      ingredients: parsedIngredients,
+
+      steps: parsedSteps,
+
+      instructions: parsedInstructions,
+
       youtubeUrl:
           (json['strYoutube'] ?? '').toString().trim(),
+
       tags: parsedTags,
-      ingredients: parsedIngredients,
     );
   }
 
-  // =========================================================
+  // ==========================================================
   // COPY WITH
-  // =========================================================
+  // ==========================================================
 
-  RecipeDetailsModel copyWith({
+  Recipe copyWith({
     String? id,
     String? name,
+    String? cuisine,
     String? category,
-    String? area,
+    double? rating,
+    int? reviews,
+    String? difficulty,
+    String? imageUrl,
+    int? prepTime,
+    List<String>? ingredients,
+    List<String>? steps,
     String? instructions,
-    String? thumbUrl,
     String? youtubeUrl,
     List<String>? tags,
-    List<IngredientItem>? ingredients,
+    bool? isFavorite,
   }) {
-    return RecipeDetailsModel(
+    return Recipe(
       id: id ?? this.id,
       name: name ?? this.name,
+      cuisine: cuisine ?? this.cuisine,
       category: category ?? this.category,
-      area: area ?? this.area,
+      rating: rating ?? this.rating,
+      reviews: reviews ?? this.reviews,
+      difficulty: difficulty ?? this.difficulty,
+      imageUrl: imageUrl ?? this.imageUrl,
+      prepTime: prepTime ?? this.prepTime,
+      ingredients: ingredients ?? this.ingredients,
+      steps: steps ?? this.steps,
       instructions: instructions ?? this.instructions,
-      thumbUrl: thumbUrl ?? this.thumbUrl,
       youtubeUrl: youtubeUrl ?? this.youtubeUrl,
       tags: tags ?? this.tags,
-      ingredients: ingredients ?? this.ingredients,
+      isFavorite: isFavorite ?? this.isFavorite,
     );
   }
 
-  // =========================================================
-  // HELPERS
-  // =========================================================
+  // ==========================================================
+  // HELPERS FOR UI
+  // ==========================================================
 
-  bool get hasImage => thumbUrl.isNotEmpty;
+  bool get hasImage => imageUrl.trim().isNotEmpty;
 
   bool get hasIngredients => ingredients.isNotEmpty;
 
-  bool get hasInstructions => instructions.isNotEmpty;
+  bool get hasSteps => steps.isNotEmpty;
 
-  bool get hasYoutubeVideo => youtubeUrl.isNotEmpty;
+  bool get hasInstructions =>
+      instructions.trim().isNotEmpty;
+
+  bool get hasYoutubeVideo =>
+      youtubeUrl.trim().isNotEmpty;
 
   bool get hasTags => tags.isNotEmpty;
 
   int get ingredientCount => ingredients.length;
 
-  // =========================================================
+  int get stepCount => steps.length;
+
+  // ==========================================================
+  // DISPLAY VALUES
+  // ==========================================================
+
+  String get displayCuisine {
+    return cuisine.isEmpty ? 'International' : cuisine;
+  }
+
+  String get displayCategory {
+    return category.isEmpty ? 'Recipe' : category;
+  }
+
+  String get displayDifficulty {
+    return difficulty.isEmpty ? 'Easy' : difficulty;
+  }
+
+  String get displayPrepTime {
+    if (prepTime <= 0) {
+      return 'Time not available';
+    }
+
+    return '$prepTime min';
+  }
+
+  // ==========================================================
   // INSTRUCTION STEPS
-  // =========================================================
+  // ==========================================================
 
   List<String> get instructionSteps {
     if (instructions.trim().isEmpty) {
-      return [];
+      return steps;
     }
 
-    final List<String> steps = instructions
+    final List<String> parsedSteps = instructions
         .split(RegExp(r'\r?\n+'))
         .map((step) => step.trim())
         .where((step) => step.isNotEmpty)
         .toList();
 
-    // If API returned one large paragraph,
-    // keep it as one readable instruction instead
-    // of creating broken steps.
-    if (steps.isEmpty) {
+    if (parsedSteps.isEmpty) {
       return [instructions.trim()];
     }
 
-    return steps;
+    return parsedSteps;
+  }
+
+  // ==========================================================
+  // EMPTY MODEL
+  // ==========================================================
+
+  static Recipe empty() {
+    return Recipe(
+      id: '',
+      name: '',
+      cuisine: '',
+      category: '',
+      rating: 0.0,
+      reviews: 0,
+      difficulty: '',
+      imageUrl: '',
+      prepTime: 0,
+      ingredients: const [],
+      steps: const [],
+      instructions: '',
+      youtubeUrl: '',
+      tags: const [],
+      isFavorite: false,
+    );
   }
 }
