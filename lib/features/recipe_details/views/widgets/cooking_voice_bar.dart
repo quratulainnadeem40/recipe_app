@@ -1,9 +1,8 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../../core/theme/app_colors.dart';
-
-import '../../controllers/recipe_details_controller.dart' show RecipeController;
+import 'package:recipe_app/core/theme/app_colors.dart';
+import 'package:recipe_app/features/recipe_details/controllers/recipe_details_controller.dart' show RecipeController;
 
 class CookingVoiceBar extends StatelessWidget {
   const CookingVoiceBar({
@@ -12,345 +11,196 @@ class CookingVoiceBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RecipeController controller =
-        Get.find<RecipeController>();
-
+    final RecipeController controller = Get.find<RecipeController>();
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Obx(() {
-      final bool hasSteps =
-          controller.totalSteps > 0;
+      final isSpeaking = controller.isSpeaking.value;
+      final isPaused = controller.isPaused.value;
 
-      final bool isSpeaking =
-          controller.isSpeaking.value;
-
-      final bool isPaused =
-          controller.isPaused.value;
-
-      if (!hasSteps) {
-        return const SizedBox.shrink();
-      }
-
-      return SafeArea(
-        top: false,
+      return Align(
+        alignment: Alignment.bottomCenter,
         child: Container(
-          margin: const EdgeInsets.fromLTRB(
-            12,
-            0,
-            12,
-            12,
-          ),
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            14,
-            16,
-            12,
-          ),
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
           decoration: BoxDecoration(
-            color: theme.cardColor,
-            borderRadius:
-                BorderRadius.circular(24),
-            border: Border.all(
-              color: theme.dividerColor.withValues(
-                alpha: 0.35,
-              ),
-            ),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                blurRadius: 25,
-                offset: const Offset(0, 8),
-                color: Colors.black.withValues(
-                  alpha: 0.10,
-                ),
+                color: (isSpeaking ? AppColors.primary : Colors.black).withOpacity(0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // =================================================
-              // HEADER
-              // =================================================
-
-              Row(
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color:
-                          AppColors.primaryLight,
-                      borderRadius:
-                          BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      isSpeaking
-                          ? Icons.volume_up_rounded
-                          : Icons
-                              .record_voice_over_rounded,
-                      color: AppColors.primary,
-                      size: 22,
-                    ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                // ==========================================
+                // CORE FIX: Wrapped color and border inside BoxDecoration
+                // ==========================================
+                decoration: BoxDecoration(
+                  color: isDark 
+                      ? Colors.black.withOpacity(0.78) 
+                      : Colors.white.withOpacity(0.90),
+                  border: Border.all(
+                    color: isSpeaking 
+                        ? AppColors.primary.withOpacity(0.3) 
+                        : Colors.grey.withOpacity(0.15),
+                    width: 1.5,
                   ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                  borderRadius: BorderRadius.circular(24), // Maintain perfect curved corners
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Step progress header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          isSpeaking
-                              ? 'Cooking Assistant'
-                              : 'Ready to Cook?',
-                          style: theme
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(
-                            fontWeight:
-                                FontWeight.w800,
+                          'Step ${controller.currentStepNumber} of ${controller.totalSteps}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primary,
+                            letterSpacing: 0.5,
                           ),
                         ),
-
-                        const SizedBox(height: 2),
-
                         Text(
-                          'Step '
-                          '${controller.currentStepNumber} '
-                          'of '
-                          '${controller.totalSteps}',
-                          style: theme
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                            color: theme
-                                .colorScheme
-                                .onSurface
-                                .withValues(
-                                  alpha: 0.55,
-                                ),
-                            fontWeight:
-                                FontWeight.w600,
+                          '${(controller.cookingProgress * 100).toInt()}% Done',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade500,
                           ),
                         ),
                       ],
                     ),
-                  ),
-
-                  // =================================================
-                  // REPEAT
-                  // =================================================
-
-                  IconButton(
-                    tooltip: 'Repeat',
-                    onPressed:
-                        controller.repeatStep,
-                    icon: const Icon(
-                      Icons.replay_rounded,
+                    const SizedBox(height: 8),
+                    
+                    // Linear Progress Bar using cookingProgress
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: controller.cookingProgress,
+                        backgroundColor: AppColors.primaryLight,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                        minHeight: 5,
+                      ),
                     ),
-                    color: AppColors.primary,
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 12),
 
-              const SizedBox(height: 10),
-
-              // =================================================
-              // PROGRESS
-              // =================================================
-
-              ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(10),
-                child: LinearProgressIndicator(
-                  value:
-                      controller.cookingProgress,
-                  minHeight: 5,
-                  backgroundColor:
-                      AppColors.primaryLight,
-                  valueColor:
-                      const AlwaysStoppedAnimation<
-                          Color>(
-                    AppColors.primary,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // =================================================
-              // PLAY / PAUSE
-              // =================================================
-
-              Row(
-                children: [
-                  // Previous
-                  _VoiceActionButton(
-                    icon:
-                        Icons.skip_previous_rounded,
-                    onTap:
-                        controller.previousStep,
-                  ),
-
-                  const SizedBox(width: 8),
-
-                  // Main button
-                  Expanded(
-                    child: SizedBox(
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (!isSpeaking) {
-                            controller
-                                .startCooking();
-                          } else if (isPaused) {
-                            controller
-                                .resumeVoice();
-                          } else {
-                            controller
-                                .pauseVoice();
-                          }
-                        },
-                        style:
-                            ElevatedButton.styleFrom(
-                          backgroundColor:
-                              AppColors.primary,
-                          foregroundColor:
-                              const Color.fromARGB(255, 255, 30, 30),
-                          elevation: 0,
-                          shape:
-                              RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(
-                              17,
+                    // Instruction Display Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.grey.shade900.withOpacity(0.4) : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Obx(
+                        () => Text(
+                          controller.currentInstruction.value,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            height: 1.4,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.65,
                             ),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              !isSpeaking
-                                  ? Icons
-                                      .play_arrow_rounded
-                                  : isPaused
-                                      ? Icons
-                                          .play_arrow_rounded
-                                      : Icons
-                                          .pause_rounded,
-                              size: 25,
-                            ),
-                            const SizedBox(width: 7),
-                            Text(
-                              !isSpeaking
-                                  ? 'Start Cooking'
-                                  : isPaused
-                                      ? 'Resume'
-                                      : 'Pause',
-                              style:
-                                  const TextStyle(
-                                fontSize: 15,
-                                fontWeight:
-                                    FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 16),
 
-                  const SizedBox(width: 8),
+                    // Navigation Media Controllers
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // Repeat Button
+                        IconButton(
+                          tooltip: 'Repeat',
+                          onPressed: controller.repeatStep,
+                          icon: const Icon(Icons.replay_circle_filled_rounded),
+                          color: AppColors.primary.withOpacity(0.8),
+                          iconSize: 28,
+                        ),
 
-                  // Next
-                  _VoiceActionButton(
-                    icon:
-                        Icons.skip_next_rounded,
-                    onTap:
-                        controller.nextStep,
-                  ),
-                ],
+                        // Back Button
+                        IconButton(
+                          tooltip: 'Previous Step',
+                          onPressed: controller.previousStep,
+                          icon: const Icon(Icons.skip_previous_rounded),
+                          color: AppColors.primary,
+                          iconSize: 32,
+                        ),
+
+                        // Main Play/Pause Button
+                        GestureDetector(
+                          onTap: () {
+                            if (!isSpeaking) {
+                              controller.startCooking();
+                            } else if (isPaused) {
+                              controller.resumeVoice();
+                            } else {
+                              controller.pauseVoice();
+                            }
+                          },
+                          child: Container(
+                            height: 56,
+                            width: 56,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.primary,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.35),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                )
+                              ],
+                            ),
+                            child: Icon(
+                              isSpeaking && !isPaused
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded,
+                              color: Colors.white,
+                              size: 36,
+                            ),
+                          ),
+                        ),
+
+                        // Next Button
+                        IconButton(
+                          tooltip: 'Next Step',
+                          onPressed: controller.nextStep,
+                          icon: const Icon(Icons.skip_next_rounded),
+                          color: AppColors.primary,
+                          iconSize: 32,
+                        ),
+
+                        // Stop Button
+                        IconButton(
+                          tooltip: 'Stop Cooking',
+                          onPressed: () => controller.stopSpeaking(),
+                          icon: const Icon(Icons.stop_circle_rounded),
+                          color: Colors.redAccent.withOpacity(0.8),
+                          iconSize: 28,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-
-              const SizedBox(height: 10),
-
-              // =================================================
-              // CURRENT STEP
-              // =================================================
-
-              Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  const Icon(
-                    Icons.format_quote_rounded,
-                    size: 17,
-                    color: AppColors.primary,
-                  ),
-
-                  const SizedBox(width: 7),
-
-                  Expanded(
-  child: Obx(
-    () => Text(
-      controller.currentInstruction.value,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-      style: theme.textTheme.bodySmall?.copyWith(
-        height: 1.4,
-        color: theme.colorScheme.onSurface.withValues(
-          alpha: 0.65,
-        ),
-      ),
-    ),
-  ),
-),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       );
     });
-  }
-}
-
-// =============================================================
-// SMALL VOICE ACTION BUTTON
-// =============================================================
-
-class _VoiceActionButton
-    extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _VoiceActionButton({
-    required this.icon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.primaryLight,
-      borderRadius:
-          BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius:
-            BorderRadius.circular(16),
-        child: SizedBox(
-          width: 52,
-          height: 52,
-          child: Icon(
-            icon,
-            color: AppColors.primary,
-            size: 25,
-          ),
-        ),
-      ),
-    );
   }
 }
