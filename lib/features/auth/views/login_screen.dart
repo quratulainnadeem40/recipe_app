@@ -38,7 +38,6 @@ class LoginScreen extends GetView<AuthController> {
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
 
-    // Icons remain clearly visible in both modes.
     final iconColor = isDark
         ? AppColors.darkTextSecondary
         : AppColors.primary;
@@ -56,13 +55,10 @@ class LoginScreen extends GetView<AuthController> {
             horizontal: 24,
             vertical: 30,
           ),
-
           child: Form(
             key: formKey,
-
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 // =================================================
                 // LOGO
@@ -72,25 +68,19 @@ class LoginScreen extends GetView<AuthController> {
                   child: Container(
                     width: 76,
                     height: 76,
-
                     decoration: BoxDecoration(
                       color: AppColors.primary,
-
-                      borderRadius:
-                          BorderRadius.circular(24),
-
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
                           color: isDark
-                              ? AppColors.primary
-                                  .withOpacity(0.30)
+                              ? AppColors.primary.withOpacity(0.30)
                               : AppColors.shadow,
                           blurRadius: 18,
                           offset: const Offset(0, 8),
                         ),
                       ],
                     ),
-
                     child: const Icon(
                       Icons.restaurant_menu_rounded,
                       color: AppColors.textWhite,
@@ -119,9 +109,7 @@ class LoginScreen extends GetView<AuthController> {
 
                 Text(
                   'Email',
-
-                  style:
-                      AppTextStyles.labelMedium.copyWith(
+                  style: AppTextStyles.labelMedium.copyWith(
                     color: textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -134,19 +122,11 @@ class LoginScreen extends GetView<AuthController> {
                 // =================================================
 
                 CustomTextField(
-                  controller:
-                      controller.loginEmailController,
-
+                  controller: controller.loginEmailController,
                   hintText: 'Enter your email',
-
-                  prefixIcon:
-                      Icons.email_outlined,
-
-                  keyboardType:
-                      TextInputType.emailAddress,
-
-                  validator:
-                      AuthValidators.email,
+                  prefixIcon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: AuthValidators.email,
                 ),
 
                 const SizedBox(height: 18),
@@ -157,9 +137,7 @@ class LoginScreen extends GetView<AuthController> {
 
                 Text(
                   'Password',
-
-                  style:
-                      AppTextStyles.labelMedium.copyWith(
+                  style: AppTextStyles.labelMedium.copyWith(
                     color: textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -175,48 +153,26 @@ class LoginScreen extends GetView<AuthController> {
                   () => CustomTextField(
                     controller:
                         controller.loginPasswordController,
-
-                    hintText:
-                        'Enter your password',
-
-                    prefixIcon:
-                        Icons.lock_outline_rounded,
-
+                    hintText: 'Enter your password',
+                    prefixIcon: Icons.lock_outline_rounded,
                     obscureText:
-                        !controller
-                            .isPasswordVisible
-                            .value,
-
-                    suffixIcon:
-                        IconButton(
+                        !controller.isPasswordVisible.value,
+                    suffixIcon: IconButton(
                       onPressed:
-                          controller
-                              .togglePasswordVisibility,
-
-                      tooltip: controller
-                              .isPasswordVisible
-                              .value
-                          ? 'Hide password'
-                          : 'Show password',
-
+                          controller.togglePasswordVisibility,
+                      tooltip:
+                          controller.isPasswordVisible.value
+                              ? 'Hide password'
+                              : 'Show password',
                       icon: Icon(
-                        controller
-                                .isPasswordVisible
-                                .value
-                            ? Icons
-                                .visibility_outlined
-                            : Icons
-                                .visibility_off_outlined,
-
-                        // Clear in light + dark
+                        controller.isPasswordVisible.value
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                         color: iconColor,
-
                         size: 21,
                       ),
                     ),
-
-                    validator:
-                        AuthValidators.password,
+                    validator: AuthValidators.password,
                   ),
                 ),
 
@@ -227,42 +183,24 @@ class LoginScreen extends GetView<AuthController> {
                 // =================================================
 
                 Align(
-                  alignment:
-                      Alignment.centerRight,
-
+                  alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed:
-                        controller
-                            .goToForgotPassword,
-
-                    style:
-                        TextButton.styleFrom(
-                      foregroundColor:
-                          AppColors.primary,
-
-                      padding:
-                          const EdgeInsets.symmetric(
+                    onPressed: controller.goToForgotPassword,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 4,
                         vertical: 6,
                       ),
-
                       minimumSize: Size.zero,
-
                       tapTargetSize:
-                          MaterialTapTargetSize
-                              .shrinkWrap,
+                          MaterialTapTargetSize.shrinkWrap,
                     ),
-
                     child: Text(
                       'Forgot Password?',
-
-                      style:
-                          AppTextStyles.primaryText
-                              .copyWith(
-                        color:
-                            AppColors.primary,
-                        fontWeight:
-                            FontWeight.w600,
+                      style: AppTextStyles.primaryText.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -277,26 +215,15 @@ class LoginScreen extends GetView<AuthController> {
                 Obx(
                   () => CustomButton(
                     text: 'Login',
-
                     height: 52,
-
                     width: double.infinity,
-
-                    isLoading:
-                        controller
-                            .isLoading
-                            .value,
-
+                    isLoading: controller.isLoading.value,
                     onPressed: () {
-                      if (controller
-                          .isLoading
-                          .value) {
+                      if (controller.isLoading.value) {
                         return;
                       }
 
-                      if (formKey
-                          .currentState!
-                          .validate()) {
+                      if (formKey.currentState!.validate()) {
                         controller.login();
                       }
                     },
@@ -310,56 +237,34 @@ class LoginScreen extends GetView<AuthController> {
                 // =================================================
 
                 Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center,
-
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Flexible(
                       child: Text(
                         "Don't have an account?",
-
-                        style: AppTextStyles
-                            .bodyMedium
-                            .copyWith(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: textSecondary,
                         ),
-
-                        textAlign:
-                            TextAlign.center,
+                        textAlign: TextAlign.center,
                       ),
                     ),
 
                     TextButton(
-                      onPressed:
-                          controller.goToSignup,
-
-                      style:
-                          TextButton.styleFrom(
-                        foregroundColor:
-                            AppColors.primary,
-
-                        padding:
-                            const EdgeInsets.symmetric(
+                      onPressed: controller.goToSignup,
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 6,
                         ),
-
                         minimumSize: Size.zero,
-
                         tapTargetSize:
-                            MaterialTapTargetSize
-                                .shrinkWrap,
+                            MaterialTapTargetSize.shrinkWrap,
                       ),
-
                       child: Text(
                         'Sign Up',
-
-                        style: AppTextStyles
-                            .primaryText
-                            .copyWith(
-                          color:
-                              AppColors.primary,
-                          fontWeight:
-                              FontWeight.w700,
+                        style: AppTextStyles.primaryText.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

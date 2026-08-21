@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:recipe_app/core/theme/app_colors.dart';
+import 'package:recipe_app/core/theme/app_text_styles.dart';
 import 'package:recipe_app/features/feedback/controller/feedback_controller.dart';
 import 'package:recipe_app/features/feedback/views/feedback_text_field.dart';
 import 'package:recipe_app/features/feedback/views/rating_widget.dart';
@@ -22,7 +23,7 @@ class FeedbackScreen extends GetView<FeedbackController> {
     final isDark = theme.brightness == Brightness.dark;
 
     // =========================================================
-    // COLORS
+    // THEME COLORS
     // =========================================================
 
     final backgroundColor = isDark
@@ -33,16 +34,16 @@ class FeedbackScreen extends GetView<FeedbackController> {
         ? AppColors.darkSurface
         : AppColors.surface;
 
-    final headingColor = isDark
+    final textPrimary = isDark
         ? AppColors.darkTextPrimary
-        : AppColors.primary;
+        : AppColors.textPrimary;
 
-    final bodyColor = isDark
+    final textSecondary = isDark
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
 
     final iconColor = isDark
-        ? AppColors.primaryLight
+        ? AppColors.darkTextPrimary
         : AppColors.primary;
 
     final borderColor = isDark
@@ -53,11 +54,9 @@ class FeedbackScreen extends GetView<FeedbackController> {
     // FIREBASE USER
     // =========================================================
 
-    final User? user =
-        FirebaseAuth.instance.currentUser;
+    final User? user = FirebaseAuth.instance.currentUser;
 
-    final String userId =
-        user?.uid ?? '';
+    final String userId = user?.uid ?? '';
 
     final String userName =
         user?.displayName?.trim().isNotEmpty == true
@@ -77,14 +76,16 @@ class FeedbackScreen extends GetView<FeedbackController> {
 
       appBar: AppBar(
         backgroundColor: backgroundColor,
-        foregroundColor: headingColor,
+        foregroundColor: textPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
 
         title: Text(
           'Feedback',
-          style: TextStyle(
-            color: headingColor,
+          style: AppTextStyles.headingMedium.copyWith(
+            color: textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
@@ -97,11 +98,8 @@ class FeedbackScreen extends GetView<FeedbackController> {
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
-
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
 
@@ -113,23 +111,16 @@ class FeedbackScreen extends GetView<FeedbackController> {
               child: Container(
                 width: 90,
                 height: 90,
-
                 decoration: BoxDecoration(
                   color: isDark
-                      ? AppColors.primary
-                          .withOpacity(0.20)
+                      ? AppColors.primary.withOpacity(0.20)
                       : AppColors.primaryLight,
-
                   shape: BoxShape.circle,
-
                   border: Border.all(
-                    color: isDark
-                        ? AppColors.darkBorder
-                        : AppColors.border,
+                    color: borderColor,
                     width: 1,
                   ),
                 ),
-
                 child: Icon(
                   Icons.rate_review_rounded,
                   size: 48,
@@ -147,13 +138,11 @@ class FeedbackScreen extends GetView<FeedbackController> {
             Center(
               child: Text(
                 'How was your experience?',
-
-                style: TextStyle(
-                  color: headingColor,
+                style: AppTextStyles.headingMedium.copyWith(
+                  color: textPrimary,
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                 ),
-
                 textAlign: TextAlign.center,
               ),
             ),
@@ -167,13 +156,10 @@ class FeedbackScreen extends GetView<FeedbackController> {
             Center(
               child: Text(
                 'Your feedback helps us improve the app.',
-
-                style: TextStyle(
-                  color: bodyColor,
-                  fontSize: 14,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: textSecondary,
                   height: 1.5,
                 ),
-
                 textAlign: TextAlign.center,
               ),
             ),
@@ -186,10 +172,8 @@ class FeedbackScreen extends GetView<FeedbackController> {
 
             Text(
               'Rate your experience',
-
-              style: TextStyle(
-                color: headingColor,
-                fontSize: 16,
+              style: AppTextStyles.labelLarge.copyWith(
+                color: textPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -198,23 +182,17 @@ class FeedbackScreen extends GetView<FeedbackController> {
 
             Container(
               width: double.infinity,
-
               padding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 14,
               ),
-
               decoration: BoxDecoration(
                 color: surfaceColor,
-
-                borderRadius:
-                    BorderRadius.circular(14),
-
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: borderColor,
                 ),
               ),
-
               child: const RatingWidget(),
             ),
 
@@ -226,10 +204,8 @@ class FeedbackScreen extends GetView<FeedbackController> {
 
             Text(
               'Your feedback',
-
-              style: TextStyle(
-                color: headingColor,
-                fontSize: 16,
+              style: AppTextStyles.labelLarge.copyWith(
+                color: textPrimary,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -254,10 +230,11 @@ class FeedbackScreen extends GetView<FeedbackController> {
                   return SizedBox(
                     width: double.infinity,
                     height: 52,
-
                     child: Center(
                       child: CircularProgressIndicator(
-                        color: iconColor,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.primary,
                         strokeWidth: 2.8,
                       ),
                     ),
@@ -267,7 +244,6 @@ class FeedbackScreen extends GetView<FeedbackController> {
                 return SizedBox(
                   width: double.infinity,
                   height: 52,
-
                   child: ElevatedButton.icon(
                     onPressed: userId.isEmpty
                         ? null
@@ -277,42 +253,33 @@ class FeedbackScreen extends GetView<FeedbackController> {
                               userName: userName,
                             );
                           },
-
                     icon: const Icon(
                       Icons.send_rounded,
                     ),
-
-                    label: const Text(
+                    label: Text(
                       'Submit Feedback',
-                      style: TextStyle(
+                      style: AppTextStyles.button.copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          AppColors.primary,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.white,
 
-                      foregroundColor:
-                          AppColors.white,
+                      // Use existing colors only.
+                      disabledBackgroundColor: isDark
+                          ? AppColors.darkSurface
+                          : AppColors.inputBackground,
 
-                      disabledBackgroundColor:
-                          isDark
-                              ? AppColors.darkSurface
-                              : AppColors.inputBackground,
-
-                      disabledForegroundColor:
-                          isDark
-                              ? AppColors.darkTextDisabled
-                              : AppColors.textDisabled,
+                      disabledForegroundColor: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.textSecondary,
 
                       elevation: 0,
 
-                      shape:
-                          RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                   ),

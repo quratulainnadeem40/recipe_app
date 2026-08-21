@@ -10,7 +10,9 @@ import 'package:recipe_app/features/auth/views/widgets/auth_header.dart';
 import '../controllers/auth_controller.dart';
 
 class ForgotPasswordScreen extends GetView<AuthController> {
-  const ForgotPasswordScreen({super.key});
+  const ForgotPasswordScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +33,9 @@ class ForgotPasswordScreen extends GetView<AuthController> {
         ? AppColors.darkTextPrimary
         : AppColors.textPrimary;
 
-    final textSecondary = isDark
-        ? AppColors.darkTextSecondary
-        : AppColors.textSecondary;
-
-    final actionColor = isDark
-        ? AppColors.primaryLight
-        : AppColors.primary;
+    // =========================================================
+    // SCREEN
+    // =========================================================
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -74,10 +72,8 @@ class ForgotPasswordScreen extends GetView<AuthController> {
             horizontal: 24,
             vertical: 20,
           ),
-
           child: Form(
             key: formKey,
-
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -100,7 +96,6 @@ class ForgotPasswordScreen extends GetView<AuthController> {
 
                 Align(
                   alignment: Alignment.centerLeft,
-
                   child: Text(
                     'Email',
                     style: AppTextStyles.labelMedium.copyWith(
@@ -117,11 +112,12 @@ class ForgotPasswordScreen extends GetView<AuthController> {
                 // =================================================
 
                 CustomTextField(
-                  controller: controller.forgotEmailController,
+                  controller:
+                      controller.forgotEmailController,
                   hintText: 'Enter your email',
                   prefixIcon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
-
+                  keyboardType:
+                      TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null ||
                         value.trim().isEmpty) {
@@ -149,14 +145,15 @@ class ForgotPasswordScreen extends GetView<AuthController> {
                     text: 'Send Reset Link',
                     width: double.infinity,
                     height: 52,
-                    isLoading: controller.isLoading.value,
-
+                    isLoading:
+                        controller.isLoading.value,
                     onPressed: () {
                       if (controller.isLoading.value) {
                         return;
                       }
 
-                      if (formKey.currentState!.validate()) {
+                      if (formKey.currentState!
+                          .validate()) {
                         controller.resetPassword();
                       }
                     },
@@ -171,26 +168,21 @@ class ForgotPasswordScreen extends GetView<AuthController> {
 
                 TextButton(
                   onPressed: controller.goToLogin,
-
                   style: TextButton.styleFrom(
-                    foregroundColor: actionColor,
-
+                    foregroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
                     ),
-
                     minimumSize: Size.zero,
-
                     tapTargetSize:
                         MaterialTapTargetSize.shrinkWrap,
                   ),
-
                   child: Text(
                     'Back to Login',
-
-                    style: AppTextStyles.primaryText.copyWith(
-                      color: actionColor,
+                    style:
+                        AppTextStyles.primaryText.copyWith(
+                      color: AppColors.primary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

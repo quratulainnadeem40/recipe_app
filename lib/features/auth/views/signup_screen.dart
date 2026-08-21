@@ -30,10 +30,6 @@ class SignupScreen extends GetView<AuthController> {
         ? AppColors.darkBackground
         : AppColors.background;
 
-    final surfaceColor = isDark
-        ? AppColors.darkSurface
-        : AppColors.surface;
-
     final textPrimary = isDark
         ? AppColors.darkTextPrimary
         : AppColors.textPrimary;
@@ -42,17 +38,9 @@ class SignupScreen extends GetView<AuthController> {
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
 
-    final textHint = isDark
-        ? AppColors.darkTextHint
-        : AppColors.textHint;
-
     final iconColor = isDark
         ? AppColors.darkTextSecondary
         : AppColors.primary;
-
-    final borderColor = isDark
-        ? AppColors.darkBorder
-        : AppColors.border;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -71,11 +59,8 @@ class SignupScreen extends GetView<AuthController> {
 
         title: Text(
           'Create Account',
-
           style: AppTextStyles.headingMedium.copyWith(
-            // Heading color
             color: textPrimary,
-
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
@@ -92,13 +77,10 @@ class SignupScreen extends GetView<AuthController> {
             horizontal: 24,
             vertical: 20,
           ),
-
           child: Form(
             key: formKey,
-
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 // =================================================
                 // AUTH HEADER
@@ -118,7 +100,6 @@ class SignupScreen extends GetView<AuthController> {
 
                 Text(
                   'Full Name',
-
                   style: AppTextStyles.labelMedium.copyWith(
                     color: textPrimary,
                     fontWeight: FontWeight.w600,
@@ -130,14 +111,10 @@ class SignupScreen extends GetView<AuthController> {
                 CustomTextField(
                   controller:
                       controller.signupNameController,
-
                   hintText: 'Enter your name',
-
                   prefixIcon:
                       Icons.person_outline_rounded,
-
                   keyboardType: TextInputType.name,
-
                   validator: AuthValidators.name,
                 ),
 
@@ -149,7 +126,6 @@ class SignupScreen extends GetView<AuthController> {
 
                 Text(
                   'Email',
-
                   style: AppTextStyles.labelMedium.copyWith(
                     color: textPrimary,
                     fontWeight: FontWeight.w600,
@@ -161,15 +137,11 @@ class SignupScreen extends GetView<AuthController> {
                 CustomTextField(
                   controller:
                       controller.signupEmailController,
-
                   hintText: 'Enter your email',
-
                   prefixIcon:
                       Icons.email_outlined,
-
                   keyboardType:
                       TextInputType.emailAddress,
-
                   validator: AuthValidators.email,
                 ),
 
@@ -181,7 +153,6 @@ class SignupScreen extends GetView<AuthController> {
 
                 Text(
                   'Password',
-
                   style: AppTextStyles.labelMedium.copyWith(
                     color: textPrimary,
                     fontWeight: FontWeight.w600,
@@ -194,41 +165,29 @@ class SignupScreen extends GetView<AuthController> {
                   () => CustomTextField(
                     controller:
                         controller.signupPasswordController,
-
                     hintText: 'Create password',
-
                     prefixIcon:
                         Icons.lock_outline_rounded,
-
-                    obscureText:
-                        !controller
-                            .isPasswordVisible
-                            .value,
-
+                    obscureText: !controller
+                        .isPasswordVisible
+                        .value,
                     validator:
                         AuthValidators.password,
-
                     suffixIcon: IconButton(
                       onPressed: controller
                           .togglePasswordVisibility,
-
                       tooltip: controller
                               .isPasswordVisible
                               .value
                           ? 'Hide password'
                           : 'Show password',
-
                       icon: Icon(
                         controller
                                 .isPasswordVisible
                                 .value
                             ? Icons.visibility_outlined
-                            : Icons
-                                .visibility_off_outlined,
-
-                        // Clearly visible in both themes
+                            : Icons.visibility_off_outlined,
                         color: iconColor,
-
                         size: 21,
                       ),
                     ),
@@ -243,7 +202,6 @@ class SignupScreen extends GetView<AuthController> {
 
                 Text(
                   'Confirm Password',
-
                   style: AppTextStyles.labelMedium.copyWith(
                     color: textPrimary,
                     fontWeight: FontWeight.w600,
@@ -256,47 +214,36 @@ class SignupScreen extends GetView<AuthController> {
                   () => CustomTextField(
                     controller: controller
                         .signupConfirmPasswordController,
-
                     hintText:
                         'Confirm your password',
-
                     prefixIcon:
                         Icons.lock_outline_rounded,
-
                     obscureText: !controller
                         .isConfirmPasswordVisible
                         .value,
-
                     validator: (value) {
-                      return AuthValidators
-                          .confirmPassword(
+                      return AuthValidators.confirmPassword(
                         value,
                         controller
                             .signupPasswordController
                             .text,
                       );
                     },
-
                     suffixIcon: IconButton(
                       onPressed: controller
                           .toggleConfirmPasswordVisibility,
-
                       tooltip: controller
                               .isConfirmPasswordVisible
                               .value
                           ? 'Hide password'
                           : 'Show password',
-
                       icon: Icon(
                         controller
                                 .isConfirmPasswordVisible
                                 .value
                             ? Icons.visibility_outlined
-                            : Icons
-                                .visibility_off_outlined,
-
+                            : Icons.visibility_off_outlined,
                         color: iconColor,
-
                         size: 21,
                       ),
                     ),
@@ -312,21 +259,16 @@ class SignupScreen extends GetView<AuthController> {
                 Obx(
                   () => CustomButton(
                     text: 'Create Account',
-
                     height: 52,
-
                     width: double.infinity,
-
                     isLoading:
                         controller.isLoading.value,
-
                     onPressed: () {
                       if (controller.isLoading.value) {
                         return;
                       }
 
-                      if (formKey.currentState!
-                          .validate()) {
+                      if (formKey.currentState!.validate()) {
                         controller.signup();
                       }
                     },
@@ -342,49 +284,35 @@ class SignupScreen extends GetView<AuthController> {
                 Row(
                   mainAxisAlignment:
                       MainAxisAlignment.center,
-
                   children: [
                     Flexible(
                       child: Text(
                         'Already have an account?',
-
-                        style: AppTextStyles.bodyMedium
-                            .copyWith(
+                        style: AppTextStyles.bodyMedium.copyWith(
                           color: textSecondary,
                         ),
-
                         textAlign: TextAlign.center,
                       ),
                     ),
 
                     TextButton(
-                      onPressed:
-                          controller.goToLogin,
-
+                      onPressed: controller.goToLogin,
                       style: TextButton.styleFrom(
                         foregroundColor:
                             AppColors.primary,
-
                         padding:
                             const EdgeInsets.symmetric(
                           horizontal: 6,
                         ),
-
                         minimumSize: Size.zero,
-
                         tapTargetSize:
-                            MaterialTapTargetSize
-                                .shrinkWrap,
+                            MaterialTapTargetSize.shrinkWrap,
                       ),
-
                       child: Text(
                         'Login',
-
-                        style: AppTextStyles.primaryText
-                            .copyWith(
+                        style: AppTextStyles.primaryText.copyWith(
                           color: AppColors.primary,
-                          fontWeight:
-                              FontWeight.w700,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
