@@ -11,12 +11,12 @@ abstract class AppRoutes {
 
   // MAIN NAVIGATION & FEATURES
   static const String home = '/home';
+  static const String explore = '/explore';
   static const String search = '/search';
   static const String recipeDetails = '/recipe-details';
   static const String favorites = '/favorites';
   static const String notifications = '/notifications';
   static const String feedback = '/feedback';
-
 
   // PROFILE & SETTINGS
   static const String profile = '/profile';

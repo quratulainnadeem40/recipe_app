@@ -1,25 +1,20 @@
 import 'package:recipe_app/core/services/api_service.dart';
 import 'package:recipe_app/features/recipe_details/model/recipe_detail_model.dart';
 
-class RecipeDetailsRepository {
+class RecipeRepository {
   final ApiService apiService;
 
-  RecipeDetailsRepository({
+  RecipeRepository({
     required this.apiService,
   });
 
   // =========================================================
-  // GET RECIPE DETAILS
+  // GET ALL RECIPES
   // =========================================================
 
-  Future<RecipeDetailsModel> getRecipeDetails(String id) async {
-    final recipeId = id.trim();
-
-    if (recipeId.isEmpty) {
-      throw Exception('Recipe ID cannot be empty');
-    }
-
-    final responseData = await apiService.getData('lookup.php?i=$recipeId');
+  Future<List<Recipe>> getRecipes() async {
+    final responseData =
+        await apiService.getData('search.php?s=');
 
     if (responseData is! Map) {
       throw Exception('Invalid response format');
@@ -27,12 +22,53 @@ class RecipeDetailsRepository {
 
     final meals = responseData['meals'];
 
-    if (meals == null || meals is! List || meals.isEmpty) {
+    if (meals == null || meals is! List) {
+      return <Recipe>[];
+    }
+
+    return meals
+        .whereType<Map>()
+        .map(
+          (meal) => Recipe.fromJson(
+            Map<String, dynamic>.from(meal),
+          ),
+        )
+        .toList();
+  }
+
+  // =========================================================
+  // GET RECIPE DETAILS
+  // =========================================================
+
+  Future<Recipe> getRecipeDetails(String id) async {
+    final recipeId = id.trim();
+
+    if (recipeId.isEmpty) {
+      throw Exception('Recipe ID cannot be empty');
+    }
+
+    final responseData =
+        await apiService.getData(
+      'lookup.php?i=$recipeId',
+    );
+
+    if (responseData is! Map) {
+      throw Exception('Invalid response format');
+    }
+
+    final meals = responseData['meals'];
+
+    if (meals == null ||
+        meals is! List ||
+        meals.isEmpty) {
       throw Exception('Recipe not found');
     }
 
-    final meal = Map<String, dynamic>.from(meals.first as Map);
+    final meal =
+        Map<String, dynamic>.from(
+      meals.first as Map,
+    );
 
-    return RecipeDetailsModel.fromJson(meal);
+    return Recipe.fromJson(meal);
   }
 }

@@ -1,9 +1,10 @@
 import 'package:get/get.dart';
-import 'package:recipe_app/core/services/api_service.dart';
-import '../controllers/recipe_details_controller.dart';
-import '../repositories/recipe_detail_repository.dart';
 
-class RecipeDetailsBinding extends Bindings {
+import 'package:recipe_app/core/services/api_service.dart';
+import 'package:recipe_app/features/recipe_details/repositories/recipe_detail_repository.dart';
+import '../controllers/recipe_details_controller.dart';
+
+class RecipeBinding extends Bindings {
   @override
   void dependencies() {
     // =========================================================
@@ -12,26 +13,30 @@ class RecipeDetailsBinding extends Bindings {
 
     Get.lazyPut<ApiService>(
       () => ApiService(),
+      fenix: true,
     );
 
     // =========================================================
-    // REPOSITORY
+    // RECIPE REPOSITORY
+    // Used by RecipeController
     // =========================================================
 
-    Get.lazyPut<RecipeDetailsRepository>(
-      () => RecipeDetailsRepository(
+    Get.lazyPut<RecipeRepository>(
+      () => RecipeRepository(
         apiService: Get.find<ApiService>(),
       ),
+      fenix: true,
     );
 
     // =========================================================
-    // CONTROLLER
+    // RECIPE CONTROLLER
     // =========================================================
 
-    Get.lazyPut<RecipeDetailsController>(
-      () => RecipeDetailsController(
-        repository: Get.find<RecipeDetailsRepository>(),
+    Get.lazyPut<RecipeController>(
+      () => RecipeController(
+        repository: Get.find<RecipeRepository>(),
       ),
+      fenix: true,
     );
   }
 }

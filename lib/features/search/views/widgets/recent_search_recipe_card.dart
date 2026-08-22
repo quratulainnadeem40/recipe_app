@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:recipe_app/features/recipe_details/model/recipe_detail_model.dart';
 
 class RecentSearchRecipeCard extends StatelessWidget {
-  final RecipeDetailsModel recipe;
+  final Recipe recipe;
   final VoidCallback onTap;
 
   const RecentSearchRecipeCard({
@@ -24,7 +24,7 @@ class RecentSearchRecipeCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
-                recipe.thumbUrl, // Fixed: Changed recipe.image to recipe.thumbUrl
+                recipe.imageUrl, // Fixed: Changed recipe.image to recipe.thumbUrl
                 height: 80,
                 width: 120,
                 fit: BoxFit.cover,

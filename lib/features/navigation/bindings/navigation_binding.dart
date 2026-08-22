@@ -8,7 +8,7 @@ import 'package:recipe_app/features/navigation/controllers/navigation_controller
 import 'package:recipe_app/features/profile/controllers/profile_controller.dart';
 import 'package:recipe_app/features/search/controllers/search_controller.dart';
 
-class NavigationBinding extends Bindings {
+class NavigationsBinding extends Bindings {
   @override
   void dependencies() {
     // ============================================================
@@ -55,8 +55,8 @@ class NavigationBinding extends Bindings {
     // SEARCH CONTROLLER
     // ============================================================
 
-    Get.lazyPut<SearchController>(
-      () => SearchController(
+    Get.lazyPut<RecipeSearchController>(
+      () => RecipeSearchController(
         repository: Get.find<HomeRepository>(),
       ),
       fenix: true,

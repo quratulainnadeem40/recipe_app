@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../controllers/recipe_details_controller.dart';
+
+import '../../controllers/recipe_details_controller.dart' show RecipeController;
 
 class CookingVoiceBar extends StatelessWidget {
   const CookingVoiceBar({
@@ -11,13 +12,20 @@ class CookingVoiceBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<RecipeDetailsController>();
+    final RecipeController controller =
+        Get.find<RecipeController>();
+
     final theme = Theme.of(context);
 
     return Obx(() {
-      final bool hasSteps = controller.totalSteps > 0;
-      final bool isSpeaking = controller.isSpeaking.value;
-      final bool isPaused = controller.isPaused.value;
+      final bool hasSteps =
+          controller.totalSteps > 0;
+
+      final bool isSpeaking =
+          controller.isSpeaking.value;
+
+      final bool isPaused =
+          controller.isPaused.value;
 
       if (!hasSteps) {
         return const SizedBox.shrink();
@@ -40,7 +48,8 @@ class CookingVoiceBar extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: theme.cardColor,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius:
+                BorderRadius.circular(24),
             border: Border.all(
               color: theme.dividerColor.withValues(
                 alpha: 0.35,
@@ -69,13 +78,16 @@ class CookingVoiceBar extends StatelessWidget {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(14),
+                      color:
+                          AppColors.primaryLight,
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                     child: Icon(
                       isSpeaking
                           ? Icons.volume_up_rounded
-                          : Icons.record_voice_over_rounded,
+                          : Icons
+                              .record_voice_over_rounded,
                       color: AppColors.primary,
                       size: 22,
                     ),
@@ -92,20 +104,34 @@ class CookingVoiceBar extends StatelessWidget {
                           isSpeaking
                               ? 'Cooking Assistant'
                               : 'Ready to Cook?',
-                          style: theme.textTheme.titleSmall
+                          style: theme
+                              .textTheme
+                              .titleSmall
                               ?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight:
+                                FontWeight.w800,
                           ),
                         ),
+
                         const SizedBox(height: 2),
+
                         Text(
-                          'Step ${controller.currentStepNumber} '
-                          'of ${controller.totalSteps}',
-                          style: theme.textTheme.bodySmall
+                          'Step '
+                          '${controller.currentStepNumber} '
+                          'of '
+                          '${controller.totalSteps}',
+                          style: theme
+                              .textTheme
+                              .bodySmall
                               ?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.55),
-                            fontWeight: FontWeight.w600,
+                            color: theme
+                                .colorScheme
+                                .onSurface
+                                .withValues(
+                                  alpha: 0.55,
+                                ),
+                            fontWeight:
+                                FontWeight.w600,
                           ),
                         ),
                       ],
@@ -118,7 +144,8 @@ class CookingVoiceBar extends StatelessWidget {
 
                   IconButton(
                     tooltip: 'Repeat',
-                    onPressed: controller.repeatStep,
+                    onPressed:
+                        controller.repeatStep,
                     icon: const Icon(
                       Icons.replay_rounded,
                     ),
@@ -134,14 +161,17 @@ class CookingVoiceBar extends StatelessWidget {
               // =================================================
 
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius:
+                    BorderRadius.circular(10),
                 child: LinearProgressIndicator(
-                  value: controller.cookingProgress,
+                  value:
+                      controller.cookingProgress,
                   minHeight: 5,
                   backgroundColor:
                       AppColors.primaryLight,
                   valueColor:
-                      const AlwaysStoppedAnimation<Color>(
+                      const AlwaysStoppedAnimation<
+                          Color>(
                     AppColors.primary,
                   ),
                 ),
@@ -150,15 +180,17 @@ class CookingVoiceBar extends StatelessWidget {
               const SizedBox(height: 14),
 
               // =================================================
-              // MAIN PLAY / PAUSE BUTTON
+              // PLAY / PAUSE
               // =================================================
 
               Row(
                 children: [
                   // Previous
                   _VoiceActionButton(
-                    icon: Icons.skip_previous_rounded,
-                    onTap: controller.previousStep,
+                    icon:
+                        Icons.skip_previous_rounded,
+                    onTap:
+                        controller.previousStep,
                   ),
 
                   const SizedBox(width: 8),
@@ -170,21 +202,29 @@ class CookingVoiceBar extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           if (!isSpeaking) {
-                            controller.startCooking();
+                            controller
+                                .startCooking();
                           } else if (isPaused) {
-                            controller.resumeVoice();
+                            controller
+                                .resumeVoice();
                           } else {
-                            controller.pauseVoice();
+                            controller
+                                .pauseVoice();
                           }
                         },
-                        style: ElevatedButton.styleFrom(
+                        style:
+                            ElevatedButton.styleFrom(
                           backgroundColor:
                               AppColors.primary,
-                          foregroundColor: Colors.white,
+                          foregroundColor:
+                              const Color.fromARGB(255, 255, 30, 30),
                           elevation: 0,
-                          shape: RoundedRectangleBorder(
+                          shape:
+                              RoundedRectangleBorder(
                             borderRadius:
-                                BorderRadius.circular(17),
+                                BorderRadius.circular(
+                              17,
+                            ),
                           ),
                         ),
                         child: Row(
@@ -193,10 +233,13 @@ class CookingVoiceBar extends StatelessWidget {
                           children: [
                             Icon(
                               !isSpeaking
-                                  ? Icons.play_arrow_rounded
+                                  ? Icons
+                                      .play_arrow_rounded
                                   : isPaused
-                                      ? Icons.play_arrow_rounded
-                                      : Icons.pause_rounded,
+                                      ? Icons
+                                          .play_arrow_rounded
+                                      : Icons
+                                          .pause_rounded,
                               size: 25,
                             ),
                             const SizedBox(width: 7),
@@ -206,9 +249,11 @@ class CookingVoiceBar extends StatelessWidget {
                                   : isPaused
                                       ? 'Resume'
                                       : 'Pause',
-                              style: const TextStyle(
+                              style:
+                                  const TextStyle(
                                 fontSize: 15,
-                                fontWeight: FontWeight.w800,
+                                fontWeight:
+                                    FontWeight.w800,
                               ),
                             ),
                           ],
@@ -221,8 +266,10 @@ class CookingVoiceBar extends StatelessWidget {
 
                   // Next
                   _VoiceActionButton(
-                    icon: Icons.skip_next_rounded,
-                    onTap: controller.nextStep,
+                    icon:
+                        Icons.skip_next_rounded,
+                    onTap:
+                        controller.nextStep,
                   ),
                 ],
               ),
@@ -242,19 +289,24 @@ class CookingVoiceBar extends StatelessWidget {
                     size: 17,
                     color: AppColors.primary,
                   ),
+
                   const SizedBox(width: 7),
+
                   Expanded(
-                    child: Text(
-                      controller.currentInstruction,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        height: 1.4,
-                        color: theme.colorScheme.onSurface
-                            .withValues(alpha: 0.65),
-                      ),
-                    ),
-                  ),
+  child: Obx(
+    () => Text(
+      controller.currentInstruction.value,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: theme.textTheme.bodySmall?.copyWith(
+        height: 1.4,
+        color: theme.colorScheme.onSurface.withValues(
+          alpha: 0.65,
+        ),
+      ),
+    ),
+  ),
+),
                 ],
               ),
             ],
@@ -269,7 +321,8 @@ class CookingVoiceBar extends StatelessWidget {
 // SMALL VOICE ACTION BUTTON
 // =============================================================
 
-class _VoiceActionButton extends StatelessWidget {
+class _VoiceActionButton
+    extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
@@ -282,10 +335,12 @@ class _VoiceActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.primaryLight,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius:
+          BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(16),
         child: SizedBox(
           width: 52,
           height: 52,
