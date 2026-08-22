@@ -45,6 +45,10 @@ class HomeScreen extends GetView<HomeController> {
         ? AppColors.darkBorder
         : AppColors.border;
 
+    final iconColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.primary;
+
     final shadowColor = isDark
         ? Colors.black.withOpacity(0.35)
         : AppColors.shadow;
@@ -159,9 +163,8 @@ class HomeScreen extends GetView<HomeController> {
                 child: CircularProgressIndicator(
                   color: AppColors.primary,
                   strokeWidth: 3,
-                  backgroundColor: isDark
-                      ? AppColors.darkSurface
-                      : Colors.transparent,
+                  backgroundColor:
+                      isDark ? AppColors.darkSurface : null,
                 ),
               );
             }

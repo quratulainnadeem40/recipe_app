@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/core/theme/app_text_styles.dart';
@@ -29,20 +32,16 @@ class FavoritesScreen extends GetView<FavoritesController> {
         ? AppColors.darkBackground
         : AppColors.background;
 
-    final surfaceColor = isDark
-        ? AppColors.darkSurface
-        : AppColors.surface;
-
-    final headingColor = isDark
+    final textPrimary = isDark
         ? AppColors.darkTextPrimary
-        : AppColors.primary;
+        : AppColors.textPrimary;
 
-    final bodyColor = isDark
+    final textSecondary = isDark
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
 
     final iconColor = isDark
-        ? AppColors.primaryLight
+        ? AppColors.darkTextPrimary
         : AppColors.primary;
 
     final borderColor = isDark
@@ -62,14 +61,16 @@ class FavoritesScreen extends GetView<FavoritesController> {
 
       appBar: AppBar(
         backgroundColor: backgroundColor,
-        foregroundColor: headingColor,
+        foregroundColor: textPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
 
         title: Text(
           'Favorites',
           style: AppTextStyles.headingMedium.copyWith(
-            color: headingColor,
+            color: textPrimary,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -91,11 +92,9 @@ class FavoritesScreen extends GetView<FavoritesController> {
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                 ),
-
                 child: Column(
                   mainAxisAlignment:
                       MainAxisAlignment.center,
-
                   children: [
                     // =========================================
                     // EMPTY ICON
@@ -104,21 +103,17 @@ class FavoritesScreen extends GetView<FavoritesController> {
                     Container(
                       width: 100,
                       height: 100,
-
                       decoration: BoxDecoration(
                         color: isDark
                             ? AppColors.primary
                                 .withOpacity(0.18)
                             : AppColors.primaryLight,
-
                         shape: BoxShape.circle,
-
                         border: Border.all(
                           color: borderColor,
                           width: 1,
                         ),
                       ),
-
                       child: Icon(
                         Icons.favorite_border_rounded,
                         size: 52,
@@ -134,13 +129,10 @@ class FavoritesScreen extends GetView<FavoritesController> {
 
                     Text(
                       'No Favorite Recipes',
-
                       textAlign: TextAlign.center,
-
                       style:
-                          AppTextStyles.headingMedium
-                              .copyWith(
-                        color: headingColor,
+                          AppTextStyles.headingMedium.copyWith(
+                        color: textPrimary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -153,13 +145,10 @@ class FavoritesScreen extends GetView<FavoritesController> {
 
                     Text(
                       'Your favorite recipes will appear here.',
-
                       textAlign: TextAlign.center,
-
                       style:
-                          AppTextStyles.bodyMedium
-                              .copyWith(
-                        color: bodyColor,
+                          AppTextStyles.bodyMedium.copyWith(
+                        color: textSecondary,
                         height: 1.5,
                       ),
                     ),
@@ -172,41 +161,30 @@ class FavoritesScreen extends GetView<FavoritesController> {
 
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Open Home screen
                         Get.offNamed(
                           AppRoutes.home,
                         );
                       },
-
                       icon: const Icon(
                         Icons.explore_rounded,
                       ),
-
                       label: const Text(
                         'Explore Recipes',
                       ),
-
                       style:
                           ElevatedButton.styleFrom(
                         backgroundColor:
                             AppColors.primary,
-
                         foregroundColor:
                             AppColors.white,
-
                         minimumSize:
                             const Size(210, 50),
-
                         elevation: 0,
-
                         shape:
                             RoundedRectangleBorder(
                           borderRadius:
-                              BorderRadius.circular(
-                            14,
-                          ),
+                              BorderRadius.circular(14),
                         ),
-
                         textStyle:
                             AppTextStyles.button,
                       ),
@@ -223,10 +201,7 @@ class FavoritesScreen extends GetView<FavoritesController> {
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-
-            itemCount:
-                controller.favorites.length,
-
+            itemCount: controller.favorites.length,
             itemBuilder: (
               context,
               index,
@@ -235,11 +210,9 @@ class FavoritesScreen extends GetView<FavoritesController> {
                   controller.favorites[index];
 
               return Padding(
-                padding:
-                    const EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   bottom: 12,
                 ),
-
                 child: FavoriteRecipeCard(
                   recipe: recipe,
 

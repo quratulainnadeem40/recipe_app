@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/features/splash/controllers/splash_controller.dart';
 
 class SplashScreen extends GetView<SplashController> {
@@ -9,9 +10,10 @@ class SplashScreen extends GetView<SplashController> {
 
   @override
   Widget build(BuildContext context) {
-    // ==========================================
+    // ---------------------------------------------------------
     // FULL SCREEN SYSTEM UI
-    // ==========================================
+    // ---------------------------------------------------------
+
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
     );
@@ -20,55 +22,81 @@ class SplashScreen extends GetView<SplashController> {
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         systemNavigationBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarIconBrightness: Brightness.dark,
+
+        // Image has dark maroon areas.
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarIconBrightness: Brightness.light,
       ),
     );
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.primary,
 
-      body: SizedBox.expand(
-        child: Stack(
-          children: [
-            // ==========================================
-            // FULL SCREEN SPLASH IMAGE
-            // ==========================================
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/splash.png',
+      // -------------------------------------------------------
+      // BODY
+      // -------------------------------------------------------
+
+      body: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        removeBottom: true,
+
+        child: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+
+          child: Stack(
+            fit: StackFit.expand,
+
+            children: [
+              // =================================================
+              // SPLASH IMAGE
+              // =================================================
+
+              Image.asset(
+                'assets/images/splash.jpeg',
+
+                width: double.infinity,
+                height: double.infinity,
+
                 fit: BoxFit.cover,
-                alignment: Alignment.center,
-              ),
-            ),
 
-            // ==========================================
-            // LOADING INDICATOR
-            // ==========================================
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 20,
-              child: Center(
-                child: Obx(
-                  () {
-                    return SizedBox(
-                      width: 30,
-                      height: 30,
+                alignment: Alignment.center,
+
+                filterQuality: FilterQuality.high,
+              ),
+
+              // =================================================
+              // LOADING
+              // =================================================
+
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 18,
+
+                child: Center(
+                  child: Obx(
+                    () => SizedBox(
+                      width: 32,
+                      height: 32,
+
                       child: CircularProgressIndicator(
                         value: controller.progress.value,
-                        strokeWidth: 2.5,
-                        color: const Color(0xFFFF8A00),
+
+                        strokeWidth: 2.8,
+
+                        color: AppColors.primary,
+
                         backgroundColor:
                             Colors.white.withOpacity(0.25),
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
