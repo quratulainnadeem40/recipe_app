@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
 import 'package:recipe_app/features/favorites/views/widgets/favorite_recipe_card.dart';
+import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
 
 class FavoritesScreen extends GetView<FavoritesController> {
   const FavoritesScreen({super.key});
@@ -56,7 +57,8 @@ class FavoritesScreen extends GetView<FavoritesController> {
 
                   ElevatedButton.icon(
   onPressed: () {
-    Get.offNamed(AppRoutes.home);
+    final navigationController = Get.find<NavigationController>();
+    navigationController.changePage(0);
   },
   icon: const Icon(
     Icons.explore_rounded,
