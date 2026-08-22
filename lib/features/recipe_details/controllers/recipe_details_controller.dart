@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_tts/flutter_tts.dart'; // Ensure flutter_tts is added to pubspec.yaml
+import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
+import 'package:recipe_app/features/favorites/models/favorite_recipe_model.dart';
 import '../model/recipe_detail_model.dart';
 
 // REPOSITORY IMPORT: Ensure the path is correct as per your folder structure
@@ -185,32 +187,63 @@ class RecipeController extends GetxController {
     await _speakCurrentStep();
   }
 
+  // void toggleFavorite(String id) {
+  //   if (recipe.value != null && recipe.value!.id == id) {
+  //     final updatedRecipe = Recipe(
+  //       id: recipe.value!.id,
+  //       name: recipe.value!.name,
+  //       cuisine: recipe.value!.cuisine,
+  //       category: recipe.value!.category,
+  //       rating: recipe.value!.rating,
+  //       reviews: recipe.value!.reviews,
+  //       difficulty: recipe.value!.difficulty,
+  //       imageUrl: recipe.value!.imageUrl,
+  //       prepTime: recipe.value!.prepTime,
+  //       ingredients: recipe.value!.ingredients,
+  //       steps: recipe.value!.steps,
+  //       instructions: recipe.value!.instructions,
+  //       youtubeUrl: recipe.value!.youtubeUrl,
+  //       isFavorite: !recipe.value!.isFavorite,
+  //     );
+  //     recipe.value = updatedRecipe;
+  //   }
+  // }
   void toggleFavorite(String id) {
-    if (recipe.value != null && recipe.value!.id == id) {
-      final updatedRecipe = Recipe(
-        id: recipe.value!.id,
-        name: recipe.value!.name,
-        cuisine: recipe.value!.cuisine,
-        category: recipe.value!.category,
-        rating: recipe.value!.rating,
-        reviews: recipe.value!.reviews,
-        difficulty: recipe.value!.difficulty,
-        imageUrl: recipe.value!.imageUrl,
-        prepTime: recipe.value!.prepTime,
-        ingredients: recipe.value!.ingredients,
-        steps: recipe.value!.steps,
-        instructions: recipe.value!.instructions,
-        youtubeUrl: recipe.value!.youtubeUrl,
-        isFavorite: !recipe.value!.isFavorite,
-      );
-      recipe.value = updatedRecipe;
-    }
-  }
+  if (recipe.value != null && recipe.value!.id == id) {
+    final wasFavorite = recipe.value!.isFavorite;
 
-  void retry() {
-    errorMessage.value = '';
-  }
+    final updatedRecipe = Recipe(
+      id: recipe.value!.id,
+      name: recipe.value!.name,
+      cuisine: recipe.value!.cuisine,
+      category: recipe.value!.category,
+      rating: recipe.value!.rating,
+      reviews: recipe.value!.reviews,
+      difficulty: recipe.value!.difficulty,
+      imageUrl: recipe.value!.imageUrl,
+      prepTime: recipe.value!.prepTime,
+      ingredients: recipe.value!.ingredients,
+      steps: recipe.value!.steps,
+      instructions: recipe.value!.instructions,
+      youtubeUrl: recipe.value!.youtubeUrl,
+      isFavorite: !wasFavorite,
+    );
 
+    recipe.value = updatedRecipe;
+
+    Get.snackbar(
+      !wasFavorite
+          ? 'Added to Favorites ❤️'
+          : 'Removed from Favorites 💔',
+      !wasFavorite
+          ? '${recipe.value!.name} added to favorites.'
+          : '${recipe.value!.name} removed from favorites.',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+      margin: const EdgeInsets.all(12),
+    );
+  }
+}
   @override
   void onClose() {
     _flutterTts.stop();
