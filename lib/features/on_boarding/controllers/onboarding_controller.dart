@@ -11,24 +11,21 @@ class OnboardingController extends GetxController {
 
   final List<OnboardingModel> onboardingPages = const [
     OnboardingModel(
-      image: 'assets/images/image1.jpeg',
+      image: 'assets/images/image1.png',
       title: '',
-      description:
-          '',
+      description: '',
     ),
 
     OnboardingModel(
-      image: 'assets/images/image2.jpeg',
+      image: 'assets/images/image2.png',
       title: '',
-      description:
-          '',
+      description: '',
     ),
 
     OnboardingModel(
       image: 'assets/images/image3.jpeg',
       title: '',
-      description:
-          '',
+      description: '',
     ),
   ];
 
