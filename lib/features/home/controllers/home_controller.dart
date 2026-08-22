@@ -88,23 +88,44 @@ final RxString userName = ''.obs;
   // INIT
   // ============================================================
 
-  @override
+//   @override
+// void onInit() {
+//   super.onInit();
+
+//   authController = Get.find<AuthController>();
+
+//   // AuthController se username listen karo
+//   ever(authController.userName, (newName) {
+//     userName.value = newName;
+//   });
+
+//   // Shuru mein username set karo
+//   userName.value = authController.userName.value;
+
+//   getRecipes();
+// }
+
+@override
 void onInit() {
   super.onInit();
 
-  authController = Get.find<AuthController>();
+  // AuthController available ho to username sync karo
+  if (Get.isRegistered<AuthController>()) {
+    authController = Get.find<AuthController>();
 
-  // AuthController se username listen karo
-  ever(authController.userName, (newName) {
-    userName.value = newName;
-  });
+    userName.value = authController.userName.value;
 
-  // Shuru mein username set karo
-  userName.value = authController.userName.value;
+    ever(
+      authController.userName,
+      (newName) {
+        userName.value = newName;
+      },
+    );
+  }
 
+  // Home recipes load karo
   getRecipes();
 }
-
   // ============================================================
   // LOAD HOME
   // ============================================================
