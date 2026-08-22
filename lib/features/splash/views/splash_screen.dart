@@ -54,7 +54,7 @@ class SplashScreen extends GetView<SplashController> {
               // =================================================
 
               Image.asset(
-                'assets/images/splash.png',
+                'assets/images/splash.jpeg',
 
                 width: double.infinity,
                 height: double.infinity,

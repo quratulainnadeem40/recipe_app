@@ -46,7 +46,7 @@ class HomeHeader extends StatelessWidget {
           // ==================================================
           Positioned.fill(
             child: Image.asset(
-              'assets/imagespoppp/home_header.png',
+              'assets/images/home_header.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -63,7 +63,7 @@ class HomeHeader extends StatelessWidget {
                 Text(
                   'Hello, $userName!',
                   style: TextStyle(
-                    color: textPrimary,
+                    color: AppColors.primaryDark,
                     fontSize: 27,
                     fontWeight: FontWeight.w800,
                     height: 1.1,
@@ -75,7 +75,7 @@ class HomeHeader extends StatelessWidget {
                 Text(
                   'What would you like\nto cook today?',
                   style: TextStyle(
-                    color: textSecondary,
+                    color: AppColors.primary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     height: 1.3,
