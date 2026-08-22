@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:recipe_app/core/services/image_picker_service.dart';
 import 'package:recipe_app/core/services/storage_service.dart';
@@ -156,7 +157,7 @@ class ProfileController extends GetxController {
   }
 
   // =========================================================
-  // CHANGE PASSWORD
+  // CHANGE PASSWORD - ✅ UPDATED
   // =========================================================
 
   Future<void> changePassword() async {
@@ -178,6 +179,7 @@ class ProfileController extends GetxController {
       Get.snackbar(
         'Password Error',
         'New password and confirm password do not match.',
+        snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
@@ -186,6 +188,7 @@ class ProfileController extends GetxController {
       Get.snackbar(
         'Password Error',
         'New password must be different from your current password.',
+        snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
@@ -193,10 +196,23 @@ class ProfileController extends GetxController {
     try {
       isChangingPassword.value = true;
 
-      await _authRepository.changePassword(
-        currentPassword: currentPassword,
-        newPassword: newPassword,
+      // ✅ Firebase میں براہ راست password تبدیل کریں
+      final firebaseUser = _authRepository.currentUser;
+
+      if (firebaseUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // پہلے موجودہ password سے دوبارہ authenticate کریں
+      final credential = EmailAuthProvider.credential(
+        email: firebaseUser.email!,
+        password: currentPassword,
       );
+
+      await firebaseUser.reauthenticateWithCredential(credential);
+
+      // اب نیا password set کریں
+      await firebaseUser.updatePassword(newPassword);
 
       currentPasswordController.clear();
       newPasswordController.clear();
@@ -207,14 +223,15 @@ class ProfileController extends GetxController {
       Get.snackbar(
         'Password Changed',
         'Your password has been changed successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
       );
     } catch (e) {
       Get.snackbar(
         'Password Change Failed',
-        e.toString().replaceFirst(
-              'Exception: ',
-              '',
-            ),
+        e.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
       );
     } finally {
       isChangingPassword.value = false;
@@ -264,12 +281,13 @@ class ProfileController extends GetxController {
               'Exception: ',
               '',
             ),
+        snackPosition: SnackPosition.BOTTOM,
       );
     }
   }
 
   // =========================================================
-  // DELETE ACCOUNT
+  // DELETE ACCOUNT - ✅ UPDATED
   // =========================================================
 
   Future<void> deleteAccount() async {
@@ -302,23 +320,37 @@ class ProfileController extends GetxController {
     }
 
     try {
-      await _authRepository.deleteAccount();
+      final uid = _authRepository.currentUser?.uid;
+
+      if (uid == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // ✅ uid parameter دے رہے ہیں
+      await _authRepository.deleteAccount(uid);
 
       await StorageService.clearUserData();
+
+      // Storage سے user data بھی clear کریں
+      final storage = GetStorage();
+      await storage.remove('userName');
+      await storage.remove('userEmail');
+      await storage.remove('isLoggedIn');
 
       Get.offAllNamed('/login');
 
       Get.snackbar(
         'Account Deleted',
         'Your account has been deleted successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
       );
     } catch (e) {
       Get.snackbar(
         'Delete Failed',
-        e.toString().replaceFirst(
-              'Exception: ',
-              '',
-            ),
+        e.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
       );
     }
   }
@@ -327,13 +359,17 @@ class ProfileController extends GetxController {
   // PRIVACY POLICY
   // =========================================================
 
-  void openPrivacyPolicy() {}
+  void openPrivacyPolicy() {
+    // Privacy policy کھولنے کے لیے logic
+  }
 
   // =========================================================
   // TERMS & CONDITIONS
   // =========================================================
 
-  void openTermsAndConditions() {}
+  void openTermsAndConditions() {
+    // Terms & conditions کھولنے کے لیے logic
+  }
 
   // =========================================================
   // DISPOSE

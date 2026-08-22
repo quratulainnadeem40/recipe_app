@@ -3,9 +3,11 @@ import 'package:get/get.dart';
 
 import '../../auth/repositories/auth_repository.dart';
 import 'package:recipe_app/features/profile/controllers/profile_controller.dart';
+import 'package:get_storage/get_storage.dart';
 
 class EditProfileController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
+  final GetStorage _storage = GetStorage();
 
   // ==========================================
   // FORM
@@ -29,14 +31,18 @@ class EditProfileController extends GetxController {
   }
 
   // ==========================================
-  // UPDATE NAME
+  // UPDATE PROFILE - ✅ UPDATED
   // ==========================================
 
   Future<void> updateProfile() async {
     final name = nameController.text.trim();
 
     if (name.isEmpty) {
-      Get.snackbar('Name Required', 'Please enter your name.');
+      Get.snackbar(
+        'Name Required',
+        'Please enter your name.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -49,31 +55,36 @@ class EditProfileController extends GetxController {
         throw Exception('No user is currently signed in.');
       }
 
-      // Update Firebase Authentication name
-     await _authRepository.updateProfile(
-  name: name,
-);
+      // ✅ صحیح method - uid دے رہے ہیں
+      await _authRepository.updateUserProfile(
+        uid: user.uid,
+        name: name,
+      );
 
-final profileController = Get.find<ProfileController>();
-await profileController.loadUser();
+      // Firebase کو update کریں
+      await user.updateDisplayName(name);
 
-Get.back();
+      // ProfileController reload کریں
+      final profileController = Get.find<ProfileController>();
+      await profileController.loadUser();
 
-Get.snackbar(
-  'Profile Updated',
-  'Your name has been updated successfully.',
-);
-
-      Get.back();
+      // Storage میں بھی update کریں
+      await _storage.write('userName', name);
 
       Get.snackbar(
         'Profile Updated',
         'Your name has been updated successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
       );
+
+      Get.back();
     } catch (e) {
       Get.snackbar(
         'Update Failed',
         e.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
       );
     } finally {
       isLoading.value = false;
