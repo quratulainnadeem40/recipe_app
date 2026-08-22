@@ -3,7 +3,7 @@ import 'package:recipe_app/features/favorites/controllers/favorites_controller.d
 import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
 
 
-class   NavigationBinding extends Bindings {
+class   FavoritesBinding extends Bindings {
   @override
   void dependencies() {
     Get.put<FavoritesController>(FavoritesController(), permanent: true);

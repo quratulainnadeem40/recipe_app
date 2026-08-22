@@ -48,7 +48,7 @@ class CookmateApp extends StatelessWidget {
       themeMode: ThemeMode.light,
       initialRoute: AppRoutes.splash,
       // Global binding to instantiate tab dependencies on app startup
-      initialBinding: NavigationBinding(),
+      initialBinding: NavigationsBinding(),
       getPages: AppPages.pages,
     );
   }
