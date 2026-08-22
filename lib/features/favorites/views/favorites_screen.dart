@@ -55,18 +55,16 @@ class FavoritesScreen extends GetView<FavoritesController> {
                   // EXPLORE RECIPES BUTTON
                   // =================================================
 
-                  ElevatedButton.icon(
+              ElevatedButton.icon(
   onPressed: () {
     final navigationController = Get.find<NavigationController>();
     navigationController.changePage(0);
   },
-  icon: const Icon(
-    Icons.explore_rounded,
-  ),
-  label: const Text(
-    'Explore Recipes',
-  ),
+  icon: const Icon(Icons.explore_rounded),
+  label: const Text('Explore Recipes'),
 ),
+
+
                 ],
               ),
             );

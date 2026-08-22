@@ -51,7 +51,7 @@ class MainNavigation extends GetView<NavigationController> {
     return Obx(
       () => Scaffold(
         body: IndexedStack(
-          index: controller.currentIndex.value,
+          index: controller.selectedIndex.value,
           children: const [
             HomeScreen(),
             SearchScreen(),
@@ -60,7 +60,7 @@ class MainNavigation extends GetView<NavigationController> {
           ],
         ),
         bottomNavigationBar: CustomBottomNavBar(
-          currentIndex: controller.currentIndex.value,
+          currentIndex: controller.selectedIndex.value,
           onItemSelected: controller.changePage,
         ),
       ),

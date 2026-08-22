@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:recipe_app/features/auth/controllers/auth_controller.dart';
 
 import 'package:recipe_app/features/home/models/recipe_models.dart';
 import 'package:recipe_app/features/home/repositories/home_repository.dart';
@@ -10,6 +11,9 @@ class HomeController extends GetxController {
   HomeController({
     required this.repository,
   });
+  late AuthController authController;
+
+final RxString userName = ''.obs;
 
   // ============================================================
   // HOME RECIPES
@@ -85,11 +89,21 @@ class HomeController extends GetxController {
   // ============================================================
 
   @override
-  void onInit() {
-    super.onInit();
+void onInit() {
+  super.onInit();
 
-    getRecipes();
-  }
+  authController = Get.find<AuthController>();
+
+  // AuthController se username listen karo
+  ever(authController.userName, (newName) {
+    userName.value = newName;
+  });
+
+  // Shuru mein username set karo
+  userName.value = authController.userName.value;
+
+  getRecipes();
+}
 
   // ============================================================
   // LOAD HOME

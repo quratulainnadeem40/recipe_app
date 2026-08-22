@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/routes/app_routes.dart';
 import '../model/user_model.dart';
 import '../repositories/auth_repository.dart';
+import 'package:get_storage/get_storage.dart';
 
 class AuthController extends GetxController {
   // =========================================================
@@ -54,6 +55,8 @@ class AuthController extends GetxController {
   final RxBool isConfirmPasswordVisible = false.obs;
 
   final RxBool isLoading = false.obs;
+  final RxString userName = ''.obs;
+  final RxString userEmail = ''.obs;
 
   // =========================================================
   // LOGIN
@@ -120,6 +123,15 @@ class AuthController extends GetxController {
       print('NAME: ${user.name}');
       print('EMAIL: ${user.email}');
       print('==============================');
+
+      // ✅ USERNAME SAVE کریں - LOGIN میں بھی
+      userName.value = user.name.isEmpty ? 'User' : user.name;
+      userEmail.value = user.email;
+
+      final storage = GetStorage();
+      await storage.write('userName', userName.value);
+      await storage.write('userEmail', userEmail.value);
+      await storage.write('isLoggedIn', true);
 
       // -------------------------------------------------------
       // LOGIN SUCCESS
@@ -229,21 +241,32 @@ class AuthController extends GetxController {
       print('==============================');
 
       // -------------------------------------------------------
-      // CALL REPOSITORY
+      // ✅ CALL REPOSITORY - SIGNUP (نہ کہ LOGIN)
       // -------------------------------------------------------
 
       final UserModel user =
-          await _authRepository.signUp(
+          await _authRepository.signup(
         name: name,
         email: email,
         password: password,
       );
+
+      // ✅ USERNAME SAVE کریں
+      userName.value = user.name.isEmpty ? 'User' : user.name;
+      userEmail.value = user.email;
+
+      final storage = GetStorage();
+
+      await storage.write('userName', userName.value);
+      await storage.write('userEmail', userEmail.value);
+      await storage.write('isLoggedIn', true);
 
       print('==============================');
       print('SIGNUP USER RECEIVED');
       print('UID: ${user.uid}');
       print('NAME: ${user.name}');
       print('EMAIL: ${user.email}');
+      print('Storage - Username: ${userName.value}');
       print('==============================');
 
       // -------------------------------------------------------
@@ -258,7 +281,16 @@ class AuthController extends GetxController {
       );
 
       // -------------------------------------------------------
-      // DIRECTLY GO TO HOME
+      // CLEAR ALL FIELDS
+      // -------------------------------------------------------
+
+      signupNameController.clear();
+      signupEmailController.clear();
+      signupPasswordController.clear();
+      signupConfirmPasswordController.clear();
+
+      // -------------------------------------------------------
+      // GO TO HOME
       // -------------------------------------------------------
 
       Get.offAllNamed(
@@ -345,6 +377,15 @@ class AuthController extends GetxController {
     try {
       await _authRepository.logout();
 
+      // ✅ Storage سے data clear کریں
+      final storage = GetStorage();
+      await storage.remove('userName');
+      await storage.remove('userEmail');
+      await storage.remove('isLoggedIn');
+
+      userName.value = '';
+      userEmail.value = '';
+
       Get.offAllNamed(
         AppRoutes.login,
       );
@@ -403,21 +444,49 @@ class AuthController extends GetxController {
   }
 
   // =========================================================
+  // INIT - LOAD SAVED USER INFO
+  // =========================================================
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    final storage = GetStorage();
+
+    final savedName = storage.read<String>('userName');
+    final savedEmail = storage.read<String>('userEmail');
+
+    if (savedName != null) {
+      userName.value = savedName;
+    }
+
+    if (savedEmail != null) {
+      userEmail.value = savedEmail;
+    }
+
+    print('==============================');
+    print('AUTH CONTROLLER INIT');
+    print('Saved Username: ${userName.value}');
+    print('Saved Email: ${userEmail.value}');
+    print('==============================');
+  }
+
+  // =========================================================
   // DISPOSE CONTROLLERS
   // =========================================================
 
-  // @override
-  // void onClose() {
-  //   loginEmailController.dispose();
-  //   loginPasswordController.dispose();
+  @override
+  void onClose() {
+    loginEmailController.dispose();
+    loginPasswordController.dispose();
 
-  //   signupNameController.dispose();
-  //   signupEmailController.dispose();
-  //   signupPasswordController.dispose();
-  //   signupConfirmPasswordController.dispose();
+    signupNameController.dispose();
+    signupEmailController.dispose();
+    signupPasswordController.dispose();
+    signupConfirmPasswordController.dispose();
 
-  //   forgotEmailController.dispose();
+    forgotEmailController.dispose();
 
-  //   super.onClose();
-  // }
+    super.onClose();
+  }
 }

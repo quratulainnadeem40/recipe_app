@@ -22,6 +22,8 @@ import 'package:recipe_app/features/favorites/views/favorites_screen.dart';
 
 import 'package:recipe_app/features/feedback/binding/feedback_binding.dart';
 import 'package:recipe_app/features/feedback/feedback_screen.dart';
+import 'package:recipe_app/features/home/bindings/home_binding.dart';
+import 'package:recipe_app/features/home/views/home_screen.dart';
 
 // ============================================================
 // NAVIGATION
@@ -129,16 +131,30 @@ class AppPages {
       page: () => const ForgotPasswordScreen(),
       binding: AuthBinding(),
     ),
+    GetPage(
+  name: AppRoutes.home,
+  page: () => const MainNavigation(),
+  binding: NavigationsBinding(),
+),
+
+// Alternative Home (اگر چاہیے)
+GetPage(
+  name: '/home-details',  // مختلف نام دیں
+  page: () => const HomeScreen(),
+  binding: HomeBinding(),  // اپنی binding
+),
 
     // ==========================================================
     // MAIN NAVIGATION / HOME
     // ==========================================================
 
+    
     GetPage(
-      name: AppRoutes.home,
-      page: () => const MainNavigation(),
-      binding: NavigationsBinding(),
-    ),
+  name: AppRoutes.home,
+  page: () => const HomeScreen(),
+
+),
+
 
     // ==========================================================
     // SEARCH
