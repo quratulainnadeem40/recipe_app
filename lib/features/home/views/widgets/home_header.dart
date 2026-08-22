@@ -5,25 +5,31 @@ class HomeHeader extends StatelessWidget {
   final VoidCallback? onNotificationTap;
   final String userName;
 
-  const HomeHeader({super.key, this.onNotificationTap, this.userName = 'Chef'});
+  const HomeHeader({
+    super.key,
+    this.onNotificationTap,
+    this.userName = 'Chef',
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final textPrimary = isDark
-        ? AppColors.darkTextPrimary
-        : AppColors.textPrimary;
-
-    final textSecondary = isDark
-        ? AppColors.darkTextSecondary
-        : AppColors.textSecondary;
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
 
     final notificationBackground = isDark
         ? AppColors.darkSurface
         : AppColors.surface;
 
-    final notificationBorder = isDark ? AppColors.darkBorder : AppColors.border;
+    final notificationBorder = isDark
+        ? AppColors.darkBorder
+        : AppColors.border;
+
+    // =========================================================
+    // CLEAN USER NAME
+    // =========================================================
+
+    final displayName =
+        userName.trim().isEmpty ? 'Chef' : userName.trim();
 
     return Container(
       width: double.infinity,
@@ -41,9 +47,10 @@ class HomeHeader extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // ==================================================
+          // =====================================================
           // HEADER IMAGE
-          // ==================================================
+          // =====================================================
+
           Positioned.fill(
             child: Image.asset(
               'assets/images/home_header.png',
@@ -51,18 +58,22 @@ class HomeHeader extends StatelessWidget {
             ),
           ),
 
-          // ==================================================
-          // GREETING TEXT
-          // ==================================================
+          // =====================================================
+          // GREETING
+          // =====================================================
+
           Positioned(
             left: 24,
             top: 35,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hello, $userName!',
-                  style: TextStyle(
+                  'Hello, $displayName!',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
                     color: AppColors.primaryDark,
                     fontSize: 27,
                     fontWeight: FontWeight.w800,
@@ -72,7 +83,7 @@ class HomeHeader extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                Text(
+                const Text(
                   'What would you like\nto cook today?',
                   style: TextStyle(
                     color: AppColors.primary,
@@ -85,9 +96,10 @@ class HomeHeader extends StatelessWidget {
             ),
           ),
 
-          // ==================================================
+          // =====================================================
           // NOTIFICATION BUTTON
-          // ==================================================
+          // =====================================================
+
           Positioned(
             top: 14,
             right: 14,
@@ -100,9 +112,14 @@ class HomeHeader extends StatelessWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: notificationBackground.withOpacity(0.92),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: notificationBorder, width: 1),
+                    color: notificationBackground
+                        .withOpacity(0.92),
+                    borderRadius:
+                        BorderRadius.circular(14),
+                    border: Border.all(
+                      color: notificationBorder,
+                      width: 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.shadow,

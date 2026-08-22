@@ -55,18 +55,16 @@ class FavoritesScreen extends GetView<FavoritesController> {
                   // =================================================
 
                   ElevatedButton.icon(
-                    onPressed: () {
-                      Get.offNamed(
-                        AppRoutes.explore,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.explore_rounded,
-                    ),
-                    label: const Text(
-                      'Explore Recipes',
-                    ),
-                  ),
+  onPressed: () {
+    Get.offNamed(AppRoutes.home);
+  },
+  icon: const Icon(
+    Icons.explore_rounded,
+  ),
+  label: const Text(
+    'Explore Recipes',
+  ),
+),
                 ],
               ),
             );
