@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_tts/flutter_tts.dart'; // Ensure flutter_tts is added to pubspec.yaml
 import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
 import 'package:recipe_app/features/favorites/models/favorite_recipe_model.dart';
+import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
 import '../model/recipe_detail_model.dart';
 
 // REPOSITORY IMPORT: Ensure the path is correct as per your folder structure
@@ -208,41 +209,58 @@ class RecipeController extends GetxController {
   //     recipe.value = updatedRecipe;
   //   }
   // }
-  void toggleFavorite(String id) {
-  if (recipe.value != null && recipe.value!.id == id) {
-    final wasFavorite = recipe.value!.isFavorite;
-
-    final updatedRecipe = Recipe(
-      id: recipe.value!.id,
-      name: recipe.value!.name,
-      cuisine: recipe.value!.cuisine,
-      category: recipe.value!.category,
-      rating: recipe.value!.rating,
-      reviews: recipe.value!.reviews,
-      difficulty: recipe.value!.difficulty,
-      imageUrl: recipe.value!.imageUrl,
-      prepTime: recipe.value!.prepTime,
-      ingredients: recipe.value!.ingredients,
-      steps: recipe.value!.steps,
-      instructions: recipe.value!.instructions,
-      youtubeUrl: recipe.value!.youtubeUrl,
-      isFavorite: !wasFavorite,
-    );
-
-    recipe.value = updatedRecipe;
-
-    Get.snackbar(
-      !wasFavorite
-          ? 'Added to Favorites ❤️'
-          : 'Removed from Favorites 💔',
-      !wasFavorite
-          ? '${recipe.value!.name} added to favorites.'
-          : '${recipe.value!.name} removed from favorites.',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 2),
-      margin: const EdgeInsets.all(12),
-    );
+ void toggleFavorite(String id) {
+  if (recipe.value == null || recipe.value!.id != id) {
+    return;
   }
+
+  final currentRecipe = recipe.value!;
+  final bool willBeFavorite = !currentRecipe.isFavorite;
+
+  recipe.value = Recipe(
+    id: currentRecipe.id,
+    name: currentRecipe.name,
+    cuisine: currentRecipe.cuisine,
+    category: currentRecipe.category,
+    rating: currentRecipe.rating,
+    reviews: currentRecipe.reviews,
+    difficulty: currentRecipe.difficulty,
+    imageUrl: currentRecipe.imageUrl,
+    prepTime: currentRecipe.prepTime,
+    ingredients: currentRecipe.ingredients,
+    steps: currentRecipe.steps,
+    instructions: currentRecipe.instructions,
+    youtubeUrl: currentRecipe.youtubeUrl,
+    isFavorite: willBeFavorite,
+  );
+
+  if (!Get.isRegistered<NotificationController>()) {
+    Get.put(NotificationController());
+  }
+
+  final notificationController =
+      Get.find<NotificationController>();
+
+  notificationController.addNotification(
+    title: willBeFavorite
+        ? 'Recipe Added ❤️'
+        : 'Recipe Removed 💔',
+    message: willBeFavorite
+        ? '${currentRecipe.name} added to favorites.'
+        : '${currentRecipe.name} removed from favorites.',
+  );
+
+  Get.snackbar(
+    willBeFavorite
+        ? 'Added to Favorites ❤️'
+        : 'Removed from Favorites 💔',
+    willBeFavorite
+        ? '${currentRecipe.name} added to favorites.'
+        : '${currentRecipe.name} removed from favorites.',
+    snackPosition: SnackPosition.BOTTOM,
+    duration: const Duration(seconds: 2),
+    margin: const EdgeInsets.all(12),
+  );
 }
   @override
   void onClose() {
