@@ -64,12 +64,7 @@ class LoginScreen extends GetView<AuthController> {
                 // LOGO
                 // =================================================
 
-                Center(
-                 child:  Image.asset(
-                  "assets/images/logo.png",
-                  height: 100,
-                  width: 100,
-                  )
+                
                   // child: Container(
                   //   width: 76,
                   //   height: 76,
@@ -93,7 +88,7 @@ class LoginScreen extends GetView<AuthController> {
                   //   ),
                   // ),
                 
-                ),
+              
 
                 const SizedBox(height: 30),
 

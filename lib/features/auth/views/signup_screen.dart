@@ -346,12 +346,11 @@ Obx(
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset(
-          'assets/images/google_logo.png',
-          height: 22,
-          width: 22,
+ Icon(
+          Icons.g_mobiledata,
+          color: iconColor,
+          size: 26,
         ),
-
         const SizedBox(width: 12),
 
         Text(
