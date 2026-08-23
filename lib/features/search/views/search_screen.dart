@@ -70,17 +70,17 @@ Widget build(BuildContext context) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 210,
-                child: Image.asset(
-                  'assets/images/search_header.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+            // ClipRRect(
+            //   borderRadius: BorderRadius.circular(20),
+            //   child: SizedBox(
+            //     width: double.infinity,
+            //     height: 210,
+            //     child: Image.asset(
+            //       'assets/images/search_header.png',
+            //       fit: BoxFit.cover,
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 16),
 
             TextField(
