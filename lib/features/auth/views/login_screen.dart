@@ -65,28 +65,34 @@ class LoginScreen extends GetView<AuthController> {
                 // =================================================
 
                 Center(
-                  child: Container(
-                    width: 76,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDark
-                              ? AppColors.primary.withOpacity(0.30)
-                              : AppColors.shadow,
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.restaurant_menu_rounded,
-                      color: AppColors.textWhite,
-                      size: 40,
-                    ),
-                  ),
+                 child:  Image.asset(
+                  "assets/images/logo.png",
+                  height: 100,
+                  width: 100,
+                  )
+                  // child: Container(
+                  //   width: 76,
+                  //   height: 76,
+                  //   decoration: BoxDecoration(
+                  //     color: AppColors.primary,
+                  //     borderRadius: BorderRadius.circular(24),
+                  //     boxShadow: [
+                  //       BoxShadow(
+                  //         color: isDark
+                  //             ? AppColors.primary.withOpacity(0.30)
+                  //             : AppColors.shadow,
+                  //         blurRadius: 18,
+                  //         offset: const Offset(0, 8),
+                  //       ),
+                  //     ],
+                  //   ),
+                  //   child: const Icon(
+                  //     Icons.restaurant_menu_rounded,
+                  //     color: AppColors.textWhite,
+                  //     size: 40,
+                  //   ),
+                  // ),
+                
                 ),
 
                 const SizedBox(height: 30),

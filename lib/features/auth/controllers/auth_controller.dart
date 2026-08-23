@@ -176,6 +176,100 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+  // =========================================================
+// GOOGLE SIGN-IN
+// =========================================================
+
+Future<void> signInWithGoogle() async {
+  try {
+    isLoading.value = true;
+
+    print('==============================');
+    print('GOOGLE SIGN-IN');
+    print('==============================');
+
+    // -------------------------------------------------------
+    // CALL REPOSITORY
+    // -------------------------------------------------------
+
+    final UserModel user =
+        await _authRepository.signInWithGoogle();
+
+    // -------------------------------------------------------
+    // SAVE USER INFORMATION
+    // -------------------------------------------------------
+
+    userName.value =
+        user.name.isEmpty ? 'User' : user.name;
+
+    userEmail.value = user.email;
+
+    final storage = GetStorage();
+
+    await storage.write(
+      'userName',
+      userName.value,
+    );
+
+    await storage.write(
+      'userEmail',
+      userEmail.value,
+    );
+
+    await storage.write(
+      'isLoggedIn',
+      true,
+    );
+
+    print('==============================');
+    print('GOOGLE USER RECEIVED');
+    print('UID: ${user.uid}');
+    print('NAME: ${user.name}');
+    print('EMAIL: ${user.email}');
+    print('==============================');
+
+    // -------------------------------------------------------
+    // SUCCESS
+    // -------------------------------------------------------
+
+    Get.snackbar(
+      'Login Successful',
+      'Welcome, ${user.name.isEmpty ? 'User' : user.name}!',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+    );
+
+    // -------------------------------------------------------
+    // GO TO HOME
+    // -------------------------------------------------------
+
+    Get.offAllNamed(
+      AppRoutes.home,
+    );
+  } catch (e, stackTrace) {
+    print('==============================');
+    print('GOOGLE SIGN-IN ERROR');
+    print('ERROR: $e');
+    print('STACK TRACE:');
+    print(stackTrace);
+    print('==============================');
+
+    final String message =
+        e.toString().replaceFirst(
+              'Exception: ',
+              '',
+            );
+
+    Get.snackbar(
+      'Google Sign-In Failed',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 6),
+    );
+  } finally {
+    isLoading.value = false;
+  }
+}
 
   // =========================================================
   // SIGNUP

@@ -82,6 +82,11 @@ class SignupScreen extends GetView<AuthController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(child: Image.asset("assets/images/logo.png",
+                height: 100,
+                width: 100,)
+                ),
+                SizedBox(height: 18,),
                 // =================================================
                 // AUTH HEADER
                 // =================================================
@@ -92,7 +97,7 @@ class SignupScreen extends GetView<AuthController> {
                       'Create your account and start cooking.',
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 // =================================================
                 // FULL NAME
@@ -106,7 +111,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height:16),
 
                 CustomTextField(
                   controller:
@@ -118,7 +123,7 @@ class SignupScreen extends GetView<AuthController> {
                   validator: AuthValidators.name,
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
                 // =================================================
                 // EMAIL
@@ -132,7 +137,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
 
                 CustomTextField(
                   controller:
@@ -145,7 +150,7 @@ class SignupScreen extends GetView<AuthController> {
                   validator: AuthValidators.email,
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
                 // =================================================
                 // PASSWORD
@@ -159,7 +164,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
 
                 Obx(
                   () => CustomTextField(
@@ -194,7 +199,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
                 // =================================================
                 // CONFIRM PASSWORD
@@ -250,7 +255,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 26),
 
                 // =================================================
                 // CREATE ACCOUNT BUTTON
@@ -276,6 +281,91 @@ class SignupScreen extends GetView<AuthController> {
                 ),
 
                 const SizedBox(height: 20),
+
+// =================================================
+// OR DIVIDER
+// =================================================
+
+Row(
+  children: [
+    Expanded(
+      child: Divider(
+        color: textSecondary.withOpacity(0.3),
+        thickness: 1,
+      ),
+    ),
+
+    Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Text(
+        'OR',
+        style: AppTextStyles.bodySmall.copyWith(
+          color: textSecondary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+
+    Expanded(
+      child: Divider(
+        color: textSecondary.withOpacity(0.3),
+        thickness: 1,
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 20),
+
+// =================================================
+// CONTINUE WITH GOOGLE
+// =================================================
+
+Obx(
+  () => OutlinedButton(
+    onPressed: controller.isLoading.value
+        ? null
+        : controller.signInWithGoogle,
+    style: OutlinedButton.styleFrom(
+      minimumSize: const Size(
+        double.infinity,
+        52,
+      ),
+      side: BorderSide(
+        color: textSecondary.withOpacity(0.35),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      backgroundColor: isDark
+          ? Colors.transparent
+          : Colors.white,
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          'assets/images/google_logo.png',
+          height: 22,
+          width: 22,
+        ),
+
+        const SizedBox(width: 12),
+
+        Text(
+          'Continue with Google',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+const SizedBox(height: 20),
+
 
                 // =================================================
                 // LOGIN
