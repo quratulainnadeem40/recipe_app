@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:recipe_app/core/theme/app_colors.dart';
+import 'package:recipe_app/features/home/controllers/home_controller.dart';
 
 class HomeHeader extends StatelessWidget {
   final VoidCallback? onNotificationTap;
-  final String userName;
 
   const HomeHeader({
     super.key,
     this.onNotificationTap,
-    this.userName = 'Chef',
   });
 
   @override
   Widget build(BuildContext context) {
+    final homeController = Get.find<HomeController>();
+
     final isDark =
         Theme.of(context).brightness == Brightness.dark;
 
@@ -23,13 +25,6 @@ class HomeHeader extends StatelessWidget {
     final notificationBorder = isDark
         ? AppColors.darkBorder
         : AppColors.border;
-
-    // =========================================================
-    // CLEAN USER NAME
-    // =========================================================
-
-    final displayName =
-        userName.trim().isEmpty ? 'Chef' : userName.trim();
 
     return Container(
       width: double.infinity,
@@ -65,35 +60,41 @@ class HomeHeader extends StatelessWidget {
           Positioned(
             left: 24,
             top: 35,
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hello, $displayName!',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.primaryDark,
-                    fontSize: 27,
-                    fontWeight: FontWeight.w800,
-                    height: 1.1,
-                  ),
-                ),
+            child: Obx(() {
+              final displayName =
+                  homeController.userName.value.trim().isEmpty
+                      ? 'Chef'
+                      : homeController.userName.value.trim();
 
-                const SizedBox(height: 10),
-
-                const Text(
-                  'What would you like\nto cook today?',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hello, $displayName!',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.primaryDark,
+                      fontSize: 27,
+                      fontWeight: FontWeight.w800,
+                      height: 1.1,
+                    ),
                   ),
-                ),
-              ],
-            ),
+
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    'What would you like\nto cook today?',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              );
+            }),
           ),
 
           // =====================================================
@@ -112,10 +113,8 @@ class HomeHeader extends StatelessWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: notificationBackground
-                        .withOpacity(0.92),
-                    borderRadius:
-                        BorderRadius.circular(14),
+                    color: notificationBackground.withOpacity(0.92),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: notificationBorder,
                       width: 1,

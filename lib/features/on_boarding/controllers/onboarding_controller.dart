@@ -13,22 +13,19 @@ class OnboardingController extends GetxController {
     OnboardingModel(
       image: 'assets/images/image1.png',
       title: '',
-      description:
-          '',
+      description: '',
     ),
 
     OnboardingModel(
       image: 'assets/images/image2.png',
       title: '',
-      description:
-          '',
+      description: '',
     ),
 
     OnboardingModel(
       image: 'assets/images/image3.jpeg',
       title: '',
-      description:
-          '',
+      description: '',
     ),
   ];
 

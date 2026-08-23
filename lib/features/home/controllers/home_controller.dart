@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:recipe_app/features/auth/controllers/auth_controller.dart';
 
 import 'package:recipe_app/features/home/models/recipe_models.dart';
 import 'package:recipe_app/features/home/repositories/home_repository.dart';
@@ -10,6 +11,9 @@ class HomeController extends GetxController {
   HomeController({
     required this.repository,
   });
+  late AuthController authController;
+
+final RxString userName = ''.obs;
 
   // ============================================================
   // HOME RECIPES
@@ -84,13 +88,44 @@ class HomeController extends GetxController {
   // INIT
   // ============================================================
 
-  @override
-  void onInit() {
-    super.onInit();
+//   @override
+// void onInit() {
+//   super.onInit();
 
-    getRecipes();
+//   authController = Get.find<AuthController>();
+
+//   // AuthController se username listen karo
+//   ever(authController.userName, (newName) {
+//     userName.value = newName;
+//   });
+
+//   // Shuru mein username set karo
+//   userName.value = authController.userName.value;
+
+//   getRecipes();
+// }
+
+@override
+void onInit() {
+  super.onInit();
+
+  // AuthController available ho to username sync karo
+  if (Get.isRegistered<AuthController>()) {
+    authController = Get.find<AuthController>();
+
+    userName.value = authController.userName.value;
+
+    ever(
+      authController.userName,
+      (newName) {
+        userName.value = newName;
+      },
+    );
   }
 
+  // Home recipes load karo
+  getRecipes();
+}
   // ============================================================
   // LOAD HOME
   // ============================================================

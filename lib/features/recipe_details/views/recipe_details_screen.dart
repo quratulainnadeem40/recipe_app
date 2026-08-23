@@ -1112,12 +1112,12 @@ class _InfoItem {
 }
 
 // =========================================================================
-// WHATSAPP-STYLE COOKING AUDIO VOICE BAR (WITH TIMELINE SEEKING & SLIDER)
+// ✅ WHATSAPP-STYLE COOKING AUDIO VOICE BAR (FIXED - NO TTS INTERRUPTION ERRORS)
 // =========================================================================
 class WhatsAppVoiceBar extends StatefulWidget {
   final Recipe recipe;
   final RecipeController controller;
-  final List<String> cleanSteps; // Synced fallback steps
+  final List<String> cleanSteps;
 
   const WhatsAppVoiceBar({
     super.key,
@@ -1135,14 +1135,15 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
   bool _localIsPaused = false;
   int _localCurrentStep = 0;
   double _playbackSpeed = 1.0;
-  bool _isDragging = false; // Prevents stream sync updates from interrupting smooth sliding
+  bool _isDragging = false;
   
-  // Real time simulation variables
   int _elapsedSeconds = 0;
   Timer? _secondTimer;
   
-  // 15 seconds simulated duration per recipe step
   static const int _secondsPerStep = 15;
+  
+  // ✅ Mutex lock to prevent overlapping TTS operations
+  bool _isTtsOperationInProgress = false;
 
   @override
   void initState() {
@@ -1164,15 +1165,13 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
       if (_playbackSpeed == 2.0) ttsRate = 0.95;
 
       final dynamic dynController = widget.controller;
-      // Library-private _flutterTts setSpeechRate call safely bypassed if restricted
       dynController._flutterTts.setSpeechRate(ttsRate);
     } catch (_) {
-      // Silent catch - completely eliminates 'NoSuchMethodError' console log output
+      // Silent catch
     }
   }
 
   void _startSyncAndTimer() {
-    // 1-second interval timer to smoothly increment progress when active
     _secondTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
 
@@ -1190,7 +1189,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
             final int stepStartSec = ctrlStep * _secondsPerStep;
             final int stepEndSec = (ctrlStep + 1) * _secondsPerStep - 1;
 
-            // Keep the elapsed seconds moving within the bounds of the active step
             if (_elapsedSeconds < stepStartSec || _elapsedSeconds > stepEndSec) {
               _elapsedSeconds = stepStartSec;
             } else {
@@ -1198,7 +1196,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
             }
           });
         } else if (!ctrlSpeaking && !ctrlPaused && !_isDragging && _localIsSpeaking) {
-          // Narrator finished all steps
           setState(() {
             _localIsSpeaking = false;
             _localCurrentStep = 0;
@@ -1209,7 +1206,10 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
     });
   }
 
+  // ✅ Fixed Play with proper TTS state management
   Future<void> _play() async {
+    if (_isTtsOperationInProgress) return;
+    
     final int totalSteps = widget.cleanSteps.length;
     if (totalSteps == 0) return;
 
@@ -1223,16 +1223,23 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
     });
 
     try {
+      _isTtsOperationInProgress = true;
+      
       final List<String> steps = widget.cleanSteps;
       final dynamic dynController = widget.controller;
 
-      // 100% WEB INTERRUPTED BUG FIX: Complete stop with clear 800ms reset delay buffer
+      // ✅ Proper stop with delay
       await dynController.stopSpeaking();
-      await Future.delayed(const Duration(milliseconds: 800));
+      await Future.delayed(const Duration(milliseconds: 1000));
 
       await dynController.speakSpecificStep(steps, _localCurrentStep);
     } catch (e) {
       debugPrint("TTS Play error: $e");
+      setState(() {
+        _localIsSpeaking = false;
+      });
+    } finally {
+      _isTtsOperationInProgress = false;
     }
   }
 
@@ -1249,19 +1256,28 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
   }
 
   void _resume() {
+    if (_isTtsOperationInProgress) return;
+    
     setState(() {
       _localIsPaused = false;
     });
     try {
+      _isTtsOperationInProgress = true;
+      
       final List<String> steps = widget.cleanSteps;
       final dynamic dynController = widget.controller;
       dynController.speakSpecificStep(steps, _localCurrentStep);
+      
+      _isTtsOperationInProgress = false;
     } catch (e) {
       debugPrint("TTS Resume error: $e");
+      _isTtsOperationInProgress = false;
     }
   }
 
   void _stop() {
+    if (_isTtsOperationInProgress) return;
+    
     setState(() {
       _localIsSpeaking = false;
       _localIsPaused = false;
@@ -1289,13 +1305,15 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
     });
   }
 
+  // ✅ Fixed Seek with proper mutex
   Future<void> _seekToSecond(int targetSeconds) async {
+    if (_isTtsOperationInProgress) return;
+    
     final int totalSteps = widget.cleanSteps.length;
     if (totalSteps == 0) return;
 
     final int targetStep = (targetSeconds / _secondsPerStep).floor().clamp(0, totalSteps - 1);
 
-    // Dynamic Optimization: If dragging to the same step, don't interrupt active speech synthesis
     final dynamic dynController = widget.controller;
     bool isCtrlSpeaking = false;
     int ctrlStep = 0;
@@ -1312,17 +1330,20 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
     });
 
     if (isCtrlSpeaking && ctrlStep == targetStep) {
-      return; // Smooth skip
+      return;
     }
 
     try {
-      // 100% WEB INTERRUPTED BUG FIX: Complete stop with clear 800ms reset delay buffer
+      _isTtsOperationInProgress = true;
+      
       await dynController.stopSpeaking();
-      await Future.delayed(const Duration(milliseconds: 800));
+      await Future.delayed(const Duration(milliseconds: 1000));
 
       await dynController.speakSpecificStep(widget.cleanSteps, targetStep);
     } catch (e) {
       debugPrint("TTS Seek step error: $e");
+    } finally {
+      _isTtsOperationInProgress = false;
     }
   }
 
@@ -1338,7 +1359,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
       final totalSteps = widget.cleanSteps.isNotEmpty ? widget.cleanSteps.length : 1;
       final int totalSeconds = totalSteps * _secondsPerStep;
 
-      // Sync state from controller when active and we are not dragging or paused locally
       if (!_isDragging && !_localIsPaused) {
         try {
           final dynamic dynController = widget.controller;
@@ -1369,7 +1389,7 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1F2C34) : const Color(0xFF0F1C24), // Elegant WhatsApp Chat Bubble Dark Theme
+          color: isDark ? const Color(0xFF1F2C34) : const Color(0xFF0F1C24),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -1384,7 +1404,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
           children: [
             Row(
               children: [
-                // 1. WhatsApp Play / Pause Emerald Green Circular Button
                 GestureDetector(
                   onTap: () async {
                     if (!_localIsSpeaking) {
@@ -1398,7 +1417,7 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: const BoxDecoration(
-                      color: Color(0xFF00A884), // WhatsApp Emerald Green
+                      color: Color(0xFF00A884),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -1412,14 +1431,13 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
                 ),
                 const SizedBox(width: 12),
 
-                // 2. TRUE CONTINUOUS WHATSAPP SEEKBAR (Slider)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: const Color(0xFF00A884), // WhatsApp green track
+                          activeTrackColor: const Color(0xFF00A884),
                           inactiveTrackColor: Colors.white.withOpacity(0.15),
                           thumbColor: const Color(0xFF00A884),
                           overlayColor: const Color(0xFF00A884).withOpacity(0.12),
@@ -1446,7 +1464,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
                           },
                         ),
                       ),
-                      // Meta Details below SeekBar (Elapsed / Total Durations + Step Count)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                         child: Row(
@@ -1474,7 +1491,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
                                 ),
                               ],
                             ),
-                            // Simulated audio length timestamps
                             Text(
                               '${_formatDuration(_elapsedSeconds)} / ${_formatDuration(totalSeconds)}',
                               style: TextStyle(
@@ -1491,7 +1507,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
                 ),
                 const SizedBox(width: 8),
 
-                // 3. WhatsApp Speed Bubble badge (1.0x -> 1.5x -> 2.0x)
                 GestureDetector(
                   onTap: _toggleSpeed,
                   child: Container(
@@ -1513,7 +1528,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
                 ),
                 const SizedBox(width: 8),
 
-                // 4. Circular Stop Button (Visible only when actively speaking)
                 if (_localIsSpeaking)
                   GestureDetector(
                     onTap: _stop,
@@ -1533,7 +1547,6 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
               ],
             ),
 
-            // 5. Dynamic Subtitle caption for the selected step
             if (_localIsSpeaking && widget.cleanSteps.isNotEmpty) ...[
               const SizedBox(height: 12),
               Container(

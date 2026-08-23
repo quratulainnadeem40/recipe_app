@@ -14,9 +14,7 @@ class SplashScreen extends GetView<SplashController> {
     // FULL SCREEN SYSTEM UI
     // ---------------------------------------------------------
 
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.edgeToEdge,
-    );
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -35,7 +33,6 @@ class SplashScreen extends GetView<SplashController> {
       // -------------------------------------------------------
       // BODY
       // -------------------------------------------------------
-
       body: MediaQuery.removePadding(
         context: context,
         removeTop: true,
@@ -52,7 +49,6 @@ class SplashScreen extends GetView<SplashController> {
               // =================================================
               // SPLASH IMAGE
               // =================================================
-
               Image.asset(
                 'assets/images/splash.jpeg',
 
@@ -69,7 +65,6 @@ class SplashScreen extends GetView<SplashController> {
               // =================================================
               // LOADING
               // =================================================
-
               Positioned(
                 left: 0,
                 right: 0,
@@ -88,8 +83,7 @@ class SplashScreen extends GetView<SplashController> {
 
                         color: AppColors.primary,
 
-                        backgroundColor:
-                            Colors.white.withOpacity(0.25),
+                        backgroundColor: Colors.white.withOpacity(0.25),
                       ),
                     ),
                   ),

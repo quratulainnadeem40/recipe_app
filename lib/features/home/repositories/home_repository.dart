@@ -23,8 +23,56 @@ class HomeRepository {
       );
     }
   }
-
+    // ============================================================
+  // ALL RECIPES
   // ============================================================
+
+  
+  // ============================================================
+  // ALL RECIPES
+  // ============================================================
+
+  Future<List<RecipeModel>> getAllRecipes() async {
+    try {
+      // App start par different dishes load hongi
+      final searches = [
+        'biryani',
+        'pasta',
+        'salad',
+        'chicken',
+        'pizza',
+      ];
+
+      List<RecipeModel> allRecipes = [];
+
+      for (final search in searches) {
+        final data = await apiService.searchRecipes(
+          Uri.encodeComponent(search),
+        );
+
+        final recipes = _parseRecipes(data);
+        allRecipes.addAll(recipes);
+      }
+
+      // Duplicate recipes remove
+      final uniqueRecipes = <String, RecipeModel>{};
+
+      for (final recipe in allRecipes) {
+        uniqueRecipes[recipe.id] = recipe;
+      }
+
+      return uniqueRecipes.values.toList();
+    } catch (e) {
+      throw Exception(
+        'Failed to load all recipes',
+      );
+    }
+  }
+  // ============================================================
+  // SEARCH
+  // ============================================================
+
+    // ============================================================
   // SEARCH
   // ============================================================
 
@@ -33,8 +81,9 @@ class HomeRepository {
   ) async {
     final value = query.trim();
 
+    // Empty query ho to all recipes return karo
     if (value.isEmpty) {
-      return [];
+      return await getAllRecipes();
     }
 
     try {

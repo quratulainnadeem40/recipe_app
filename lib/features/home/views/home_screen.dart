@@ -244,25 +244,7 @@ class HomeScreen extends GetView<HomeController> {
 
                             const SizedBox(height: 16),
 
-                            // =================================================
-                            // SEARCH
-                            // =================================================
-
-                            HomeSearchBar(
-                              controller: controller
-                                  .searchTextController,
-
-                              onChanged: controller
-                                  .onSearchTextChanged,
-
-                              onSearchTap: () {
-                                Get.toNamed(
-                                  AppRoutes.search,
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 26),
+                    
 
                             // =================================================
                             // EXPLORE BY CUISINE

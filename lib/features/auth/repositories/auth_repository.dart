@@ -1,94 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:recipe_app/features/auth/model/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
+import '../model/user_model.dart';
 
-class AuthRepository {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+class AuthRepository extends GetxService {
+  // =========================================================
+  // FIREBASE INSTANCES
+  // =========================================================
+
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firebaseFirestore =
+      FirebaseFirestore.instance;
 
   // =========================================================
-  // SIGN UP
+  // CURRENT USER
   // =========================================================
 
-  Future<UserModel> signUp({
-    required String name,
-    required String email,
-    required String password,
-  }) async {
-    try {
-      print('==============================');
-      print('SIGN UP STARTED');
-      print('Email: ${email.trim()}');
-      print('==============================');
-
-      final String cleanName = name.trim();
-      final String cleanEmail = email.trim();
-
-      // Firebase Authentication account create
-      final UserCredential credential =
-          await _auth.createUserWithEmailAndPassword(
-        email: cleanEmail,
-        password: password,
-      );
-
-      final User? user = credential.user;
-
-      if (user == null) {
-        throw Exception('Firebase user could not be created.');
-      }
-
-      print('Firebase signup successful.');
-      print('UID: ${user.uid}');
-
-      // Save display name in Firebase Authentication
-      await user.updateDisplayName(cleanName);
-
-      // Create model
-      final UserModel userModel = UserModel(
-        uid: user.uid,
-        name: cleanName,
-        email: cleanEmail,
-      );
-
-      // Save user in Firestore
-      await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .set(userModel.toMap());
-
-      print('Firestore user created successfully.');
-      print('SIGN UP COMPLETED');
-      print('==============================');
-
-      return userModel;
-    } on FirebaseAuthException catch (e) {
-      print('==============================');
-      print('FIREBASE AUTH ERROR - SIGNUP');
-      print('CODE: ${e.code}');
-      print('MESSAGE: ${e.message}');
-      print('==============================');
-
-      throw Exception(
-        _authErrorMessage(e),
-      );
-    } on FirebaseException catch (e) {
-      print('==============================');
-      print('FIRESTORE ERROR - SIGNUP');
-      print('CODE: ${e.code}');
-      print('MESSAGE: ${e.message}');
-      print('==============================');
-
-      throw Exception(
-        'Firestore error: ${e.message ?? e.code}',
-      );
-    } catch (e) {
-      print('SIGNUP GENERAL ERROR: $e');
-
-      throw Exception(
-        e.toString().replaceFirst('Exception: ', ''),
-      );
-    }
-  }
+  User? get currentUser => _firebaseAuth.currentUser;
 
   // =========================================================
   // LOGIN
@@ -99,168 +27,94 @@ class AuthRepository {
     required String password,
   }) async {
     try {
-      final String cleanEmail = email.trim();
-
-      print('==============================');
-      print('LOGIN STARTED');
-      print('Email: $cleanEmail');
-      print('Password length: ${password.length}');
-      print('==============================');
-
-      // -------------------------------------------------------
-      // 1. Firebase Authentication
-      // -------------------------------------------------------
-
-      final UserCredential credential =
-          await _auth.signInWithEmailAndPassword(
-        email: cleanEmail,
+      final userCredential =
+          await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
         password: password,
       );
 
-      final User? user = credential.user;
-
-      if (user == null) {
-        throw Exception(
-          'Login failed. Firebase user was not returned.',
-        );
-      }
-
-      print('Firebase login successful.');
-      print('UID: ${user.uid}');
-
-      // -------------------------------------------------------
-      // 2. Firestore user document
-      // -------------------------------------------------------
-
-      final DocumentSnapshot<Map<String, dynamic>> document =
-          await _firestore
-              .collection('users')
-              .doc(user.uid)
-              .get();
-
-      // -------------------------------------------------------
-      // 3. Existing Firestore user
-      // -------------------------------------------------------
-
-      if (document.exists && document.data() != null) {
-        print('Firestore user found successfully.');
-
-        final Map<String, dynamic> data =
-            Map<String, dynamic>.from(
-          document.data()!,
-        );
-
-        // IMPORTANT:
-        // Agar Firestore mein koi field missing/null hai,
-        // Firebase Auth se safe fallback le lo.
-
-        data['uid'] = data['uid'] ?? user.uid;
-
-        data['email'] =
-            data['email'] ??
-            user.email ??
-            cleanEmail;
-
-        data['name'] =
-            data['name'] ??
-            user.displayName ??
-            '';
-
-        print('Firestore data prepared successfully.');
-
-        // Ab null assertion wali problem nahi hogi
-        final UserModel userModel =
-            UserModel.fromMap(data);
-
-        print('UserModel created successfully.');
-        print('LOGIN COMPLETED');
-        print('==============================');
-
-        return userModel;
-      }
-
-      // -------------------------------------------------------
-      // 4. Firestore document does not exist
-      // -------------------------------------------------------
-
-      print(
-        'Firestore user document not found.',
-      );
-
-      final String userName =
-          user.displayName ?? '';
-
-      final String userEmail =
-          user.email ?? cleanEmail;
-
-      final UserModel userModel = UserModel(
-        uid: user.uid,
-        name: userName,
-        email: userEmail,
-      );
-
-      // Automatically create Firestore document
-      await _firestore
+      // Firestore سے user data لو
+      final userDoc = await _firebaseFirestore
           .collection('users')
-          .doc(user.uid)
-          .set(userModel.toMap());
+          .doc(userCredential.user!.uid)
+          .get();
 
-      print(
-        'Firestore user document created automatically.',
-      );
-
-      print('LOGIN COMPLETED');
-      print('==============================');
-
-      return userModel;
-    } on FirebaseAuthException catch (e) {
-      print('==============================');
-      print('FIREBASE AUTH ERROR - LOGIN');
-      print('CODE: ${e.code}');
-      print('MESSAGE: ${e.message}');
-      print('==============================');
-
-      throw Exception(
-        _authErrorMessage(e),
-      );
-    } on FirebaseException catch (e) {
-      print('==============================');
-      print('FIRESTORE ERROR - LOGIN');
-      print('CODE: ${e.code}');
-      print('MESSAGE: ${e.message}');
-      print('==============================');
-
-      throw Exception(
-        'Firestore error: ${e.message ?? e.code}',
-      );
+      if (userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>;
+        
+        // ✅ fromJson کے بغیر - براہ راست constructor استعمال کریں
+        return UserModel(
+          uid: data['uid'] ?? userCredential.user!.uid,
+          name: data['name'] ?? 'User',
+          email: data['email'] ?? email,
+        );
+      } else {
+        // اگر Firestore میں نہیں ہے تو Firebase user سے بناؤ
+        return UserModel(
+          uid: userCredential.user!.uid,
+          name: userCredential.user?.displayName ?? 'User',
+          email: userCredential.user!.email ?? email,
+        );
+      }
     } catch (e) {
-      print('LOGIN GENERAL ERROR: $e');
-
-      throw Exception(
-        e.toString().replaceFirst('Exception: ', ''),
-      );
+      throw Exception('Login failed: $e');
     }
   }
 
   // =========================================================
-  // FORGOT PASSWORD
+  // SIGNUP
+  // =========================================================
+
+  Future<UserModel> signup({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      // Firebase میں account بنائیں
+      final userCredential =
+          await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Display name update کریں
+      await userCredential.user?.updateDisplayName(name);
+
+      // Firestore میں user data save کریں
+      await _firebaseFirestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+        'uid': userCredential.user!.uid,
+        'name': name,
+        'email': email,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // ✅ UserModel return کریں
+      return UserModel(
+        uid: userCredential.user!.uid,
+        name: name,
+        email: email,
+      );
+    } catch (e) {
+      throw Exception('Signup failed: $e');
+    }
+  }
+
+  // =========================================================
+  // RESET PASSWORD
   // =========================================================
 
   Future<void> resetPassword(String email) async {
     try {
-      await _auth.sendPasswordResetEmail(
-        email: email.trim(),
-      );
-
-      print('Password reset email sent.');
-    } on FirebaseAuthException catch (e) {
-      throw Exception(
-        _authErrorMessage(e),
+      await _firebaseAuth.sendPasswordResetEmail(
+        email: email,
       );
     } catch (e) {
-      throw Exception(
-        e.toString().replaceFirst('Exception: ', ''),
-      );
+      throw Exception('Password reset failed: $e');
     }
   }
 
@@ -269,253 +123,95 @@ class AuthRepository {
   // =========================================================
 
   Future<void> logout() async {
-    await _auth.signOut();
-
-    print('User logged out successfully.');
-  }
-
-// =========================================================
-// DELETE ACCOUNT
-// =========================================================
-
-Future<void> deleteAccount() async {
-  try {
-    final User? user = _auth.currentUser;
-
-    if (user == null) {
-      throw Exception(
-        'No user is currently signed in.',
-      );
+    try {
+      await _firebaseAuth.signOut();
+    } catch (e) {
+      throw Exception('Logout failed: $e');
     }
-
-    // Delete Firestore user document
-    await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .delete();
-
-    print('Firestore user document deleted.');
-
-    // Delete Firebase Authentication account
-    await user.delete();
-
-    print('Firebase Authentication account deleted.');
-  } on FirebaseAuthException catch (e) {
-    print('DELETE ACCOUNT AUTH ERROR: ${e.code}');
-
-    throw Exception(
-      _authErrorMessage(e),
-    );
-  } on FirebaseException catch (e) {
-    print('DELETE ACCOUNT FIRESTORE ERROR: ${e.code}');
-
-    throw Exception(
-      'Firestore error: ${e.message ?? e.code}',
-    );
-  } catch (e) {
-    print('DELETE ACCOUNT ERROR: $e');
-
-    throw Exception(
-      e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          ),
-    );
-  }
-}
-
-// =========================================================
-// UPDATE PROFILE
-// =========================================================
-
-Future<void> updateProfile({
-  required String name,
-}) async {
-  try {
-    final User? user = _auth.currentUser;
-
-    if (user == null) {
-      throw Exception(
-        'No user is currently signed in.',
-      );
-    }
-
-    final String cleanName = name.trim();
-
-    if (cleanName.isEmpty) {
-      throw Exception(
-        'Name cannot be empty.',
-      );
-    }
-
-    // Update Firebase Authentication
-    await user.updateDisplayName(cleanName);
-
-    // Update Firestore
-    await _firestore
-        .collection('users')
-        .doc(user.uid)
-        .update({
-      'name': cleanName,
-    });
-
-    print('Profile updated successfully.');
-  } on FirebaseAuthException catch (e) {
-    throw Exception(
-      _authErrorMessage(e),
-    );
-  } on FirebaseException catch (e) {
-    throw Exception(
-      'Firestore error: ${e.message ?? e.code}',
-    );
-  } catch (e) {
-    throw Exception(
-      e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          ),
-    );
-  }
-}
-// =========================================================
-// CHANGE PASSWORD
-// =========================================================
-
-Future<void> changePassword({
-  required String currentPassword,
-  required String newPassword,
-}) async {
-  try {
-    final User? user = _auth.currentUser;
-
-    if (user == null) {
-      throw Exception(
-        'No user is currently signed in.',
-      );
-    }
-
-    final String email = user.email ?? '';
-
-    if (email.isEmpty) {
-      throw Exception(
-        'User email could not be found.',
-      );
-    }
-
-    // -------------------------------------------------------
-    // 1. Re-authenticate user with current password
-    // -------------------------------------------------------
-
-    final AuthCredential credential =
-        EmailAuthProvider.credential(
-      email: email,
-      password: currentPassword,
-    );
-
-    await user.reauthenticateWithCredential(
-      credential,
-    );
-
-    // -------------------------------------------------------
-    // 2. Update password
-    // -------------------------------------------------------
-
-    await user.updatePassword(newPassword);
-
-    print('Password changed successfully.');
-  } on FirebaseAuthException catch (e) {
-    print(
-      'CHANGE PASSWORD AUTH ERROR: ${e.code}',
-    );
-
-    switch (e.code) {
-      case 'wrong-password':
-      case 'invalid-credential':
-        throw Exception(
-          'Current password is incorrect.',
-        );
-
-      case 'weak-password':
-        throw Exception(
-          'New password is too weak.',
-        );
-
-      case 'requires-recent-login':
-        throw Exception(
-          'Please login again before changing your password.',
-        );
-
-      case 'network-request-failed':
-        throw Exception(
-          'Please check your internet connection.',
-        );
-
-      default:
-        throw Exception(
-          _authErrorMessage(e),
-        );
-    }
-  } catch (e) {
-    throw Exception(
-      e.toString().replaceFirst(
-            'Exception: ',
-            '',
-          ),
-    );
-  }
-}
-// =========================================================
-  // CURRENT USER
-  // =========================================================
-  User? get currentUser {
-    return _auth.currentUser;
   }
 
   // =========================================================
-  // IS LOGGED IN
+  // CHECK IF USER EXISTS
   // =========================================================
 
-  bool get isLoggedIn {
-    return _auth.currentUser != null;
+  Future<bool> userExists(String uid) async {
+    try {
+      final userDoc =
+          await _firebaseFirestore.collection('users').doc(uid).get();
+      return userDoc.exists;
+    } catch (e) {
+      return false;
+    }
   }
 
   // =========================================================
-  // FIREBASE AUTH ERROR MESSAGES
+  // GET USER DATA
   // =========================================================
 
-  String _authErrorMessage(
-    FirebaseAuthException e,
-  ) {
-    switch (e.code) {
-      case 'invalid-credential':
-        return 'Email or password is incorrect.';
+  Future<UserModel> getUserData(String uid) async {
+    try {
+      final userDoc = await _firebaseFirestore
+          .collection('users')
+          .doc(uid)
+          .get();
 
-      case 'invalid-email':
-        return 'Please enter a valid email address.';
+      if (userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>;
+        
+        // ✅ fromJson کے بغیر - براہ راست constructor استعمال کریں
+        return UserModel(
+          uid: data['uid'] ?? uid,
+          name: data['name'] ?? 'User',
+          email: data['email'] ?? '',
+        );
+      } else {
+        throw Exception('User not found');
+      }
+    } catch (e) {
+      throw Exception('Failed to get user data: $e');
+    }
+  }
 
-      case 'user-not-found':
-        return 'No account found with this email.';
+  // =========================================================
+  // UPDATE USER PROFILE
+  // =========================================================
 
-      case 'wrong-password':
-        return 'Incorrect password.';
+  Future<void> updateUserProfile({
+    required String uid,
+    required String name,
+    String? profileImage,
+  }) async {
+    try {
+      // Firebase user update
+      await currentUser?.updateDisplayName(name);
 
-      case 'email-already-in-use':
-        return 'This email is already registered.';
+      // Firestore update
+      await _firebaseFirestore
+          .collection('users')
+          .doc(uid)
+          .update({
+        'name': name,
+        if (profileImage != null) 'profileImage': profileImage,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Profile update failed: $e');
+    }
+  }
 
-      case 'weak-password':
-        return 'Password is too weak.';
+  // =========================================================
+  // DELETE ACCOUNT
+  // =========================================================
 
-      case 'network-request-failed':
-        return 'Please check your internet connection.';
+  Future<void> deleteAccount(String uid) async {
+    try {
+      // Firestore سے delete کریں
+      await _firebaseFirestore.collection('users').doc(uid).delete();
 
-      case 'too-many-requests':
-        return 'Too many attempts. Please try again later.';
-
-      case 'user-disabled':
-        return 'This account has been disabled.';
-
-      default:
-        return e.message ?? 'Authentication failed.';
+      // Firebase سے delete کریں
+      await currentUser?.delete();
+    } catch (e) {
+      throw Exception('Account deletion failed: $e');
     }
   }
 }

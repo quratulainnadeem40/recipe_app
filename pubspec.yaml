@@ -44,6 +44,7 @@ dependencies:
   flutter_tts: ^4.2.5
   just_audio: ^0.10.6
   dio: ^5.11.0
+  icons_launcher: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -106,3 +107,4 @@ flutter:
     - assets/images/splash.jpeg
     - assets/images/home_header.png
     - assets/images/search_header.png
+    - assets/images/recipe_logo.jpeg

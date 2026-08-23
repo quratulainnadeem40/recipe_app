@@ -19,6 +19,7 @@ class RecipeSearchController extends GetxController {
   // Results Lists (RecipeModel standard use ho raha hai) [2, 3]
   final RxList<RecipeModel> searchResults = <RecipeModel>[].obs;
   final RxList<RecipeModel> filteredResults = <RecipeModel>[].obs;
+  final RxList<RecipeModel> allRecipes = <RecipeModel>[].obs;
 
   // Live Suggestions & Recent Searches [3]
   final RxList<RecipeModel> suggestions = <RecipeModel>[].obs;
@@ -52,29 +53,58 @@ class RecipeSearchController extends GetxController {
     'Tunisian', 'Turkish', 'Ukrainian', 'Uruguayan', 'Vietnamese',
   ];
 
-  @override
+    @override
   void onInit() {
     super.onInit();
-    searchRecipes(''); // Shuru mein empty search loading
-    
-    // selectedCuisine aur selectedArea syncing
+
+    loadInitialRecipes();
+
     ever(selectedCuisine, (cuisine) {
       selectedArea.value = cuisine.isEmpty ? null : cuisine;
       _applyFilters();
     });
   }
+  Future<void> loadInitialRecipes() async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
 
-  // API Call implementation [8]
+      // Empty search → HomeRepository getAllRecipes()
+      final recipes = await repository.searchRecipes('');
+
+      allRecipes.assignAll(recipes);
+      searchResults.assignAll(recipes);
+
+      _applyFilters();
+    } catch (e) {
+      errorMessage.value =
+          'Failed to load recipes: ${e.toString()}';
+
+      print('Error loading initial recipes: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> searchRecipes(String value) async {
     final query = value.trim();
+
     searchQuery.value = query;
     isLoading.value = true;
     errorMessage.value = '';
+
     _searchRequestId++;
     final requestId = _searchRequestId;
 
     try {
-      final results = await repository.searchRecipes(query); // [8]
+      List<RecipeModel> results;
+
+      if (query.isEmpty) {
+        results = List.from(allRecipes);
+      } else {
+        results = await repository.searchRecipes(query);
+      }
+
       if (requestId == _searchRequestId) {
         searchResults.assignAll(results);
         _applyFilters();
@@ -89,6 +119,8 @@ class RecipeSearchController extends GetxController {
       }
     }
   }
+
+
 
   // Filter actions
   void addFilter(String filter) {
