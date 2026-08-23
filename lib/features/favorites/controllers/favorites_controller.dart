@@ -9,11 +9,24 @@ class FavoritesController extends GetxController {
 
   static const String _favStorageKey = 'user_favorites';
 
-  final favorites = <FavoriteRecipeModel>[].obs;
+  final RxList<FavoriteRecipeModel> favorites =
+      <FavoriteRecipeModel>[].obs;
 
-  // Notification Controller
-  NotificationController get notificationController =>
-      Get.find<NotificationController>();
+  // =========================================================
+  // NOTIFICATION CONTROLLER
+  // =========================================================
+
+  NotificationController get notificationController {
+    if (Get.isRegistered<NotificationController>()) {
+      return Get.find<NotificationController>();
+    }
+
+    return Get.put(NotificationController());
+  }
+
+  // =========================================================
+  // INIT
+  // =========================================================
 
   @override
   void onInit() {
@@ -21,93 +34,283 @@ class FavoritesController extends GetxController {
     loadFavorites();
   }
 
+  // =========================================================
+  // CHECK FAVORITE
+  // =========================================================
+
   bool isFavorite(String recipeId) {
+    final String cleanId = recipeId.trim();
+
+    if (cleanId.isEmpty) {
+      return false;
+    }
+
     return favorites.any(
-      (item) => item.id == recipeId,
+      (item) => item.id.trim() == cleanId,
     );
   }
 
   // =========================================================
-  // ADD / REMOVE FAVORITE
+  // TOGGLE FAVORITE
   // =========================================================
 
   void toggleFavorite(FavoriteRecipeModel recipe) {
-    if (isFavorite(recipe.id)) {
-      removeFavorite(recipe.id);
+    final String cleanId = recipe.id.trim();
 
-      // 💔 REMOVE NOTIFICATION
-      notificationController.addNotification(
-        title: 'Removed from Favorites 💔',
-        message: '${recipe.name} removed from favorites.',
-      );
-    } else {
-      favorites.add(recipe);
+    if (cleanId.isEmpty) {
+      return;
+    }
+
+    final int existingIndex = favorites.indexWhere(
+      (item) => item.id.trim() == cleanId,
+    );
+
+    // -------------------------------------------------------
+    // REMOVE
+    // -------------------------------------------------------
+
+    if (existingIndex != -1) {
+      final FavoriteRecipeModel removedRecipe =
+          favorites[existingIndex];
+
+      favorites.removeAt(existingIndex);
+
       _saveToStorage();
 
-      // ❤️ ADD NOTIFICATION
       notificationController.addNotification(
-        title: 'Added to Favorites ❤️',
-        message: '${recipe.name} added to favorites.',
+        title: 'Removed from Favorites 💔',
+        message:
+            '${removedRecipe.name} removed from favorites.',
       );
+
+      return;
     }
+
+    // -------------------------------------------------------
+    // ADD
+    // -------------------------------------------------------
+
+    final FavoriteRecipeModel cleanRecipe =
+        FavoriteRecipeModel(
+      id: cleanId,
+      name: recipe.name.trim(),
+      image: recipe.image.trim(),
+    );
+
+    favorites.add(cleanRecipe);
+
+    _saveToStorage();
+
+    notificationController.addNotification(
+      title: 'Added to Favorites ❤️',
+      message:
+          '${cleanRecipe.name} added to favorites.',
+    );
+  }
+
+  // =========================================================
+  // ADD FAVORITE
+  // =========================================================
+
+  void addFavorite(FavoriteRecipeModel recipe) {
+    final String cleanId = recipe.id.trim();
+
+    if (cleanId.isEmpty) {
+      return;
+    }
+
+    // Already favorite
+    if (isFavorite(cleanId)) {
+      return;
+    }
+
+    final FavoriteRecipeModel cleanRecipe =
+        FavoriteRecipeModel(
+      id: cleanId,
+      name: recipe.name.trim(),
+      image: recipe.image.trim(),
+    );
+
+    favorites.add(cleanRecipe);
+
+    _saveToStorage();
+
+    notificationController.addNotification(
+      title: 'Added to Favorites ❤️',
+      message:
+          '${cleanRecipe.name} added to favorites.',
+    );
   }
 
   // =========================================================
   // REMOVE FAVORITE
   // =========================================================
 
-  void removeFavorite(String recipeId) {
-    final index = favorites.indexWhere(
-      (item) => item.id == recipeId,
+  void removeFavorite(
+    String recipeId, {
+    bool showNotification = true,
+  }) {
+    final String cleanId = recipeId.trim();
+
+    if (cleanId.isEmpty) {
+      return;
+    }
+
+    final int index = favorites.indexWhere(
+      (item) => item.id.trim() == cleanId,
     );
 
     if (index == -1) {
       return;
     }
 
-    final removedRecipe = favorites[index];
+    final FavoriteRecipeModel removedRecipe =
+        favorites[index];
 
     favorites.removeAt(index);
+
     _saveToStorage();
 
-    // 💔 NOTIFICATION
-    notificationController.addNotification(
-      title: 'Removed from Favorites 💔',
-      message: '${removedRecipe.name} removed from favorites.',
-    );
+    if (showNotification) {
+      notificationController.addNotification(
+        title: 'Removed from Favorites 💔',
+        message:
+            '${removedRecipe.name} removed from favorites.',
+      );
+    }
   }
 
   // =========================================================
-  // SAVE
+  // CLEAR ALL FAVORITES
+  // =========================================================
+
+  void clearFavorites() {
+    if (favorites.isEmpty) {
+      return;
+    }
+
+    favorites.clear();
+
+    _saveToStorage();
+  }
+
+  // =========================================================
+  // SAVE TO GET STORAGE
   // =========================================================
 
   void _saveToStorage() {
-    final List<Map<String, dynamic>> rawList =
-        favorites.map((item) => item.toMap()).toList();
+    try {
+      final List<Map<String, dynamic>> rawList =
+          favorites
+              .map(
+                (item) => item.toMap(),
+              )
+              .toList();
 
-    _storage.write(
-      _favStorageKey,
-      rawList,
-    );
+      _storage.write(
+        _favStorageKey,
+        rawList,
+      );
+    } catch (e) {
+      Get.log(
+        'Error saving favorites: $e',
+      );
+    }
   }
 
   // =========================================================
-  // LOAD
+  // LOAD FROM GET STORAGE
   // =========================================================
 
   void loadFavorites() {
-    final rawData = _storage.read<List>(
-      _favStorageKey,
-    );
+    try {
+      final dynamic rawData =
+          _storage.read(_favStorageKey);
 
-    if (rawData != null) {
-      favorites.value = rawData
-          .map(
-            (item) => FavoriteRecipeModel.fromMap(
+      if (rawData == null) {
+        favorites.clear();
+        return;
+      }
+
+      if (rawData is! List) {
+        favorites.clear();
+        return;
+      }
+
+      final List<FavoriteRecipeModel> loadedFavorites =
+          [];
+
+      for (final item in rawData) {
+        try {
+          if (item is Map) {
+            final recipe =
+                FavoriteRecipeModel.fromMap(
               Map<String, dynamic>.from(item),
-            ),
-          )
-          .toList();
+            );
+
+            // Skip invalid/empty IDs
+            if (recipe.id.trim().isEmpty) {
+              continue;
+            }
+
+            // Prevent duplicate IDs
+            final alreadyExists =
+                loadedFavorites.any(
+              (existing) =>
+                  existing.id.trim() ==
+                  recipe.id.trim(),
+            );
+
+            if (!alreadyExists) {
+              loadedFavorites.add(recipe);
+            }
+          }
+        } catch (e) {
+          Get.log(
+            'Skipping invalid favorite item: $e',
+          );
+        }
+      }
+
+      favorites.assignAll(
+        loadedFavorites,
+      );
+    } catch (e) {
+      favorites.clear();
+
+      Get.log(
+        'Error loading favorites: $e',
+      );
     }
+  }
+
+  // =========================================================
+  // REFRESH FAVORITES
+  // =========================================================
+
+  void refreshFavorites() {
+    loadFavorites();
+  }
+
+  // =========================================================
+  // GET FAVORITE BY ID
+  // =========================================================
+
+  FavoriteRecipeModel? getFavoriteById(
+    String recipeId,
+  ) {
+    final String cleanId = recipeId.trim();
+
+    if (cleanId.isEmpty) {
+      return null;
+    }
+
+    for (final item in favorites) {
+      if (item.id.trim() == cleanId) {
+        return item;
+      }
+    }
+
+    return null;
   }
 }

@@ -22,6 +22,11 @@ import 'package:recipe_app/features/favorites/views/favorites_screen.dart';
 
 import 'package:recipe_app/features/feedback/binding/feedback_binding.dart';
 import 'package:recipe_app/features/feedback/feedback_screen.dart';
+
+// ============================================================
+// HOME
+// ============================================================
+
 import 'package:recipe_app/features/home/bindings/home_binding.dart';
 import 'package:recipe_app/features/home/views/home_screen.dart';
 
@@ -29,7 +34,8 @@ import 'package:recipe_app/features/home/views/home_screen.dart';
 // NAVIGATION
 // ============================================================
 
-import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart' hide NavigationBinding;
+import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart'
+    hide NavigationBinding;
 import 'package:recipe_app/features/navigation/views/main_navigation.dart';
 
 // ============================================================
@@ -131,30 +137,30 @@ class AppPages {
       page: () => const ForgotPasswordScreen(),
       binding: AuthBinding(),
     ),
-    GetPage(
-  name: AppRoutes.home,
-  page: () => const MainNavigation(),
-  binding: NavigationsBinding(),
-),
-
-// Alternative Home (اگر چاہیے)
-GetPage(
-  name: '/home-details',  // مختلف نام دیں
-  page: () => const HomeScreen(),
-  binding: HomeBinding(),  // اپنی binding
-),
 
     // ==========================================================
-    // MAIN NAVIGATION / HOME
+    // MAIN HOME / NAVIGATION
     // ==========================================================
 
-    
     GetPage(
-  name: AppRoutes.home,
-  page: () => const HomeScreen(),
+      name: AppRoutes.home,
+      page: () => const MainNavigation(),
+      binding: NavigationsBinding(),
+    ),
 
-),
+    // ==========================================================
+    // DIRECT HOME SCREEN
+    // ==========================================================
+    //
+    // Use this only when you specifically want HomeScreen
+    // without MainNavigation.
+    //
 
+    GetPage(
+      name: '/home-details',
+      page: () => const HomeScreen(),
+      binding: HomeBinding(),
+    ),
 
     // ==========================================================
     // SEARCH

@@ -12,20 +12,48 @@ class NotificationsScreen extends GetView<NotificationController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // =========================================================
+    // DYNAMIC THEME COLORS
+    // =========================================================
+
+    final backgroundColor = theme.scaffoldBackgroundColor;
+
+    final surfaceColor = theme.cardColor;
+
+    final primaryTextColor = theme.colorScheme.onSurface;
+
+    final secondaryTextColor =
+        isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+
+    final borderColor =
+        isDark ? Colors.white.withOpacity(0.10) : AppColors.border;
+
+    final iconBackgroundColor =
+        isDark ? const Color(0xFF2A2A2A) : AppColors.darkBackground;
+
+    final popupColor = surfaceColor;
+
+    final shadowColor = isDark
+        ? Colors.black.withOpacity(0.35)
+        : AppColors.shadow;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: backgroundColor,
 
       // ==================================================
       // APP BAR
       // ==================================================
 
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: backgroundColor,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
 
-        iconTheme: const IconThemeData(
-          color: AppColors.textPrimary,
+        iconTheme: IconThemeData(
+          color: primaryTextColor,
         ),
 
         title: Text(
@@ -49,19 +77,19 @@ class NotificationsScreen extends GetView<NotificationController> {
             }
 
             return PopupMenuButton<String>(
-              icon: const Icon(
+              icon: Icon(
                 Icons.more_vert,
-                color: AppColors.textPrimary,
+                color: primaryTextColor,
               ),
 
-              color: AppColors.surface,
+              color: popupColor,
 
               surfaceTintColor: Colors.transparent,
 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
-                side: const BorderSide(
-                  color: AppColors.border,
+                side: BorderSide(
+                  color: borderColor,
                   width: 1,
                 ),
               ),
@@ -77,13 +105,13 @@ class NotificationsScreen extends GetView<NotificationController> {
               },
 
               itemBuilder: (context) {
-                return const [
+                return [
                   PopupMenuItem<String>(
                     value: 'read',
                     child: Text(
                       'Mark all as read',
                       style: TextStyle(
-                        color: AppColors.textPrimary,
+                        color: primaryTextColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -114,7 +142,14 @@ class NotificationsScreen extends GetView<NotificationController> {
 
       body: Obx(() {
         if (controller.notifications.isEmpty) {
-          return _buildEmptyState();
+          return _buildEmptyState(
+            context: context,
+            backgroundColor: backgroundColor,
+            primaryTextColor: primaryTextColor,
+            secondaryTextColor: secondaryTextColor,
+            iconBackgroundColor: iconBackgroundColor,
+            shadowColor: shadowColor,
+          );
         }
 
         return ListView.separated(
@@ -138,7 +173,14 @@ class NotificationsScreen extends GetView<NotificationController> {
                 controller.notifications[index];
 
             return _buildNotificationItem(
-              notification,
+              context: context,
+              notification: notification,
+              surfaceColor: surfaceColor,
+              primaryTextColor: primaryTextColor,
+              secondaryTextColor: secondaryTextColor,
+              borderColor: borderColor,
+              iconBackgroundColor: iconBackgroundColor,
+              shadowColor: shadowColor,
             );
           },
         );
@@ -150,7 +192,14 @@ class NotificationsScreen extends GetView<NotificationController> {
   // EMPTY STATE
   // ==================================================
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState({
+    required BuildContext context,
+    required Color backgroundColor,
+    required Color primaryTextColor,
+    required Color secondaryTextColor,
+    required Color iconBackgroundColor,
+    required Color shadowColor,
+  }) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -168,14 +217,14 @@ class NotificationsScreen extends GetView<NotificationController> {
               height: 110,
 
               decoration: BoxDecoration(
-                color: AppColors.darkBackground,
+                color: iconBackgroundColor,
                 shape: BoxShape.circle,
 
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: AppColors.shadow,
+                    color: shadowColor,
                     blurRadius: 14,
-                    offset: Offset(
+                    offset: const Offset(
                       0,
                       5,
                     ),
@@ -200,7 +249,7 @@ class NotificationsScreen extends GetView<NotificationController> {
               'No notifications yet',
 
               style: AppTextStyles.headingSmall.copyWith(
-                color: AppColors.textPrimary,
+                color: primaryTextColor,
                 fontWeight: FontWeight.w700,
               ),
 
@@ -217,7 +266,7 @@ class NotificationsScreen extends GetView<NotificationController> {
               'You will see your notifications here.',
 
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: secondaryTextColor,
               ),
 
               textAlign: TextAlign.center,
@@ -232,17 +281,24 @@ class NotificationsScreen extends GetView<NotificationController> {
   // NOTIFICATION ITEM
   // ==================================================
 
-  Widget _buildNotificationItem(
-    dynamic notification,
-  ) {
+  Widget _buildNotificationItem({
+    required BuildContext context,
+    required dynamic notification,
+    required Color surfaceColor,
+    required Color primaryTextColor,
+    required Color secondaryTextColor,
+    required Color borderColor,
+    required Color iconBackgroundColor,
+    required Color shadowColor,
+  }) {
     final bool isRead = notification.isRead;
 
     return Card(
-      color: AppColors.surface,
+      color: surfaceColor,
 
       elevation: isRead ? 1 : 3,
 
-      shadowColor: AppColors.shadow,
+      shadowColor: shadowColor,
 
       margin: EdgeInsets.zero,
 
@@ -251,9 +307,10 @@ class NotificationsScreen extends GetView<NotificationController> {
 
         side: BorderSide(
           color: isRead
-              ? AppColors.border
-              : AppColors.primaryLight,
-
+              ? borderColor
+              : (Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.primary.withOpacity(0.35)
+                  : AppColors.primaryLight),
           width: 1,
         ),
       ),
@@ -285,7 +342,7 @@ class NotificationsScreen extends GetView<NotificationController> {
           height: 46,
 
           decoration: BoxDecoration(
-            color: AppColors.darkBackground,
+            color: iconBackgroundColor,
             shape: BoxShape.circle,
           ),
 
@@ -307,7 +364,7 @@ class NotificationsScreen extends GetView<NotificationController> {
           overflow: TextOverflow.ellipsis,
 
           style: AppTextStyles.labelMedium.copyWith(
-            color: AppColors.textPrimary,
+            color: primaryTextColor,
 
             fontWeight: isRead
                 ? FontWeight.w500
@@ -331,7 +388,7 @@ class NotificationsScreen extends GetView<NotificationController> {
             overflow: TextOverflow.ellipsis,
 
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+              color: secondaryTextColor,
               height: 1.4,
             ),
           ),
@@ -342,10 +399,12 @@ class NotificationsScreen extends GetView<NotificationController> {
         // ==================================================
 
         trailing: isRead
-            ? const Icon(
+            ? Icon(
                 Icons.done_rounded,
                 size: 18,
-                color: AppColors.success,
+                color: isRead
+                    ? AppColors.success
+                    : secondaryTextColor,
               )
             : Container(
                 width: 10,
@@ -367,9 +426,22 @@ class NotificationsScreen extends GetView<NotificationController> {
   void _showClearDialog(
     BuildContext context,
   ) {
+    final theme = Theme.of(context);
+    final isDark =
+        theme.brightness == Brightness.dark;
+
+    final dialogBackground =
+        theme.dialogBackgroundColor;
+
+    final primaryTextColor =
+        theme.colorScheme.onSurface;
+
+    final secondaryTextColor =
+        isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+
     Get.dialog(
       AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: dialogBackground,
 
         surfaceTintColor: Colors.transparent,
 
@@ -385,7 +457,7 @@ class NotificationsScreen extends GetView<NotificationController> {
           'Clear notifications?',
 
           style: AppTextStyles.headingSmall.copyWith(
-            color: AppColors.textPrimary,
+            color: primaryTextColor,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -398,7 +470,7 @@ class NotificationsScreen extends GetView<NotificationController> {
           'All notifications will be removed.',
 
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: secondaryTextColor,
             height: 1.4,
           ),
         ),
@@ -417,7 +489,7 @@ class NotificationsScreen extends GetView<NotificationController> {
               'Cancel',
 
               style: AppTextStyles.labelMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: secondaryTextColor,
               ),
             ),
           ),
