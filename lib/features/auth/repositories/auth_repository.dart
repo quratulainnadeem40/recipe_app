@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -12,7 +13,11 @@ class AuthRepository extends GetxService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firebaseFirestore =
       FirebaseFirestore.instance;
-final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+
+  // Google Sign-In must only be initialized once per app lifetime.
+  static bool _googleSignInInitialized = false;
+
   // =========================================================
   // CURRENT USER
   // =========================================================
@@ -34,7 +39,6 @@ final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
         password: password,
       );
 
-      // Firestore سے user data لو
       final userDoc = await _firebaseFirestore
           .collection('users')
           .doc(userCredential.user!.uid)
@@ -42,15 +46,13 @@ final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
       if (userDoc.exists) {
         final data = userDoc.data() as Map<String, dynamic>;
-        
-        // ✅ fromJson کے بغیر - براہ راست constructor استعمال کریں
+
         return UserModel(
           uid: data['uid'] ?? userCredential.user!.uid,
           name: data['name'] ?? 'User',
           email: data['email'] ?? email,
         );
       } else {
-        // اگر Firestore میں نہیں ہے تو Firebase user سے بناؤ
         return UserModel(
           uid: userCredential.user!.uid,
           name: userCredential.user?.displayName ?? 'User',
@@ -62,117 +64,110 @@ final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
     }
   }
 
+  // =========================================================
+  // GOOGLE SIGN-IN
+  // =========================================================
 
-// =========================================================
-// GOOGLE SIGN-IN
-// =========================================================
+  Future<UserModel> signInWithGoogle() async {
+    try {
+      UserCredential userCredential;
 
-Future<UserModel> signInWithGoogle() async {
-  try {
-    // -------------------------------------------------------
-    // INITIALIZE GOOGLE SIGN-IN
-    // -------------------------------------------------------
+      if (kIsWeb) {
+        // -------------------------------------------------------
+        // WEB: google_sign_in's authenticate() is NOT supported
+        // on web (it requires renderButton instead). The reliable
+        // approach on web is Firebase's own popup sign-in.
+        // -------------------------------------------------------
 
-    await _googleSignIn.initialize();
+        final googleProvider = GoogleAuthProvider();
 
-    // -------------------------------------------------------
-    // OPEN GOOGLE ACCOUNT PICKER
-    // -------------------------------------------------------
+        userCredential =
+            await _firebaseAuth.signInWithPopup(googleProvider);
+      } else {
+        // -------------------------------------------------------
+        // MOBILE (Android/iOS): use google_sign_in's authenticate()
+        // -------------------------------------------------------
 
-    final GoogleSignInAccount googleUser =
-        await _googleSignIn.authenticate();
+        if (!_googleSignInInitialized) {
+          await _googleSignIn.initialize();
+          _googleSignInInitialized = true;
+        }
 
-    // -------------------------------------------------------
-    // GET GOOGLE AUTHENTICATION
-    // -------------------------------------------------------
+        final GoogleSignInAccount googleUser =
+            await _googleSignIn.authenticate();
 
-    final GoogleSignInAuthentication googleAuth =
-        googleUser.authentication;
+        final GoogleSignInAuthentication googleAuth =
+            googleUser.authentication;
 
-    // -------------------------------------------------------
-    // CREATE FIREBASE CREDENTIAL
-    // -------------------------------------------------------
+        final String? idToken = googleAuth.idToken;
 
-    final credential = GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
-    );
+        if (idToken == null) {
+          throw Exception(
+            'Could not get Google ID token. Check your clientId / SHA-1 configuration.',
+          );
+        }
 
-    // -------------------------------------------------------
-    // SIGN IN TO FIREBASE
-    // -------------------------------------------------------
+        final credential = GoogleAuthProvider.credential(
+          idToken: idToken,
+        );
 
-    final UserCredential userCredential =
-        await _firebaseAuth.signInWithCredential(
-      credential,
-    );
+        userCredential =
+            await _firebaseAuth.signInWithCredential(credential);
+      }
 
-    final User? firebaseUser = userCredential.user;
+      final User? firebaseUser = userCredential.user;
 
-    if (firebaseUser == null) {
-      throw Exception('Google sign-in failed.');
-    }
+      if (firebaseUser == null) {
+        throw Exception('Google sign-in failed.');
+      }
 
-    // -------------------------------------------------------
-    // CHECK FIRESTORE USER
-    // -------------------------------------------------------
+      // -------------------------------------------------------
+      // CHECK FIRESTORE USER
+      // -------------------------------------------------------
 
-    final userDoc = await _firebaseFirestore
-        .collection('users')
-        .doc(firebaseUser.uid)
-        .get();
+      final userDoc = await _firebaseFirestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
 
-    // -------------------------------------------------------
-    // EXISTING USER
-    // -------------------------------------------------------
+      if (userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>;
 
-    if (userDoc.exists) {
-      final data = userDoc.data() as Map<String, dynamic>;
+        return UserModel(
+          uid: data['uid'] ?? firebaseUser.uid,
+          name: data['name'] ?? firebaseUser.displayName ?? 'User',
+          email: data['email'] ?? firebaseUser.email ?? '',
+        );
+      }
+
+      // -------------------------------------------------------
+      // NEW GOOGLE USER
+      // -------------------------------------------------------
+
+      final String name = firebaseUser.displayName ?? 'User';
+      final String email = firebaseUser.email ?? '';
+
+      await _firebaseFirestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .set({
+        'uid': firebaseUser.uid,
+        'name': name,
+        'email': email,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 
       return UserModel(
-        uid: data['uid'] ?? firebaseUser.uid,
-        name: data['name'] ??
-            firebaseUser.displayName ??
-            'User',
-        email: data['email'] ??
-            firebaseUser.email ??
-            '',
+        uid: firebaseUser.uid,
+        name: name,
+        email: email,
       );
+    } catch (e) {
+      throw Exception('Google sign-in failed: $e');
     }
-
-    // -------------------------------------------------------
-    // NEW GOOGLE USER
-    // -------------------------------------------------------
-
-    final String name =
-        firebaseUser.displayName ?? 'User';
-
-    final String email =
-        firebaseUser.email ?? '';
-
-    await _firebaseFirestore
-        .collection('users')
-        .doc(firebaseUser.uid)
-        .set({
-      'uid': firebaseUser.uid,
-      'name': name,
-      'email': email,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    // -------------------------------------------------------
-    // RETURN USER MODEL
-    // -------------------------------------------------------
-
-    return UserModel(
-      uid: firebaseUser.uid,
-      name: name,
-      email: email,
-    );
-  } catch (e) {
-    throw Exception('Google sign-in failed: $e');
   }
-}
+
   // =========================================================
   // SIGNUP
   // =========================================================
@@ -183,17 +178,14 @@ Future<UserModel> signInWithGoogle() async {
     required String password,
   }) async {
     try {
-      // Firebase میں account بنائیں
       final userCredential =
           await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Display name update کریں
       await userCredential.user?.updateDisplayName(name);
 
-      // Firestore میں user data save کریں
       await _firebaseFirestore
           .collection('users')
           .doc(userCredential.user!.uid)
@@ -205,7 +197,6 @@ Future<UserModel> signInWithGoogle() async {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // ✅ UserModel return کریں
       return UserModel(
         uid: userCredential.user!.uid,
         name: name,
@@ -222,9 +213,7 @@ Future<UserModel> signInWithGoogle() async {
 
   Future<void> resetPassword(String email) async {
     try {
-      await _firebaseAuth.sendPasswordResetEmail(
-        email: email,
-      );
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
     } catch (e) {
       throw Exception('Password reset failed: $e');
     }
@@ -262,15 +251,12 @@ Future<UserModel> signInWithGoogle() async {
 
   Future<UserModel> getUserData(String uid) async {
     try {
-      final userDoc = await _firebaseFirestore
-          .collection('users')
-          .doc(uid)
-          .get();
+      final userDoc =
+          await _firebaseFirestore.collection('users').doc(uid).get();
 
       if (userDoc.exists) {
         final data = userDoc.data() as Map<String, dynamic>;
-        
-        // ✅ fromJson کے بغیر - براہ راست constructor استعمال کریں
+
         return UserModel(
           uid: data['uid'] ?? uid,
           name: data['name'] ?? 'User',
@@ -294,14 +280,9 @@ Future<UserModel> signInWithGoogle() async {
     String? profileImage,
   }) async {
     try {
-      // Firebase user update
       await currentUser?.updateDisplayName(name);
 
-      // Firestore update
-      await _firebaseFirestore
-          .collection('users')
-          .doc(uid)
-          .update({
+      await _firebaseFirestore.collection('users').doc(uid).update({
         'name': name,
         if (profileImage != null) 'profileImage': profileImage,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -317,10 +298,7 @@ Future<UserModel> signInWithGoogle() async {
 
   Future<void> deleteAccount(String uid) async {
     try {
-      // Firestore سے delete کریں
       await _firebaseFirestore.collection('users').doc(uid).delete();
-
-      // Firebase سے delete کریں
       await currentUser?.delete();
     } catch (e) {
       throw Exception('Account deletion failed: $e');

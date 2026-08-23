@@ -1464,33 +1464,45 @@ class _WhatsAppVoiceBarState extends State<WhatsAppVoiceBar> {
                           },
                         ),
                       ),
+                      // =================================================
+                      // ✅ FIXED: Step text was overlapping the time text
+                      // on narrow screens because it had no width
+                      // constraint. Wrapped it in Expanded + Flexible
+                      // with ellipsis so it never grows into the time.
+                      // =================================================
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.mic_rounded,
-                                  size: 15,
-                                  color: _localIsSpeaking && !_localIsPaused
-                                      ? const Color(0xFF00A884)
-                                      : Colors.white60,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _localIsSpeaking
-                                      ? 'Step ${_localCurrentStep + 1} of $totalSteps'
-                                      : 'Let AI Speak Cooking Steps',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.mic_rounded,
+                                    size: 15,
+                                    color: _localIsSpeaking && !_localIsPaused
+                                        ? const Color(0xFF00A884)
+                                        : Colors.white60,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      _localIsSpeaking
+                                          ? 'Step ${_localCurrentStep + 1} of $totalSteps'
+                                          : 'Let AI Speak Cooking Steps',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             Text(
                               '${_formatDuration(_elapsedSeconds)} / ${_formatDuration(totalSeconds)}',
                               style: TextStyle(

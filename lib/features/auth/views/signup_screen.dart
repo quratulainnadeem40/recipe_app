@@ -91,10 +91,12 @@ class SignupScreen extends GetView<AuthController> {
                 // AUTH HEADER
                 // =================================================
 
-                AuthHeader(
-                  title: 'Join Cookmate',
-                  subtitle:
-                      'Create your account and start cooking.',
+                Center(
+                  child: AuthHeader(
+                    title: 'Join Cookmate',
+                    subtitle:
+                        'Create your account and start cooking.',
+                  ),
                 ),
 
                 const SizedBox(height: 20),

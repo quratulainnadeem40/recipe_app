@@ -94,37 +94,12 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      print('==============================');
-      print('LOGIN CONTROLLER');
-      print('Email: $email');
-      print('==============================');
-
-      // -------------------------------------------------------
-      // CALL REPOSITORY
-      // -------------------------------------------------------
-
       final UserModel user =
           await _authRepository.login(
         email: email,
         password: password,
       );
 
-      print('AUTH CURRENT USER AFTER LOGIN:');
-      print(
-        'UID: ${_authRepository.currentUser?.uid}',
-      );
-      print(
-        'EMAIL: ${_authRepository.currentUser?.email}',
-      );
-
-      print('==============================');
-      print('CONTROLLER RECEIVED USER');
-      print('UID: ${user.uid}');
-      print('NAME: ${user.name}');
-      print('EMAIL: ${user.email}');
-      print('==============================');
-
-      // ✅ USERNAME SAVE کریں - LOGIN میں بھی
       userName.value = user.name.isEmpty ? 'User' : user.name;
       userEmail.value = user.email;
 
@@ -133,10 +108,6 @@ class AuthController extends GetxController {
       await storage.write('userEmail', userEmail.value);
       await storage.write('isLoggedIn', true);
 
-      // -------------------------------------------------------
-      // LOGIN SUCCESS
-      // -------------------------------------------------------
-
       Get.snackbar(
         'Login Successful',
         'Welcome back, ${user.name.isEmpty ? 'User' : user.name}!',
@@ -144,22 +115,10 @@ class AuthController extends GetxController {
         duration: const Duration(seconds: 2),
       );
 
-      // -------------------------------------------------------
-      // GO DIRECTLY TO HOME
-      // -------------------------------------------------------
-
       Get.offAllNamed(
         AppRoutes.home,
       );
-
-    } catch (e, stackTrace) {
-      print('==============================');
-      print('LOGIN CONTROLLER ERROR');
-      print('ERROR: $e');
-      print('STACK TRACE:');
-      print(stackTrace);
-      print('==============================');
-
+    } catch (e) {
       final String message =
           e.toString().replaceFirst(
                 'Exception: ',
@@ -176,100 +135,67 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+
   // =========================================================
-// GOOGLE SIGN-IN
-// =========================================================
+  // GOOGLE SIGN-IN
+  // =========================================================
 
-Future<void> signInWithGoogle() async {
-  try {
-    isLoading.value = true;
+  Future<void> signInWithGoogle() async {
+    try {
+      isLoading.value = true;
 
-    print('==============================');
-    print('GOOGLE SIGN-IN');
-    print('==============================');
+      final UserModel user =
+          await _authRepository.signInWithGoogle();
 
-    // -------------------------------------------------------
-    // CALL REPOSITORY
-    // -------------------------------------------------------
+      userName.value =
+          user.name.isEmpty ? 'User' : user.name;
 
-    final UserModel user =
-        await _authRepository.signInWithGoogle();
+      userEmail.value = user.email;
 
-    // -------------------------------------------------------
-    // SAVE USER INFORMATION
-    // -------------------------------------------------------
+      final storage = GetStorage();
 
-    userName.value =
-        user.name.isEmpty ? 'User' : user.name;
+      await storage.write(
+        'userName',
+        userName.value,
+      );
 
-    userEmail.value = user.email;
+      await storage.write(
+        'userEmail',
+        userEmail.value,
+      );
 
-    final storage = GetStorage();
+      await storage.write(
+        'isLoggedIn',
+        true,
+      );
 
-    await storage.write(
-      'userName',
-      userName.value,
-    );
+      Get.snackbar(
+        'Login Successful',
+        'Welcome, ${user.name.isEmpty ? 'User' : user.name}!',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
 
-    await storage.write(
-      'userEmail',
-      userEmail.value,
-    );
+      Get.offAllNamed(
+        AppRoutes.home,
+      );
+    } catch (e) {
+      final String message =
+          e.toString().replaceFirst(
+                'Exception: ',
+                '',
+              );
 
-    await storage.write(
-      'isLoggedIn',
-      true,
-    );
-
-    print('==============================');
-    print('GOOGLE USER RECEIVED');
-    print('UID: ${user.uid}');
-    print('NAME: ${user.name}');
-    print('EMAIL: ${user.email}');
-    print('==============================');
-
-    // -------------------------------------------------------
-    // SUCCESS
-    // -------------------------------------------------------
-
-    Get.snackbar(
-      'Login Successful',
-      'Welcome, ${user.name.isEmpty ? 'User' : user.name}!',
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 2),
-    );
-
-    // -------------------------------------------------------
-    // GO TO HOME
-    // -------------------------------------------------------
-
-    Get.offAllNamed(
-      AppRoutes.home,
-    );
-  } catch (e, stackTrace) {
-    print('==============================');
-    print('GOOGLE SIGN-IN ERROR');
-    print('ERROR: $e');
-    print('STACK TRACE:');
-    print(stackTrace);
-    print('==============================');
-
-    final String message =
-        e.toString().replaceFirst(
-              'Exception: ',
-              '',
-            );
-
-    Get.snackbar(
-      'Google Sign-In Failed',
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration(seconds: 6),
-    );
-  } finally {
-    isLoading.value = false;
+      Get.snackbar(
+        'Google Sign-In Failed',
+        message,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 6),
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
 
   // =========================================================
   // SIGNUP
@@ -328,16 +254,6 @@ Future<void> signInWithGoogle() async {
     try {
       isLoading.value = true;
 
-      print('==============================');
-      print('SIGNUP CONTROLLER');
-      print('Name: $name');
-      print('Email: $email');
-      print('==============================');
-
-      // -------------------------------------------------------
-      // ✅ CALL REPOSITORY - SIGNUP (نہ کہ LOGIN)
-      // -------------------------------------------------------
-
       final UserModel user =
           await _authRepository.signup(
         name: name,
@@ -345,7 +261,6 @@ Future<void> signInWithGoogle() async {
         password: password,
       );
 
-      // ✅ USERNAME SAVE کریں
       userName.value = user.name.isEmpty ? 'User' : user.name;
       userEmail.value = user.email;
 
@@ -355,18 +270,6 @@ Future<void> signInWithGoogle() async {
       await storage.write('userEmail', userEmail.value);
       await storage.write('isLoggedIn', true);
 
-      print('==============================');
-      print('SIGNUP USER RECEIVED');
-      print('UID: ${user.uid}');
-      print('NAME: ${user.name}');
-      print('EMAIL: ${user.email}');
-      print('Storage - Username: ${userName.value}');
-      print('==============================');
-
-      // -------------------------------------------------------
-      // ACCOUNT CREATED SUCCESSFULLY
-      // -------------------------------------------------------
-
       Get.snackbar(
         'Account Created',
         'Welcome to COOKmate, ${user.name.isEmpty ? 'User' : user.name}!',
@@ -374,31 +277,15 @@ Future<void> signInWithGoogle() async {
         duration: const Duration(seconds: 2),
       );
 
-      // -------------------------------------------------------
-      // CLEAR ALL FIELDS
-      // -------------------------------------------------------
-
       signupNameController.clear();
       signupEmailController.clear();
       signupPasswordController.clear();
       signupConfirmPasswordController.clear();
 
-      // -------------------------------------------------------
-      // GO TO HOME
-      // -------------------------------------------------------
-
       Get.offAllNamed(
         AppRoutes.home,
       );
-
-    } catch (e, stackTrace) {
-      print('==============================');
-      print('SIGNUP CONTROLLER ERROR');
-      print('ERROR: $e');
-      print('STACK TRACE:');
-      print(stackTrace);
-      print('==============================');
-
+    } catch (e) {
       final String message =
           e.toString().replaceFirst(
                 'Exception: ',
@@ -471,7 +358,6 @@ Future<void> signInWithGoogle() async {
     try {
       await _authRepository.logout();
 
-      // ✅ Storage سے data clear کریں
       final storage = GetStorage();
       await storage.remove('userName');
       await storage.remove('userEmail');
@@ -489,10 +375,7 @@ Future<void> signInWithGoogle() async {
         'You have been logged out successfully.',
         snackPosition: SnackPosition.BOTTOM,
       );
-    } catch (e, stackTrace) {
-      print('LOGOUT ERROR: $e');
-      print(stackTrace);
-
+    } catch (e) {
       Get.snackbar(
         'Logout Failed',
         e.toString(),
@@ -557,12 +440,6 @@ Future<void> signInWithGoogle() async {
     if (savedEmail != null) {
       userEmail.value = savedEmail;
     }
-
-    print('==============================');
-    print('AUTH CONTROLLER INIT');
-    print('Saved Username: ${userName.value}');
-    print('Saved Email: ${userEmail.value}');
-    print('==============================');
   }
 
   // =========================================================

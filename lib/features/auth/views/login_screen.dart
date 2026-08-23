@@ -101,10 +101,12 @@ class LoginScreen extends GetView<AuthController> {
                 // AUTH HEADER
                 // =================================================
 
-                const AuthHeader(
-                  title: 'Welcome Back!',
-                  subtitle:
-                      'Login to continue cooking delicious meals.',
+                Center(
+                  child: const AuthHeader(
+                    title: 'Welcome Back!',
+                    subtitle:
+                        'Login to continue cooking delicious meals.',
+                  ),
                 ),
 
                 const SizedBox(height: 35),
@@ -235,6 +237,79 @@ class LoginScreen extends GetView<AuthController> {
                     },
                   ),
                 ),
+                const SizedBox(height: 20),
+
+// =================================================
+// OR DIVIDER
+// =================================================
+
+Row(
+  children: [
+    Expanded(
+      child: Divider(
+        color: textSecondary.withOpacity(0.3),
+      ),
+    ),
+    Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Text(
+        'OR',
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: textSecondary,
+        ),
+      ),
+    ),
+    Expanded(
+      child: Divider(
+        color: textSecondary.withOpacity(0.3),
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 20),
+
+// =================================================
+// CONTINUE WITH GOOGLE
+// =================================================
+
+SizedBox(
+  width: double.infinity,
+  height: 52,
+  child: OutlinedButton(
+    onPressed: controller.signInWithGoogle,
+    style: OutlinedButton.styleFrom(
+      side: BorderSide(
+        color: isDark
+            ? AppColors.darkTextSecondary
+            : AppColors.textSecondary,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.g_mobiledata,
+          color: iconColor,
+          size: 26,
+        ),
+        const SizedBox(width: 10),
+        Text(
+          'Continue with Google',
+          style: AppTextStyles.primaryText.copyWith(
+            color: textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+const SizedBox(height: 25),
 
                 const SizedBox(height: 25),
 
