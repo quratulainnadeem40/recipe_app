@@ -239,7 +239,7 @@ class HomeScreen extends GetView<HomeController> {
                                 Get.toNamed(
                                   AppRoutes.notifications,
                                 );
-                              }, userName: '',
+                              },
                             ),
 
                             const SizedBox(height: 16),
