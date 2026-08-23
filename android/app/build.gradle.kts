@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("dev.flutter.flutter-gradle-plugin")
 
     // Firebase
@@ -32,13 +31,6 @@ android {
         release {
             signingConfig = signingConfigs.getByName("debug")
         }
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget =
-            org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 
