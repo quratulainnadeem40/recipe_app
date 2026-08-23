@@ -282,6 +282,91 @@ class SignupScreen extends GetView<AuthController> {
 
                 const SizedBox(height: 20),
 
+// =================================================
+// OR DIVIDER
+// =================================================
+
+Row(
+  children: [
+    Expanded(
+      child: Divider(
+        color: textSecondary.withOpacity(0.3),
+        thickness: 1,
+      ),
+    ),
+
+    Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Text(
+        'OR',
+        style: AppTextStyles.bodySmall.copyWith(
+          color: textSecondary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+
+    Expanded(
+      child: Divider(
+        color: textSecondary.withOpacity(0.3),
+        thickness: 1,
+      ),
+    ),
+  ],
+),
+
+const SizedBox(height: 20),
+
+// =================================================
+// CONTINUE WITH GOOGLE
+// =================================================
+
+Obx(
+  () => OutlinedButton(
+    onPressed: controller.isLoading.value
+        ? null
+        : controller.signInWithGoogle,
+    style: OutlinedButton.styleFrom(
+      minimumSize: const Size(
+        double.infinity,
+        52,
+      ),
+      side: BorderSide(
+        color: textSecondary.withOpacity(0.35),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      backgroundColor: isDark
+          ? Colors.transparent
+          : Colors.white,
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          'assets/images/google_logo.png',
+          height: 22,
+          width: 22,
+        ),
+
+        const SizedBox(width: 12),
+
+        Text(
+          'Continue with Google',
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+const SizedBox(height: 20),
+
+
                 // =================================================
                 // LOGIN
                 // =================================================

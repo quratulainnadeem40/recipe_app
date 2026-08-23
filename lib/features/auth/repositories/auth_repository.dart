@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import '../model/user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository extends GetxService {
   // =========================================================
@@ -11,7 +12,7 @@ class AuthRepository extends GetxService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firebaseFirestore =
       FirebaseFirestore.instance;
-
+final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   // =========================================================
   // CURRENT USER
   // =========================================================
@@ -61,6 +62,117 @@ class AuthRepository extends GetxService {
     }
   }
 
+
+// =========================================================
+// GOOGLE SIGN-IN
+// =========================================================
+
+Future<UserModel> signInWithGoogle() async {
+  try {
+    // -------------------------------------------------------
+    // INITIALIZE GOOGLE SIGN-IN
+    // -------------------------------------------------------
+
+    await _googleSignIn.initialize();
+
+    // -------------------------------------------------------
+    // OPEN GOOGLE ACCOUNT PICKER
+    // -------------------------------------------------------
+
+    final GoogleSignInAccount googleUser =
+        await _googleSignIn.authenticate();
+
+    // -------------------------------------------------------
+    // GET GOOGLE AUTHENTICATION
+    // -------------------------------------------------------
+
+    final GoogleSignInAuthentication googleAuth =
+        googleUser.authentication;
+
+    // -------------------------------------------------------
+    // CREATE FIREBASE CREDENTIAL
+    // -------------------------------------------------------
+
+    final credential = GoogleAuthProvider.credential(
+      idToken: googleAuth.idToken,
+    );
+
+    // -------------------------------------------------------
+    // SIGN IN TO FIREBASE
+    // -------------------------------------------------------
+
+    final UserCredential userCredential =
+        await _firebaseAuth.signInWithCredential(
+      credential,
+    );
+
+    final User? firebaseUser = userCredential.user;
+
+    if (firebaseUser == null) {
+      throw Exception('Google sign-in failed.');
+    }
+
+    // -------------------------------------------------------
+    // CHECK FIRESTORE USER
+    // -------------------------------------------------------
+
+    final userDoc = await _firebaseFirestore
+        .collection('users')
+        .doc(firebaseUser.uid)
+        .get();
+
+    // -------------------------------------------------------
+    // EXISTING USER
+    // -------------------------------------------------------
+
+    if (userDoc.exists) {
+      final data = userDoc.data() as Map<String, dynamic>;
+
+      return UserModel(
+        uid: data['uid'] ?? firebaseUser.uid,
+        name: data['name'] ??
+            firebaseUser.displayName ??
+            'User',
+        email: data['email'] ??
+            firebaseUser.email ??
+            '',
+      );
+    }
+
+    // -------------------------------------------------------
+    // NEW GOOGLE USER
+    // -------------------------------------------------------
+
+    final String name =
+        firebaseUser.displayName ?? 'User';
+
+    final String email =
+        firebaseUser.email ?? '';
+
+    await _firebaseFirestore
+        .collection('users')
+        .doc(firebaseUser.uid)
+        .set({
+      'uid': firebaseUser.uid,
+      'name': name,
+      'email': email,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    // -------------------------------------------------------
+    // RETURN USER MODEL
+    // -------------------------------------------------------
+
+    return UserModel(
+      uid: firebaseUser.uid,
+      name: name,
+      email: email,
+    );
+  } catch (e) {
+    throw Exception('Google sign-in failed: $e');
+  }
+}
   // =========================================================
   // SIGNUP
   // =========================================================
