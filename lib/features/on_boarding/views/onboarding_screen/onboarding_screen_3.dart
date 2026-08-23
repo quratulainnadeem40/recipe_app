@@ -33,7 +33,7 @@ class Onboarding3 extends StatelessWidget {
           height: double.infinity,
 
           // Shows the complete image without cropping.
-          fit: BoxFit.contain,
+          fit: BoxFit.cover,
         ),
       ),
     );

@@ -1,4 +1,4 @@
-       import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 class AppColors {
   AppColors._();
@@ -28,20 +28,57 @@ class AppColors {
   // =========================================================
   // DARK THEME
   // =========================================================
+  //
+  // Deep neutral/plum colors.
+  // Background and surface are intentionally different.
+  // =========================================================
 
-  static const Color darkBackground = Color(0xFF24151B);
-  static const Color darkSurface = Color(0xFF321D26);
+  static const Color darkBackground = Color(0xFF171114);
 
-  static const Color darkTextPrimary = Color(0xFFF8F1F3);
-  static const Color darkTextSecondary = Color(0xFFC9B8BF);
+  static const Color darkSurface = Color(0xFF24191E);
 
-  static const Color darkBorder = Color(0xFF51333D);
+  // Slightly lighter surface for nested cards / containers.
+  static const Color darkSurfaceElevated = Color(0xFF2D2026);
+
+  // =========================================================
+  // DARK TEXT
+  // =========================================================
+
+  // Main text - very clear
+  static const Color darkTextPrimary = Color(0xFFFFF7F9);
+
+  // Secondary text - readable but softer
+  static const Color darkTextSecondary = Color(0xFFD8C9CE);
+
+  // Hint / disabled text
+  static const Color darkTextHint = Color(0xFFA9989F);
+
+  // =========================================================
+  // DARK BORDERS / DIVIDERS
+  // =========================================================
+
+  static const Color darkBorder = Color(0xFF49353D);
+
+  static const Color darkDivider = Color(0xFF3A2930);
+
+  // =========================================================
+  // DARK INPUT
+  // =========================================================
+
+  static const Color darkInputBackground = Color(0xFF2A1E24);
+
+  // =========================================================
+  // DARK CHIP
+  // =========================================================
+
+  static const Color darkChipBackground = Color(0xFF302229);
 
   // =========================================================
   // STATUS & TAG COLORS
   // =========================================================
 
   static const Color tagGreen = Color(0xFF2E7D32);
+
   static const Color tagGreenBg = Color(0xFFE8F5E9);
 
   static const Color ratingStar = Color(0xFFFFB800);
@@ -51,16 +88,21 @@ class AppColors {
   // =========================================================
 
   static const Color textPrimary = Color(0xFF1E1E1E);
+
   static const Color textSecondary = Color(0xFF666666);
+
   static const Color textHint = Color(0xFF9E9E9E);
+
   static const Color textWhite = Color(0xFFFFFFFF);
 
   // =========================================================
-  // UI ELEMENTS & BORDERS
+  // UI ELEMENTS & BORDERS - LIGHT
   // =========================================================
 
   static const Color inputBackground = Color(0xFFF4F4F4);
+
   static const Color border = Color(0xFFE0E0E0);
+
   static const Color divider = Color(0xFFE0E0E0);
 
   static const Color chipBackground = Color(0xFFF0F0F0);
@@ -76,7 +118,9 @@ class AppColors {
   // =========================================================
 
   static const Color error = Color(0xFFD32F2F);
+
   static const Color success = tagGreen;
+
   static const Color warning = Color(0xFFF9A825);
 
   // =========================================================
@@ -84,5 +128,6 @@ class AppColors {
   // =========================================================
 
   static const Color white = Colors.white;
+
   static const Color black = Colors.black;
-}  
+}

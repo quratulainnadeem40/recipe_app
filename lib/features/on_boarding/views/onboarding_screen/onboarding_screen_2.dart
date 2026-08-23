@@ -34,7 +34,7 @@ class Onboarding2 extends StatelessWidget {
 
           // Shows the complete onboarding image
           // without cropping it.
-          fit: BoxFit.contain,
+          fit: BoxFit.cover,
         ),
       ),
     );

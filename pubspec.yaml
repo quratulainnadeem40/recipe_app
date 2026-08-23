@@ -100,10 +100,9 @@ flutter:
 
 
   assets:
-    - assets\images\image1.png
-    - assets\images\image2.jpeg
-    - assets\images\image3.jpeg
-    - assets\images\splash.jpeg
-    - assets\images\home_header.png
-    - assets\images\search_header.png
-
+    - assets/images/image1.png
+    - assets/images/image2.png
+    - assets/images/image3.jpeg
+    - assets/images/splash.jpeg
+    - assets/images/home_header.png
+    - assets/images/search_header.png

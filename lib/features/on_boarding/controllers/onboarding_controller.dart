@@ -18,7 +18,7 @@ class OnboardingController extends GetxController {
     ),
 
     OnboardingModel(
-      image: 'assets/images/image2.jpeg',
+      image: 'assets/images/image2.png',
       title: '',
       description:
           '',

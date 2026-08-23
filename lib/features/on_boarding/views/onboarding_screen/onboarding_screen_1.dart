@@ -33,7 +33,7 @@ class Onboarding1 extends StatelessWidget {
           // without cutting the top/bottom.
           width: double.infinity,
           height: double.infinity,
-          fit: BoxFit.contain,
+          fit: BoxFit.cover,
         ),
       ),
     );
