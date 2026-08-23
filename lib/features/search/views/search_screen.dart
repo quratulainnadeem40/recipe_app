@@ -510,28 +510,61 @@ Widget build(BuildContext context) {
     );
   }
 
-  Widget _buildCuisineOptions() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: controller.areas.take(6).map((cuisine) {
-        return Obx(() {
-          final isSelected =
-              controller.selectedCuisine.value == cuisine;
+  // Widget _buildCuisineOptions() {
+  //   return Wrap(
+  //     spacing: 8,
+  //     runSpacing: 8,
+  //     children: controller.areas.take(6).map((cuisine) {
+  //       return Obx(() {
+  //         final isSelected =
+  //             controller.selectedCuisine.value == cuisine;
 
-          return ChoiceChip(
-            label: Text(cuisine),
-            selected: isSelected,
-            onSelected: (value) =>
-                controller.selectedCuisine.value =
-                    value ? cuisine : '',
-            selectedColor:
-                AppColors.primary.withOpacity(0.2),
-          );
-        });
-      }).toList(),
-    );
-  }
+  //         return ChoiceChip(
+  //           label: Text(cuisine),
+  //           selected: isSelected,
+  //           onSelected: (value) =>
+  //               controller.selectedCuisine.value =
+  //                   value ? cuisine : '',
+  //           selectedColor:
+  //               AppColors.primary.withOpacity(0.2),
+  //         );
+  //       });
+  //     }).toList(),
+  //   );
+  // }
+  Widget _buildCuisineOptions() {
+  const allowedCuisines = [
+    'Russian',
+    'Thai',
+    'Italian',
+    'Japanese',
+    'Chinese',
+    'British',
+'Turkish'
+  ];
+
+  return Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: allowedCuisines.map((cuisine) {
+      return Obx(() {
+        final isSelected =
+            controller.selectedCuisine.value == cuisine;
+
+        return ChoiceChip(
+          label: Text(cuisine),
+          selected: isSelected,
+          onSelected: (value) {
+            controller.selectedCuisine.value =
+                value ? cuisine : '';
+          },
+          selectedColor:
+              AppColors.primary.withOpacity(0.2),
+        );
+      });
+    }).toList(),
+  );
+}
 
   Widget _buildTimeOptions() {
     return Wrap(
