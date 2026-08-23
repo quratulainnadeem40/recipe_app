@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recipe_app/features/home/models/recipe_models.dart'; // [5]
 import 'package:recipe_app/features/home/repositories/home_repository.dart'; // [5]
+import 'package:recipe_app/features/home/repositories/home_repository.dart';
+import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
 
 // Class name badal kar RecipeSearchController kiya taake Flutter SDK se clash na ho
 class RecipeSearchController extends GetxController {
@@ -53,17 +55,101 @@ class RecipeSearchController extends GetxController {
     'Tunisian', 'Turkish', 'Ukrainian', 'Uruguayan', 'Vietnamese',
   ];
 
-    @override
-  void onInit() {
-    super.onInit();
+@override
+void onInit() {
+  super.onInit();
 
-    loadInitialRecipes();
+  loadInitialRecipes();
 
-    ever(selectedCuisine, (cuisine) {
-      selectedArea.value = cuisine.isEmpty ? null : cuisine;
-      _applyFilters();
-    });
+  ever(selectedCuisine, (cuisine) {
+    selectedArea.value =
+        cuisine.isEmpty ? null : cuisine;
+
+    _applyFilters();
+  });
+
+  final navigationController =
+      Get.find<NavigationController>();
+
+  ever(
+    navigationController.exploreType,
+    (_) {
+      _handleExploreNavigation(navigationController);
+    },
+  );
+}
+
+void _handleExploreNavigation(
+  NavigationController navigationController,
+) {
+  final type = navigationController.exploreType.value;
+
+  if (type == 'allCountries') {
+    selectedArea.value = null;
+    selectedCategory.value = null;
+    searchTextController.clear();
+    searchQuery.value = '';
+
+    searchResults.assignAll(allRecipes);
+    _applyFilters();
   }
+
+  if (type == 'allCategories') {
+    selectedArea.value = null;
+    selectedCategory.value = null;
+    searchTextController.clear();
+    searchQuery.value = '';
+
+    searchResults.assignAll(allRecipes);
+    _applyFilters();
+  }
+
+  if (type == 'trending') {
+    selectedArea.value = null;
+    selectedCategory.value = null;
+    searchTextController.clear();
+    searchQuery.value = '';
+
+    searchResults.assignAll(allRecipes);
+    _applyFilters();
+  }
+
+  if (type == 'country') {
+    selectedCategory.value = null;
+    selectedArea.value =
+        navigationController.exploreArea.value;
+
+    searchTextController.clear();
+    searchQuery.value = '';
+
+    searchResults.assignAll(allRecipes);
+    _applyFilters();
+  }
+
+  if (type == 'category') {
+    selectedArea.value = null;
+    selectedCategory.value =
+        navigationController.exploreCategory.value;
+
+    searchTextController.clear();
+    searchQuery.value = '';
+
+    searchResults.assignAll(allRecipes);
+    _applyFilters();
+  }
+
+  if (type == 'query') {
+    selectedArea.value = null;
+    selectedCategory.value = null;
+
+    final query =
+        navigationController.exploreQuery.value;
+
+    searchTextController.text = query;
+
+    searchRecipes(query);
+  }
+}
   Future<void> loadInitialRecipes() async {
     try {
       isLoading.value = true;

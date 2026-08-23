@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recipe_app/core/routes/app_routes.dart';
+
 import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/features/home/models/recipe_models.dart';
 import 'package:recipe_app/features/home/repositories/home_repository.dart';
@@ -19,10 +20,12 @@ class SearchScreen extends StatelessWidget {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+ @override
+Widget build(BuildContext context) {
+  
+
+  final isDark =
+      Theme.of(context).brightness == Brightness.dark;
 
     final backgroundColor = isDark
         ? AppColors.darkBackground
@@ -48,8 +51,8 @@ class SearchScreen extends StatelessWidget {
         ? AppColors.primary.withValues(alpha: 0.14)
         : AppColors.primaryLight;
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
+   return Scaffold(
+    backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: surfaceColor,
         elevation: 0,
@@ -176,7 +179,8 @@ class SearchScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    
+   );
   }
 
   Widget _buildFilterChip(String label) {
@@ -720,12 +724,13 @@ class SearchScreen extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-            ],
-          ),
+                          ),
+          ],
         ),
       ),
-      isScrollControlled: true,
-    );
-  }
+    ),
+    isScrollControlled: true,
+  );
+}
+  
 }

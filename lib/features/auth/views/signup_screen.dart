@@ -82,6 +82,11 @@ class SignupScreen extends GetView<AuthController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(child: Image.asset("assets/images/logo.png",
+                height: 100,
+                width: 100,)
+                ),
+                SizedBox(height: 18,),
                 // =================================================
                 // AUTH HEADER
                 // =================================================
@@ -92,7 +97,7 @@ class SignupScreen extends GetView<AuthController> {
                       'Create your account and start cooking.',
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
                 // =================================================
                 // FULL NAME
@@ -106,7 +111,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height:16),
 
                 CustomTextField(
                   controller:
@@ -118,7 +123,7 @@ class SignupScreen extends GetView<AuthController> {
                   validator: AuthValidators.name,
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
                 // =================================================
                 // EMAIL
@@ -132,7 +137,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
 
                 CustomTextField(
                   controller:
@@ -145,7 +150,7 @@ class SignupScreen extends GetView<AuthController> {
                   validator: AuthValidators.email,
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
                 // =================================================
                 // PASSWORD
@@ -159,7 +164,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
 
                 Obx(
                   () => CustomTextField(
@@ -194,7 +199,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
                 // =================================================
                 // CONFIRM PASSWORD
@@ -250,7 +255,7 @@ class SignupScreen extends GetView<AuthController> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 26),
 
                 // =================================================
                 // CREATE ACCOUNT BUTTON

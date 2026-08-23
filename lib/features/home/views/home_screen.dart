@@ -10,6 +10,7 @@ import 'package:recipe_app/features/home/views/widgets/country_item.dart';
 import 'package:recipe_app/features/home/views/widgets/home_header.dart';
 import 'package:recipe_app/features/home/views/widgets/home_searchbar.dart';
 import 'package:recipe_app/features/home/views/widgets/recipe_horizontal_list.dart';
+import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({
@@ -250,19 +251,15 @@ class HomeScreen extends GetView<HomeController> {
                             // EXPLORE BY CUISINE
                             // =================================================
 
-                            _sectionHeader(
-                              'Explore by Cuisine',
-                              textPrimary,
-                              () {
-                                Get.toNamed(
-                                  AppRoutes.search,
-                                  arguments: {
-                                    'type':
-                                        'allCountries',
-                                  },
-                                );
-                              },
-                            ),
+                           _sectionHeader(
+  'Explore by Cuisine',
+  textPrimary,
+  () {
+    Get.find<NavigationController>().openExplore(
+  type: 'allCountries',
+);
+  },
+),
 
                             const SizedBox(height: 12),
 
@@ -274,20 +271,16 @@ class HomeScreen extends GetView<HomeController> {
                             // CATEGORIES
                             // =================================================
 
-                            _sectionHeader(
-                              'Categories',
-                              textPrimary,
-                              () {
-                                Get.toNamed(
-                                  AppRoutes.search,
-                                  arguments: {
-                                    'type':
-                                        'allCategories',
-                                  },
-                                );
-                              },
-                            ),
-
+                            
+                              _sectionHeader(
+  'Categories',
+  textPrimary,
+  () {
+    Get.find<NavigationController>().openExplore(
+      type: 'allCategories',
+    );
+  },
+),
                             const SizedBox(height: 12),
 
                             _buildCategories(
@@ -325,19 +318,15 @@ class HomeScreen extends GetView<HomeController> {
                             // TRENDING RECIPES
                             // =================================================
 
-                            _sectionHeader(
-                              'Trending Recipes 🔥',
-                              textPrimary,
-                              () {
-                                Get.toNamed(
-                                  AppRoutes.search,
-                                  arguments: {
-                                    'type': 'trending',
-                                  },
-                                );
-                              },
-                            ),
-
+                          _sectionHeader(
+  'Trending Recipes 🔥',
+  textPrimary,
+  () {
+    Get.find<NavigationController>().openExplore(
+      type: 'trending',
+    );
+  },
+),
                             const SizedBox(height: 12),
 
                             RecipeHorizontalList(
@@ -393,18 +382,15 @@ class HomeScreen extends GetView<HomeController> {
                 controller.selectedCountry.value ==
                     country.area,
 
-            onTap: () {
-              controller.selectedCountry.value =
-                  country.area;
+          onTap: () {
+  controller.selectedCountry.value =
+      country.area;
 
-              Get.toNamed(
-                AppRoutes.search,
-                arguments: {
-                  'type': 'country',
-                  'area': country.area,
-                },
-              );
-            },
+  Get.find<NavigationController>().openExplore(
+    type: 'country',
+    area: country.area,
+  );
+},
           );
         },
       ),
@@ -455,18 +441,15 @@ class HomeScreen extends GetView<HomeController> {
               title: title,
               icon: icon,
 
-              onTap: () {
-                controller.selectedCategory
-                    .value = apiCategory;
+            onTap: () {
+  controller.selectedCategory.value =
+      apiCategory;
 
-                Get.toNamed(
-                  AppRoutes.search,
-                  arguments: {
-                    'type': 'category',
-                    'category': apiCategory,
-                  },
-                );
-              },
+  Get.find<NavigationController>().openExplore(
+    type: 'category',
+    category: apiCategory,
+  );
+},
             ),
           );
         },
@@ -525,15 +508,12 @@ class HomeScreen extends GetView<HomeController> {
                 elevation: 0,
                 pressElevation: 0,
 
-                onPressed: () {
-                  Get.toNamed(
-                    AppRoutes.search,
-                    arguments: {
-                      'type': 'query',
-                      'query': search,
-                    },
-                  );
-                },
+              onPressed: () {
+  Get.find<NavigationController>().openExplore(
+    type: 'query',
+    query: search,
+  );
+},
               ),
             );
           },
