@@ -1,0 +1,7 @@
+{
+  "dart.flutterSdkPath": ".fvm/flutter_sdk",
+  "dart.flutterSdkPaths": [
+    ".fvm/versions",
+    "C:\\Users\\abdul\\fvm\\versions"
+  ]
+}
