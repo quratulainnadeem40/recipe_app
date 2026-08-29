@@ -110,6 +110,15 @@ class SettingsScreen extends GetView<SettingsController> {
                   const SizedBox(height: 10),
 
                   SettingsOptionTile(
+                    icon: Icons.support_agent_rounded,
+                    title: 'Help & Support',
+                    subtitle: 'innovexa.technologies01@gmail.com',
+                    onTap: () => _showContactDialog(context),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  SettingsOptionTile(
                     icon: Icons.info_outline_rounded,
                     title: 'About COOKmate',
                     subtitle: 'Version 1.0.0 • Recipe Explorer App',
@@ -155,16 +164,32 @@ class SettingsScreen extends GetView<SettingsController> {
                     child: Column(
                       children: [
                         Container(
-                          width: 44,
-                          height: 44,
+                          width: 52,
+                          height: 52,
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.22),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          child: const Icon(
-                            Icons.restaurant_rounded,
-                            color: AppColors.primary,
-                            size: 22,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.asset(
+                              'assets/images/recipe_logo.jpeg',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: AppColors.primary,
+                                child: const Icon(
+                                  Icons.restaurant_menu_rounded,
+                                  color: Colors.white,
+                                  size: 26,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -319,6 +344,121 @@ class SettingsScreen extends GetView<SettingsController> {
   }
 
   // ================================================================
+  // HELP & SUPPORT DIALOG
+  // ================================================================
+  void _showContactDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor =
+        isDark ? AppColors.darkSurfaceElevated : AppColors.surface;
+    final primaryText =
+        isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+    final secondaryText =
+        isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: surfaceColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.support_agent_rounded,
+                  color: AppColors.primary,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                'Help & Support',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: primaryText,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'For questions, feedback, or business inquiries, feel free to reach out to our team:',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: secondaryText,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.darkBackground
+                      : AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.email_outlined,
+                      size: 20,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: SelectableText(
+                        'innovexa.technologies01@gmail.com',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () => Get.back(),
+                  child: const Text(
+                    'Got It',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ================================================================
   // ABOUT COOKMATE DIALOG
   // ================================================================
   void _showAboutDialog(BuildContext context) {
@@ -327,16 +467,32 @@ class SettingsScreen extends GetView<SettingsController> {
         applicationName: 'COOKmate',
         applicationVersion: '1.0.0',
         applicationIcon: Container(
-          width: 48,
-          height: 48,
+          width: 52,
+          height: 52,
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.25),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: const Icon(
-            Icons.restaurant_menu_rounded,
-            color: Colors.white,
-            size: 28,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Image.asset(
+              'assets/images/recipe_logo.jpeg',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: AppColors.primary,
+                child: const Icon(
+                  Icons.restaurant_menu_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+            ),
           ),
         ),
         children: const [
@@ -344,6 +500,15 @@ class SettingsScreen extends GetView<SettingsController> {
           Text(
             'COOKmate is your modern digital recipe companion, built for seamless culinary exploration with curated cuisines, instant search, and step-by-step cooking inspiration.',
             style: TextStyle(height: 1.4),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Support: innovexa.technologies01@gmail.com',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12.5,
+              color: AppColors.primary,
+            ),
           ),
         ],
       ),

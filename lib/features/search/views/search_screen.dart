@@ -130,7 +130,21 @@ class SearchScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
+
+                  // ===================================================
+                  // CATEGORY DROPDOWN SELECTOR
+                  // ===================================================
+                  _buildCategoryDropdown(
+                    context,
+                    surfaceColor,
+                    primaryText,
+                    secondaryText,
+                    borderColor,
+                    isDark,
+                  ),
+
+                  const SizedBox(height: 12),
 
                   // ===================================================
                   // FILTER CHIPS ROW
@@ -140,6 +154,8 @@ class SearchScreen extends StatelessWidget {
                     physics: const BouncingScrollPhysics(),
                     child: Row(
                       children: [
+                        _buildFilterChip('Category'),
+                        const SizedBox(width: 8),
                         _buildFilterChip('Difficulty'),
                         const SizedBox(width: 8),
                         _buildFilterChip('Cuisine'),
@@ -426,19 +442,23 @@ class SearchScreen extends StatelessWidget {
     return Obx(() {
       bool isFilterActive = false;
 
-      if (label == 'Difficulty') {
+      if (label == 'Category') {
+        isFilterActive = controller.selectedCategory.value != null &&
+            controller.selectedCategory.value!.isNotEmpty;
+      } else if (label == 'Difficulty') {
         isFilterActive = controller.activeFilters
-            .any((f) => ['Easy', 'Medium', 'Hard'].contains(f));
+            .any((f) => ['easy', 'medium', 'hard'].contains(f.trim().toLowerCase()));
       } else if (label == 'Cuisine') {
         isFilterActive = controller.selectedArea.value != null ||
-            controller.activeFilters
-                .any((f) => controller.areas.contains(f));
+            controller.activeFilters.any((f) =>
+                controller.availableAreas.any((a) => a.toLowerCase() == f.toLowerCase()) ||
+                controller.areas.any((a) => a.toLowerCase() == f.toLowerCase()));
       } else if (label == 'Time') {
         isFilterActive =
-            controller.activeFilters.any((f) => f.contains('min'));
+            controller.activeFilters.any((f) => f.toLowerCase().contains('min'));
       } else if (label == 'Diet') {
         isFilterActive = controller.activeFilters
-            .any((f) => ['Vegetarian', 'Vegan', 'Healthy'].contains(f));
+            .any((f) => ['vegetarian', 'vegan', 'healthy'].contains(f.trim().toLowerCase()));
       }
 
       return GestureDetector(
@@ -737,7 +757,7 @@ class SearchScreen extends StatelessWidget {
 
                       const SizedBox(height: 6),
 
-                      // Duration & View Details
+                      // Duration, Difficulty & View Details
                       Row(
                         children: [
                           Icon(
@@ -754,17 +774,30 @@ class SearchScreen extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-
                           const SizedBox(width: 8),
-                          Icon(
-                            Icons.restaurant_menu_rounded,
-                            size: 13.5,
-                            color: secondaryText,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 1.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getDifficultyColor(recipe.difficulty)
+                                  .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              recipe.difficulty,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: _getDifficultyColor(recipe.difficulty),
+                              ),
+                            ),
                           ),
-                          const SizedBox(width: 3),
+                          const Spacer(),
                           Flexible(
                             child: Text(
-                              'View Recipe',
+                              'View Recipe →',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -843,7 +876,9 @@ class SearchScreen extends StatelessWidget {
 
     Widget optionsWidget = const SizedBox();
 
-    if (filterType == 'Difficulty') {
+    if (filterType == 'Category') {
+      optionsWidget = _buildCategoryOptions();
+    } else if (filterType == 'Difficulty') {
       optionsWidget = _buildDifficultyOptions();
     } else if (filterType == 'Cuisine') {
       optionsWidget = _buildCuisineOptions();
@@ -926,22 +961,238 @@ class SearchScreen extends StatelessWidget {
   }
 
 
+  Widget _buildCategoryDropdown(
+    BuildContext context,
+    Color surfaceColor,
+    Color primaryText,
+    Color secondaryText,
+    Color borderColor,
+    bool isDark,
+  ) {
+    return Obx(() {
+      final availableCats = controller.availableCategoriesList;
+      final currentCategory = controller.selectedCategory.value ?? 'All Categories';
+      final isSelected = controller.selectedCategory.value != null &&
+          controller.selectedCategory.value!.isNotEmpty;
+
+      return Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : borderColor,
+            width: isSelected ? 1.5 : 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: availableCats.any((c) => c.toLowerCase() == currentCategory.toLowerCase())
+                ? availableCats.firstWhere((c) => c.toLowerCase() == currentCategory.toLowerCase())
+                : 'All Categories',
+            isExpanded: true,
+            dropdownColor: surfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            icon: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: isSelected ? AppColors.primary : secondaryText,
+              size: 22,
+            ),
+            items: availableCats.map((cat) {
+              final isCurrent = cat.toLowerCase() == currentCategory.toLowerCase();
+              final count = controller.getRecipeCountForCategory(cat);
+
+              return DropdownMenuItem<String>(
+                value: cat,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: isCurrent
+                            ? AppColors.primary.withValues(alpha: 0.15)
+                            : isDark
+                                ? Colors.white.withValues(alpha: 0.06)
+                                : Colors.black.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        _getCategoryIcon(cat),
+                        size: 16,
+                        color: isCurrent ? AppColors.primary : secondaryText,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        cat,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
+                          color: isCurrent ? AppColors.primary : primaryText,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isCurrent
+                            ? AppColors.primary.withValues(alpha: 0.15)
+                            : isDark
+                                ? Colors.white.withValues(alpha: 0.06)
+                                : Colors.black.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isCurrent ? AppColors.primary : secondaryText,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (val) {
+              controller.selectCategory(val);
+            },
+          ),
+        ),
+      );
+    });
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'all categories':
+        return Icons.grid_view_rounded;
+      case 'beef':
+        return Icons.kebab_dining_rounded;
+      case 'breakfast':
+        return Icons.free_breakfast_rounded;
+      case 'chicken':
+        return Icons.egg_rounded;
+      case 'dessert':
+        return Icons.cake_rounded;
+      case 'goat':
+      case 'lamb':
+        return Icons.dinner_dining_rounded;
+      case 'pasta':
+        return Icons.ramen_dining_rounded;
+      case 'seafood':
+        return Icons.set_meal_rounded;
+      case 'side':
+        return Icons.tapas_rounded;
+      case 'starter':
+        return Icons.soup_kitchen_rounded;
+      case 'vegan':
+        return Icons.spa_rounded;
+      case 'vegetarian':
+        return Icons.eco_rounded;
+      case 'miscellaneous':
+        return Icons.lunch_dining_rounded;
+      default:
+        return Icons.restaurant_menu_rounded;
+    }
+  }
+
+  Widget _buildCategoryOptions() {
+    return Obx(() {
+      final categories = controller.availableCategoriesList;
+
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: categories.map((cat) {
+          final isSelected = cat == 'All Categories'
+              ? controller.selectedCategory.value == null ||
+                  controller.selectedCategory.value!.isEmpty
+              : (controller.selectedCategory.value != null &&
+                      controller.selectedCategory.value!.toLowerCase() ==
+                          cat.toLowerCase()) ||
+                  controller.activeFilters
+                      .any((f) => f.toLowerCase() == cat.toLowerCase());
+          final count = controller.getRecipeCountForCategory(cat);
+
+          return FilterChip(
+            avatar: Icon(
+              _getCategoryIcon(cat),
+              size: 16,
+              color: isSelected ? AppColors.primary : null,
+            ),
+            label: Text('$cat ($count)'),
+            selected: isSelected,
+            onSelected: (value) {
+              if (cat == 'All Categories') {
+                controller.selectCategory(null);
+              } else {
+                if (value) {
+                  controller.selectCategory(cat);
+                } else {
+                  controller.removeFilter(cat);
+                }
+              }
+            },
+            selectedColor: AppColors.primary.withValues(alpha: 0.2),
+          );
+        }).toList(),
+      );
+    });
+  }
+
+  Color _getDifficultyColor(String difficulty) {
+    switch (difficulty.trim().toLowerCase()) {
+      case 'easy':
+        return Colors.green.shade600;
+      case 'medium':
+        return Colors.orange.shade700;
+      case 'hard':
+        return Colors.redAccent.shade700;
+      default:
+        return AppColors.primary;
+    }
+  }
+
   Widget _buildDifficultyOptions() {
     return Obx(() {
       final difficulties = controller.availableDifficulties;
-
-      if (difficulties.isEmpty) {
-        return const Text('No difficulty options available');
-      }
 
       return Wrap(
         spacing: 8,
         runSpacing: 8,
         children: difficulties.map((difficulty) {
-          final selected = controller.activeFilters.contains(difficulty);
+          final selected = controller.activeFilters.any(
+            (f) => f.trim().toLowerCase() == difficulty.trim().toLowerCase(),
+          );
           final count = controller.getRecipeCountForDifficulty(difficulty);
 
           return FilterChip(
+            avatar: Icon(
+              difficulty == 'Easy'
+                  ? Icons.speed_rounded
+                  : difficulty == 'Medium'
+                      ? Icons.bolt_rounded
+                      : Icons.whatshot_rounded,
+              size: 16,
+              color: selected
+                  ? AppColors.primary
+                  : _getDifficultyColor(difficulty),
+            ),
             label: Text('$difficulty ($count)'),
             selected: selected,
             onSelected: (value) => value
@@ -966,7 +1217,9 @@ class SearchScreen extends StatelessWidget {
         spacing: 8,
         runSpacing: 8,
         children: cuisines.map((cuisine) {
-          final isSelected = controller.activeFilters.contains(cuisine);
+          final isSelected = controller.activeFilters.any(
+            (f) => f.trim().toLowerCase() == cuisine.trim().toLowerCase(),
+          );
           final count = controller.getRecipeCountForArea(cuisine);
 
           return FilterChip(
@@ -986,18 +1239,20 @@ class SearchScreen extends StatelessWidget {
     return Obx(() {
       final times = controller.availableTimes;
 
-      if (times.isEmpty) {
-        return const Text('No prep time options available');
-      }
-
       return Wrap(
         spacing: 8,
         runSpacing: 8,
         children: times.map((time) {
-          final isSelected = controller.activeFilters.contains(time);
+          final isSelected = controller.activeFilters.any(
+            (f) => f.trim().toLowerCase() == time.trim().toLowerCase(),
+          );
           final count = controller.getRecipeCountForTime(time);
 
           return FilterChip(
+            avatar: const Icon(
+              Icons.timer_outlined,
+              size: 16,
+            ),
             label: Text('$time ($count)'),
             selected: isSelected,
             onSelected: (value) => value
@@ -1014,18 +1269,25 @@ class SearchScreen extends StatelessWidget {
     return Obx(() {
       final diets = controller.availableDiets;
 
-      if (diets.isEmpty) {
-        return const Text('No dietary options available');
-      }
-
       return Wrap(
         spacing: 8,
         runSpacing: 8,
         children: diets.map((diet) {
-          final isSelected = controller.activeFilters.contains(diet);
+          final isSelected = controller.activeFilters.any(
+            (f) => f.trim().toLowerCase() == diet.trim().toLowerCase(),
+          );
           final count = controller.getRecipeCountForDiet(diet);
 
           return FilterChip(
+            avatar: Icon(
+              diet == 'Vegetarian'
+                  ? Icons.eco_rounded
+                  : diet == 'Vegan'
+                      ? Icons.spa_rounded
+                      : Icons.favorite_rounded,
+              size: 16,
+              color: selectedColorForDiet(diet),
+            ),
             label: Text('$diet ($count)'),
             selected: isSelected,
             onSelected: (value) => value
@@ -1036,6 +1298,12 @@ class SearchScreen extends StatelessWidget {
         }).toList(),
       );
     });
+  }
+
+  Color selectedColorForDiet(String diet) {
+    if (diet == 'Vegetarian') return Colors.green;
+    if (diet == 'Vegan') return Colors.teal;
+    return Colors.amber.shade800;
   }
 
 
@@ -1099,6 +1367,17 @@ class SearchScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      'Category',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: primaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildCategoryOptions(),
+                    const SizedBox(height: 16),
                     Text(
                       'Difficulty',
                       style: TextStyle(

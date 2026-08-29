@@ -41,7 +41,6 @@ import 'package:recipe_app/features/settings/views/account_settings_screen.dart'
 import 'package:recipe_app/features/settings/views/edit_profile_screen.dart';
 import 'package:recipe_app/features/settings/views/privacy_policy_screen.dart';
 import 'package:recipe_app/features/settings/views/settings_screen.dart';
-import 'package:recipe_app/features/settings/views/terms_and_conditions_screen.dart';
 
 // ============================================================
 // RECIPE DETAILS
@@ -199,15 +198,6 @@ class AppPages {
     GetPage(
       name: AppRoutes.privacyPolicy,
       page: () => const PrivacyPolicyScreen(),
-    ),
-
-    // ==========================================================
-    // TERMS & CONDITIONS
-    // ==========================================================
-
-    GetPage(
-      name: AppRoutes.termsAndConditions,
-      page: () => const TermsAndConditionsScreen(),
     ),
   ];
 }

@@ -84,25 +84,45 @@ class RecipeSearchController extends GetxController {
         counts[cat] = (counts[cat] ?? 0) + 1;
       }
     }
+    for (final c in categories) {
+      counts.putIfAbsent(c, () => 0);
+    }
     final list = counts.keys.toList()..sort();
     return list;
   }
 
+  List<String> get availableCategoriesList {
+    final Set<String> catSet = {};
+    for (final c in categories) {
+      catSet.add(c);
+    }
+    for (final r in allRecipes) {
+      final cat = r.category.trim();
+      if (cat.isNotEmpty) {
+        catSet.add(cat);
+      }
+    }
+    final sorted = catSet.toList()..sort();
+    return ['All Categories', ...sorted];
+  }
+
   int getRecipeCountForCategory(String category) {
+    if (category == 'All Categories') return allRecipes.length;
+    final clean = category.trim().toLowerCase();
     return allRecipes
-        .where((r) => r.category.toLowerCase() == category.toLowerCase())
+        .where((r) => r.category.trim().toLowerCase() == clean)
         .length;
   }
 
   List<String> get availableDifficulties {
-    final list = ['Easy', 'Medium', 'Hard'];
-    return list
-        .where((d) => getRecipeCountForDifficulty(d) > 0)
-        .toList();
+    return const ['Easy', 'Medium', 'Hard'];
   }
 
   int getRecipeCountForDifficulty(String diff) {
-    return allRecipes.where((r) => r.difficulty == diff).length;
+    final clean = diff.trim().toLowerCase();
+    return allRecipes
+        .where((r) => r.difficulty.trim().toLowerCase() == clean)
+        .length;
   }
 
   List<String> get availableTimes {
@@ -112,7 +132,7 @@ class RecipeSearchController extends GetxController {
       'Under 45 mins',
       'Under 60 mins',
     ];
-    return times.where((t) => getRecipeCountForTime(t) > 0).toList();
+    return times;
   }
 
   int getRecipeCountForTime(String timeFilter) {
@@ -127,15 +147,15 @@ class RecipeSearchController extends GetxController {
   }
 
   List<String> get availableDiets {
-    final diets = ['Vegetarian', 'Vegan', 'Healthy'];
-    return diets.where((d) => getRecipeCountForDiet(d) > 0).toList();
+    return const ['Vegetarian', 'Vegan', 'Healthy'];
   }
 
   int getRecipeCountForDiet(String diet) {
+    final clean = diet.trim().toLowerCase();
     return allRecipes.where((r) {
-      if (diet == 'Vegetarian' && r.isVegetarian) return true;
-      if (diet == 'Vegan' && r.isVegan) return true;
-      if (diet == 'Healthy' && r.isHealthy) return true;
+      if (clean == 'vegetarian' && r.isVegetarian) return true;
+      if (clean == 'vegan' && r.isVegan) return true;
+      if (clean == 'healthy' && r.isHealthy) return true;
       return false;
     }).length;
   }
@@ -291,7 +311,7 @@ Future<void> _handleExploreNavigation(
       errorMessage.value =
           'Failed to load recipes: ${e.toString()}';
 
-      print('Error loading initial recipes: $e');
+      debugPrint('Error loading initial recipes: $e');
     } finally {
       isLoading.value = false;
     }
@@ -335,33 +355,73 @@ Future<void> _handleExploreNavigation(
 
   // Filter actions
   void addFilter(String filter) {
-    if (!activeFilters.contains(filter)) {
+    if (!activeFilters.any((f) => f.toLowerCase() == filter.toLowerCase())) {
       activeFilters.add(filter);
       _applyFilters();
     }
   }
 
   void removeFilter(String filter) {
+    final clean = filter.trim().toLowerCase();
     if (selectedArea.value != null &&
-        selectedArea.value!.toLowerCase() == filter.toLowerCase()) {
+        selectedArea.value!.toLowerCase() == clean) {
       selectedArea.value = null;
     }
     if (selectedCategory.value != null &&
-        selectedCategory.value!.toLowerCase() == filter.toLowerCase()) {
+        selectedCategory.value!.toLowerCase() == clean) {
       selectedCategory.value = null;
     }
-    if (activeFilters.contains(filter)) {
-      activeFilters.remove(filter);
-    }
+    activeFilters.removeWhere((f) => f.trim().toLowerCase() == clean);
     _applyFilters();
   }
 
   void toggleFilter(String filter) {
-    if (activeFilters.contains(filter)) {
+    final clean = filter.trim().toLowerCase();
+    if (activeFilters.any((f) => f.trim().toLowerCase() == clean)) {
       removeFilter(filter);
     } else {
       addFilter(filter);
     }
+  }
+
+  Future<void> selectCategory(String? category) async {
+    final clean = category?.trim();
+    if (clean == null || clean.isEmpty || clean == 'All Categories') {
+      selectedCategory.value = null;
+      activeFilters.removeWhere((f) =>
+          availableCategoriesList.any((c) => c.toLowerCase() == f.toLowerCase()) ||
+          categories.any((c) => c.toLowerCase() == f.toLowerCase()));
+      _applyFilters();
+      return;
+    }
+
+    activeFilters.removeWhere((f) =>
+        availableCategoriesList.any((c) => c.toLowerCase() == f.toLowerCase()) ||
+        categories.any((c) => c.toLowerCase() == f.toLowerCase()));
+
+    selectedCategory.value = clean;
+    if (!activeFilters.any((f) => f.toLowerCase() == clean.toLowerCase())) {
+      activeFilters.add(clean);
+    }
+
+    _applyFilters();
+
+    // Asynchronously fetch from API to ensure all recipes for category are loaded
+    try {
+      final catRecipes = await repository.getRecipesByCategory(clean);
+      if (catRecipes.isNotEmpty) {
+        bool addedAny = false;
+        for (final r in catRecipes) {
+          if (!allRecipes.any((existing) => existing.id == r.id)) {
+            allRecipes.add(r);
+            addedAny = true;
+          }
+        }
+        if (addedAny) {
+          _applyFilters();
+        }
+      }
+    } catch (_) {}
   }
 
 
@@ -385,12 +445,13 @@ Future<void> _handleExploreNavigation(
     // 2. Category Filter (selectedCategory or from activeFilters)
     final activeCategoryFilters = activeFilters
         .where((f) =>
-            availableCategories.contains(f) || categories.contains(f))
+            availableCategoriesList.any((c) => c.toLowerCase() == f.toLowerCase()) ||
+            categories.any((c) => c.toLowerCase() == f.toLowerCase()))
         .toList();
 
     if (selectedCategory.value != null &&
         selectedCategory.value!.isNotEmpty &&
-        !activeCategoryFilters.contains(selectedCategory.value)) {
+        !activeCategoryFilters.any((f) => f.toLowerCase() == selectedCategory.value!.toLowerCase())) {
       activeCategoryFilters.add(selectedCategory.value!);
     }
 
@@ -423,18 +484,20 @@ Future<void> _handleExploreNavigation(
 
     // 4. Difficulty Filter ('Easy', 'Medium', 'Hard')
     final selectedDifficulties = activeFilters
-        .where((f) => ['Easy', 'Medium', 'Hard'].contains(f))
+        .where((f) => ['easy', 'medium', 'hard'].contains(f.trim().toLowerCase()))
         .toList();
 
     if (selectedDifficulties.isNotEmpty) {
       temp = temp.where((recipe) {
-        return selectedDifficulties.contains(recipe.difficulty);
+        return selectedDifficulties.any(
+          (d) => d.trim().toLowerCase() == recipe.difficulty.trim().toLowerCase(),
+        );
       }).toList();
     }
 
     // 5. Prep Time Filter ('Under 15 mins', 'Under 30 mins', 'Under 45 mins', 'Under 60 mins')
     final selectedTimes =
-        activeFilters.where((f) => f.contains('min')).toList();
+        activeFilters.where((f) => f.toLowerCase().contains('min')).toList();
 
     if (selectedTimes.isNotEmpty) {
       temp = temp.where((recipe) {
@@ -451,15 +514,16 @@ Future<void> _handleExploreNavigation(
 
     // 6. Dietary Filter ('Vegetarian', 'Vegan', 'Healthy')
     final selectedDiets = activeFilters
-        .where((f) => ['Vegetarian', 'Vegan', 'Healthy'].contains(f))
+        .where((f) => ['vegetarian', 'vegan', 'healthy'].contains(f.trim().toLowerCase()))
         .toList();
 
     if (selectedDiets.isNotEmpty) {
       temp = temp.where((recipe) {
         for (final diet in selectedDiets) {
-          if (diet == 'Vegetarian' && recipe.isVegetarian) return true;
-          if (diet == 'Vegan' && recipe.isVegan) return true;
-          if (diet == 'Healthy' && recipe.isHealthy) return true;
+          final d = diet.trim().toLowerCase();
+          if (d == 'vegetarian' && recipe.isVegetarian) return true;
+          if (d == 'vegan' && recipe.isVegan) return true;
+          if (d == 'healthy' && recipe.isHealthy) return true;
         }
         return false;
       }).toList();

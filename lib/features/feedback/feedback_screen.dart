@@ -108,7 +108,7 @@ class FeedbackScreen extends GetView<FeedbackController> {
                 height: 90,
                 decoration: BoxDecoration(
                   color: isDark
-                      ? AppColors.primary.withOpacity(0.20)
+                      ? AppColors.primary.withValues(alpha: 0.20)
                       : AppColors.primaryLight,
                   shape: BoxShape.circle,
                   border: Border.all(
@@ -280,6 +280,39 @@ class FeedbackScreen extends GetView<FeedbackController> {
                   ),
                 );
               },
+            ),
+
+            const SizedBox(height: 24),
+
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.email_outlined,
+                      size: 14,
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Direct Support: innovexa.technologies01@gmail.com',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             const SizedBox(height: 20),

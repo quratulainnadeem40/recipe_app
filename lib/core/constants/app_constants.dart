@@ -1,4 +1,12 @@
 
+class AppConstants {
+  AppConstants._();
+
+  static const String appName = 'COOKmate';
+  static const String appVersion = '1.0.0';
+  static const String supportEmail = 'innovexa.technologies01@gmail.com';
+}
+
 class ApiConstants {
   static const String baseUrl =
       'https://www.themealdb.com/api/json/v1/1';

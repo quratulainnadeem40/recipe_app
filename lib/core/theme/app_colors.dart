@@ -26,52 +26,51 @@ class AppColors {
   static const Color surface = Color(0xFFFFFFFF);
 
   // =========================================================
-  // DARK THEME
+  // DARK THEME (Sleek Charcoal Velvet & Warm Wine Palette)
   // =========================================================
   //
-  // Deep neutral/plum colors.
-  // Background and surface are intentionally different.
+  // Deep premium contrast with rich dark surfaces.
   // =========================================================
 
-  static const Color darkBackground = Color(0xFF171114);
+  static const Color darkBackground = Color(0xFF130E11);
 
-  static const Color darkSurface = Color(0xFF24191E);
+  static const Color darkSurface = Color(0xFF1E1419);
 
-  // Slightly lighter surface for nested cards / containers.
-  static const Color darkSurfaceElevated = Color(0xFF2D2026);
+  // Elevated surface for cards, dropdowns, and modals
+  static const Color darkSurfaceElevated = Color(0xFF281B22);
 
   // =========================================================
   // DARK TEXT
   // =========================================================
 
-  // Main text - very clear
-  static const Color darkTextPrimary = Color(0xFFFFF7F9);
+  // Main text - crystal clear bright
+  static const Color darkTextPrimary = Color(0xFFFFF6F8);
 
-  // Secondary text - readable but softer
-  static const Color darkTextSecondary = Color(0xFFD8C9CE);
+  // Secondary text - balanced readability
+  static const Color darkTextSecondary = Color(0xFFD6C5CB);
 
   // Hint / disabled text
-  static const Color darkTextHint = Color(0xFFA9989F);
+  static const Color darkTextHint = Color(0xFFA18F96);
 
   // =========================================================
   // DARK BORDERS / DIVIDERS
   // =========================================================
 
-  static const Color darkBorder = Color(0xFF49353D);
+  static const Color darkBorder = Color(0xFF3B262F);
 
-  static const Color darkDivider = Color(0xFF3A2930);
+  static const Color darkDivider = Color(0xFF2F1D24);
 
   // =========================================================
   // DARK INPUT
   // =========================================================
 
-  static const Color darkInputBackground = Color(0xFF2A1E24);
+  static const Color darkInputBackground = Color(0xFF24181E);
 
   // =========================================================
   // DARK CHIP
   // =========================================================
 
-  static const Color darkChipBackground = Color(0xFF302229);
+  static const Color darkChipBackground = Color(0xFF2A1C23);
 
   // =========================================================
   // STATUS & TAG COLORS

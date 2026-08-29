@@ -1234,7 +1234,7 @@ class RecipeDetailScreen extends GetView<RecipeController> {
             BorderRadius.circular(30),
         border: Border.all(
           color: AppColors.primary
-              .withOpacity(0.12),
+              .withValues(alpha: 0.12),
         ),
       ),
       child: Text(
@@ -1395,12 +1395,12 @@ class RecipeDetailScreen extends GetView<RecipeController> {
             BorderRadius.circular(20),
         border: Border.all(
           color:
-              Colors.grey.withOpacity(0.15),
+              Colors.grey.withValues(alpha: 0.15),
         ),
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(0.02),
+                Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -1537,7 +1537,7 @@ class RecipeDetailScreen extends GetView<RecipeController> {
             BorderRadius.circular(24),
         border: Border.all(
           color:
-              Colors.grey.withOpacity(0.15),
+              Colors.grey.withValues(alpha: 0.15),
         ),
       ),
       child: ListView.separated(
@@ -1550,7 +1550,7 @@ class RecipeDetailScreen extends GetView<RecipeController> {
             (context, index) =>
                 Divider(
           color:
-              Colors.grey.withOpacity(0.1),
+              Colors.grey.withValues(alpha: 0.1),
           height: 24,
         ),
         itemBuilder:
@@ -1614,7 +1614,7 @@ class RecipeDetailScreen extends GetView<RecipeController> {
                 decoration:
                     BoxDecoration(
                   color: AppColors.primary
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
                   borderRadius:
                       BorderRadius.circular(10),
                 ),
@@ -1659,7 +1659,7 @@ class RecipeDetailScreen extends GetView<RecipeController> {
             BorderRadius.circular(24),
         border: Border.all(
           color:
-              Colors.grey.withOpacity(0.15),
+              Colors.grey.withValues(alpha: 0.15),
         ),
       ),
       child: ListView.builder(
@@ -2402,7 +2402,7 @@ class _WhatsAppVoiceBarState
           boxShadow: [
             BoxShadow(
               color: Colors.black
-                  .withOpacity(0.12),
+                  .withValues(alpha: 0.12),
               blurRadius: 8,
               offset:
                   const Offset(0, 4),
@@ -2470,7 +2470,7 @@ class _WhatsAppVoiceBarState
                           ),
                           inactiveTrackColor:
                               Colors.white
-                                  .withOpacity(
+                                  .withValues(alpha:
                             0.15,
                           ),
                           thumbColor:
@@ -2480,7 +2480,7 @@ class _WhatsAppVoiceBarState
                           overlayColor:
                               const Color(
                             0xFF00A884,
-                          ).withOpacity(
+                          ).withValues(alpha:
                             0.12,
                           ),
                           valueIndicatorColor:
@@ -2595,7 +2595,7 @@ class _WhatsAppVoiceBarState
                                   TextStyle(
                                 color: Colors
                                     .white
-                                    .withOpacity(
+                                    .withValues(alpha:
                                   0.6,
                                 ),
                                 fontSize: 11,
@@ -2625,7 +2625,7 @@ class _WhatsAppVoiceBarState
                     decoration:
                         BoxDecoration(
                       color: Colors.white
-                          .withOpacity(
+                          .withValues(alpha:
                         0.08,
                       ),
                       borderRadius:
@@ -2634,7 +2634,7 @@ class _WhatsAppVoiceBarState
                       ),
                       border: Border.all(
                         color: Colors.white
-                            .withOpacity(
+                            .withValues(alpha:
                           0.12,
                         ),
                       ),
@@ -2666,7 +2666,7 @@ class _WhatsAppVoiceBarState
                           BoxDecoration(
                         color: Colors
                             .redAccent
-                            .withOpacity(
+                            .withValues(alpha:
                           0.15,
                         ),
                         shape:
@@ -2697,7 +2697,7 @@ class _WhatsAppVoiceBarState
                 decoration:
                     BoxDecoration(
                   color: Colors.white
-                      .withOpacity(
+                      .withValues(alpha:
                     0.03,
                   ),
                   borderRadius:
@@ -2706,7 +2706,7 @@ class _WhatsAppVoiceBarState
                   ),
                   border: Border.all(
                     color: Colors.white
-                        .withOpacity(
+                        .withValues(alpha:
                       0.05,
                     ),
                   ),
