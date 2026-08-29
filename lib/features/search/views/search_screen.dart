@@ -151,6 +151,108 @@ class SearchScreen extends StatelessWidget {
                     ),
                   ),
 
+                  // ===================================================
+                  // ACTIVE APPLIED FILTERS ROW (WITH 'X' REMOVE ACTION)
+                  // ===================================================
+                  Obx(() {
+                    if (!controller.hasActiveFilters) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          children: [
+                            // Clear All Button
+                            GestureDetector(
+                              onTap: controller.clearAllFilters,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.red.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.close_rounded,
+                                      size: 13,
+                                      color: Colors.redAccent,
+                                    ),
+                                    SizedBox(width: 3),
+                                    Text(
+                                      'Clear All',
+                                      style: TextStyle(
+                                        color: Colors.redAccent,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Selected Area Badge (if from explore)
+                            if (controller.selectedArea.value != null &&
+                                controller.selectedArea.value!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: _buildActiveTagChip(
+                                  controller.selectedArea.value!,
+                                  () {
+                                    controller.selectedArea.value = null;
+                                    controller.searchRecipes(
+                                      controller.searchQuery.value,
+                                    );
+                                  },
+                                ),
+                              ),
+
+                            // Selected Category Badge (if from explore)
+                            if (controller.selectedCategory.value != null &&
+                                controller.selectedCategory.value!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: _buildActiveTagChip(
+                                  controller.selectedCategory.value!,
+                                  () {
+                                    controller.selectedCategory.value = null;
+                                    controller.searchRecipes(
+                                      controller.searchQuery.value,
+                                    );
+                                  },
+                                ),
+                              ),
+
+                            // Active Filter Chips
+                            ...controller.activeFilters.map(
+                              (filter) => Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: _buildActiveTagChip(
+                                  filter,
+                                  () => controller.removeFilter(filter),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+
+
                   const SizedBox(height: 16),
 
                   // ===================================================
@@ -267,52 +369,123 @@ class SearchScreen extends StatelessWidget {
     final borderColor =
         isDark ? AppColors.darkBorder : AppColors.border;
 
-    return GestureDetector(
-      onTap: () {
-        Get.bottomSheet(
-          _buildFilterSheet(label),
-          isScrollControlled: true,
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 8,
-        ),
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.03),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+    return Obx(() {
+      bool isFilterActive = false;
+
+      if (label == 'Difficulty') {
+        isFilterActive = controller.activeFilters
+            .any((f) => ['Easy', 'Medium', 'Hard'].contains(f));
+      } else if (label == 'Cuisine') {
+        isFilterActive = controller.selectedArea.value != null ||
+            controller.activeFilters
+                .any((f) => controller.areas.contains(f));
+      } else if (label == 'Time') {
+        isFilterActive =
+            controller.activeFilters.any((f) => f.contains('min'));
+      } else if (label == 'Diet') {
+        isFilterActive = controller.activeFilters
+            .any((f) => ['Vegetarian', 'Vegan', 'Healthy'].contains(f));
+      }
+
+      return GestureDetector(
+        onTap: () {
+          Get.bottomSheet(
+            _buildFilterSheet(label),
+            isScrollControlled: true,
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            color: isFilterActive
+                ? AppColors.primary
+                    .withValues(alpha: isDark ? 0.22 : 0.12)
+                : surfaceColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isFilterActive ? AppColors.primary : borderColor,
+              width: isFilterActive ? 1.4 : 1.0,
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: secondaryText,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black
+                    .withValues(alpha: isDark ? 0.12 : 0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: AppColors.primary,
-              size: 18,
-            ),
-          ],
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: isFilterActive
+                      ? AppColors.primary
+                      : secondaryText,
+                  fontSize: 12.5,
+                  fontWeight: isFilterActive
+                      ? FontWeight.w700
+                      : FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: isFilterActive
+                    ? AppColors.primary
+                    : secondaryText,
+                size: 18,
+              ),
+            ],
+          ),
         ),
+      );
+    });
+  }
+
+  Widget _buildActiveTagChip(String label, VoidCallback onRemove) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: onRemove,
+            child: const Icon(
+              Icons.close_rounded,
+              size: 13,
+              color: AppColors.primary,
+            ),
+          ),
+        ],
       ),
     );
   }
+
 
   // ================================================================
   // RECIPE CARD WIDGET

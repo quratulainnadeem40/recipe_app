@@ -222,33 +222,100 @@ void _handleExploreNavigation(
     }
   }
 
-  // Filter computation logic [9]
+  void toggleFilter(String filter) {
+    if (activeFilters.contains(filter)) {
+      activeFilters.remove(filter);
+    } else {
+      activeFilters.add(filter);
+    }
+    _applyFilters();
+  }
+
+  // Filter computation logic across all categories
   void _applyFilters() {
     List<RecipeModel> temp = List.from(searchResults);
 
-    // 1. Category filter
-    if (selectedCategory.value != null && selectedCategory.value!.isNotEmpty) {
-      temp = temp.where((recipe) => 
-        recipe.category.toLowerCase() == selectedCategory.value!.toLowerCase()
-      ).toList();
-    }
-
-    // 2. Area/Cuisine filter
-    if (selectedArea.value != null && selectedArea.value!.isNotEmpty) {
-      temp = temp.where((recipe) => 
-        recipe.area.toLowerCase() == selectedArea.value!.toLowerCase()
-      ).toList();
-    }
-
-    // 3. Easy/Medium/Hard mock difficulties matching logic
-    if (activeFilters.isNotEmpty) {
+    // 1. Text Query Filter (if active)
+    final query = searchQuery.value.trim().toLowerCase();
+    if (query.isNotEmpty) {
       temp = temp.where((recipe) {
-        bool matches = true;
-        final selectedDifficulty = activeFilters.where((f) => ['Easy', 'Medium', 'Hard'].contains(f)).toList();
-        if (selectedDifficulty.isNotEmpty) {
-          matches = matches && (recipe.category.isEmpty || selectedDifficulty.any((d) => recipe.category.contains(d) || recipe.id.hashCode % 3 == 0));
+        return recipe.name.toLowerCase().contains(query) ||
+            recipe.category.toLowerCase().contains(query) ||
+            recipe.area.toLowerCase().contains(query) ||
+            recipe.shortInfo.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    // 2. Category Filter (selectedCategory or from activeFilters)
+    final activeCategoryFilters =
+        activeFilters.where((f) => categories.contains(f)).toList();
+    final effectiveCategory = selectedCategory.value ??
+        (activeCategoryFilters.isNotEmpty
+            ? activeCategoryFilters.first
+            : null);
+
+    if (effectiveCategory != null && effectiveCategory.isNotEmpty) {
+      temp = temp.where((recipe) {
+        return recipe.category.toLowerCase() ==
+            effectiveCategory.toLowerCase();
+      }).toList();
+    }
+
+    // 3. Area / Cuisine Filter (selectedArea or from activeFilters)
+    final activeCuisineFilters =
+        activeFilters.where((f) => areas.contains(f)).toList();
+    final effectiveArea = selectedArea.value ??
+        (activeCuisineFilters.isNotEmpty
+            ? activeCuisineFilters.first
+            : null);
+
+    if (effectiveArea != null && effectiveArea.isNotEmpty) {
+      temp = temp.where((recipe) {
+        return recipe.area.toLowerCase() == effectiveArea.toLowerCase();
+      }).toList();
+    }
+
+    // 4. Difficulty Filter ('Easy', 'Medium', 'Hard')
+    final selectedDifficulties = activeFilters
+        .where((f) => ['Easy', 'Medium', 'Hard'].contains(f))
+        .toList();
+
+    if (selectedDifficulties.isNotEmpty) {
+      temp = temp.where((recipe) {
+        return selectedDifficulties.contains(recipe.difficulty);
+      }).toList();
+    }
+
+    // 5. Prep Time Filter ('Under 15 mins', 'Under 30 mins', 'Under 45 mins', 'Under 60 mins')
+    final selectedTimes =
+        activeFilters.where((f) => f.contains('min')).toList();
+
+    if (selectedTimes.isNotEmpty) {
+      temp = temp.where((recipe) {
+        final time = recipe.estimatedTimeMinutes;
+        for (final tf in selectedTimes) {
+          if (tf.contains('15') && time <= 15) return true;
+          if (tf.contains('30') && time <= 30) return true;
+          if (tf.contains('45') && time <= 45) return true;
+          if (tf.contains('60') && time <= 60) return true;
         }
-        return matches;
+        return false;
+      }).toList();
+    }
+
+    // 6. Dietary Filter ('Vegetarian', 'Vegan', 'Healthy')
+    final selectedDiets = activeFilters
+        .where((f) => ['Vegetarian', 'Vegan', 'Healthy'].contains(f))
+        .toList();
+
+    if (selectedDiets.isNotEmpty) {
+      temp = temp.where((recipe) {
+        for (final diet in selectedDiets) {
+          if (diet == 'Vegetarian' && recipe.isVegetarian) return true;
+          if (diet == 'Vegan' && recipe.isVegan) return true;
+          if (diet == 'Healthy' && recipe.isHealthy) return true;
+        }
+        return false;
       }).toList();
     }
 
@@ -262,10 +329,16 @@ void _handleExploreNavigation(
     selectedCategory.value = null;
     searchTextController.clear();
     searchQuery.value = '';
-    searchRecipes('');
+    searchResults.assignAll(allRecipes);
+    _applyFilters();
   }
 
-  bool get hasActiveFilters => activeFilters.isNotEmpty || selectedCuisine.value.isNotEmpty;
+  bool get hasActiveFilters =>
+      activeFilters.isNotEmpty ||
+      selectedCuisine.value.isNotEmpty ||
+      selectedArea.value != null ||
+      selectedCategory.value != null;
+
 
   @override
   void onClose() {

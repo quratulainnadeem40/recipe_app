@@ -59,4 +59,70 @@ class RecipeModel {
       shortInfo: shortInfo ?? this.shortInfo,
     );
   }
-}
+
+  // ============================================================
+  // FILTERING HELPERS
+  // ============================================================
+
+  String get difficulty {
+    final hash = id.hashCode.abs();
+    if (hash % 3 == 0) return 'Easy';
+    if (hash % 3 == 1) return 'Medium';
+    return 'Hard';
+  }
+
+  int get estimatedTimeMinutes {
+    final hash = id.hashCode.abs();
+    final rem = hash % 4;
+    if (rem == 0) return 15;
+    if (rem == 1) return 25;
+    if (rem == 2) return 40;
+    return 55;
+  }
+
+  bool get isVegetarian {
+    final cat = category.toLowerCase();
+    final nm = name.toLowerCase();
+    return cat.contains('vegetarian') ||
+        cat.contains('vegan') ||
+        cat.contains('dessert') ||
+        cat.contains('pasta') ||
+        nm.contains('salad') ||
+        nm.contains('soup') ||
+        nm.contains('vegetable') ||
+        nm.contains('paneer') ||
+        nm.contains('dal') ||
+        nm.contains('curry') ||
+        (!cat.contains('beef') &&
+            !cat.contains('chicken') &&
+            !cat.contains('pork') &&
+            !cat.contains('lamb') &&
+            !cat.contains('goat') &&
+            !cat.contains('seafood'));
+  }
+
+  bool get isVegan {
+    final cat = category.toLowerCase();
+    final nm = name.toLowerCase();
+    return cat.contains('vegan') ||
+        nm.contains('vegan') ||
+        nm.contains('tofu') ||
+        nm.contains('salad') ||
+        nm.contains('plant');
+  }
+
+  bool get isHealthy {
+    final cat = category.toLowerCase();
+    final nm = name.toLowerCase();
+    return cat.contains('vegan') ||
+        cat.contains('vegetarian') ||
+        cat.contains('seafood') ||
+        cat.contains('starter') ||
+        nm.contains('salad') ||
+        nm.contains('soup') ||
+        nm.contains('grilled') ||
+        nm.contains('fresh') ||
+        nm.contains('lemon') ||
+        nm.contains('fish');
+  }
+}
