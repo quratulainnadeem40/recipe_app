@@ -1490,7 +1490,27 @@ class PakistaniRecipesData {
       {'name': 'Mutton Ribs BBQ (Champay)', 'cat': 'Lamb', 'tags': 'Champay,Ribs,Mutton,BBQ,Juicy', 'time': '40', 'diff': 'Medium'},
       {'name': 'Shahi Matka Kulfi Falooda', 'cat': 'Dessert', 'tags': 'Kulfi,Falooda,Matka,Rabri,Dessert', 'time': '15', 'diff': 'Easy'},
       {'name': 'Karachi Haleem (Special Chicken)', 'cat': 'Chicken', 'tags': 'Haleem,Chicken,Lentils,Wheat', 'time': '55', 'diff': 'Hard'},
+      {'name': 'Peshawari Dum Pukht Mutton', 'cat': 'Lamb', 'tags': 'DumPukht,Peshawar,Mutton,SlowCook,Fragrant', 'time': '60', 'diff': 'Hard'},
+      {'name': 'Balochi Raan Roast', 'cat': 'Lamb', 'tags': 'Raan,Balochi,Roast,MuttonLeg,Feast', 'time': '60', 'diff': 'Hard'},
+      {'name': 'Lahori Katakat (Tawa Special)', 'cat': 'Beef', 'tags': 'Katakat,Tawa,Lahore,StreetFood,Spicy', 'time': '20', 'diff': 'Easy'},
+      {'name': 'Karachi Burns Road Beef Nihari', 'cat': 'Beef', 'tags': 'Nihari,BurnsRoad,Karachi,Nalli,Spicy', 'time': '60', 'diff': 'Hard'},
+      {'name': 'Memoni Mutton Akni', 'cat': 'Lamb', 'tags': 'Akni,Memoni,Rice,Mutton,Biryani', 'time': '45', 'diff': 'Medium'},
+      {'name': 'Multani Sohan Halwa', 'cat': 'Dessert', 'tags': 'SohanHalwa,Multan,Sweet,DesiGhee,Nuts', 'time': '35', 'diff': 'Medium'},
+      {'name': 'Peshawari Namkeen Gosht', 'cat': 'Lamb', 'tags': 'NamkeenGosht,Peshawar,Meat,Khyber,Simple', 'time': '40', 'diff': 'Easy'},
+      {'name': 'Chicken Tawa Boti Masala', 'cat': 'Chicken', 'tags': 'TawaBoti,Chicken,Spicy,StreetFood', 'time': '20', 'diff': 'Easy'},
+      {'name': 'Desi Murgh Shinwari Karahi', 'cat': 'Chicken', 'tags': 'DesiMurgh,Shinwari,Karahi,Pure', 'time': '35', 'diff': 'Medium'},
+      {'name': 'Lahori Dahi Bhallay (Meethi Chutney)', 'cat': 'Breakfast', 'tags': 'DahiBhallay,Lahore,Chaat,StreetFood', 'time': '15', 'diff': 'Easy'},
+      {'name': 'Koyla Dum Biryani (Smoky)', 'cat': 'Chicken', 'tags': 'KoylaBiryani,Smoky,Dum,Chicken,Rice', 'time': '45', 'diff': 'Medium'},
+      {'name': 'Sindhi Kadhi Chawal', 'cat': 'Vegetarian', 'tags': 'SindhiKadhi,Vegetarian,Tamarind,Rice', 'time': '30', 'diff': 'Easy'},
+      {'name': 'Hyderabadi Mirchi Ka Salan', 'cat': 'Vegetarian', 'tags': 'MirchiSalan,Side,Biryani,Curry', 'time': '25', 'diff': 'Easy'},
+      {'name': 'Bihari Beef Boti Paratha Roll', 'cat': 'Beef', 'tags': 'Roll,BihariRoll,StreetFood,Karachi', 'time': '20', 'diff': 'Easy'},
+      {'name': 'Chicken Malai Tikka Paratha Roll', 'cat': 'Chicken', 'tags': 'Roll,MalaiRoll,Chicken,StreetFood', 'time': '20', 'diff': 'Easy'},
+      {'name': 'Koyla Seekh Kabab Paratha Roll', 'cat': 'Beef', 'tags': 'Roll,SeekhRoll,BBQ,StreetFood', 'time': '20', 'diff': 'Easy'},
+      {'name': 'Garlic Naan with Desi Butter', 'cat': 'Breakfast', 'tags': 'GarlicNaan,Tandoor,Bread,Butter', 'time': '15', 'diff': 'Easy'},
+      {'name': 'Roghani Naan Desi Ghee', 'cat': 'Breakfast', 'tags': 'RoghaniNaan,Sesame,DesiGhee,Bread', 'time': '15', 'diff': 'Easy'},
+      {'name': 'Mutton Paya Shorba Special', 'cat': 'Lamb', 'tags': 'Paya,Shorba,Breakfast,Winter,Mutton', 'time': '60', 'diff': 'Hard'},
     ];
+
 
 
     int counter = 155;
