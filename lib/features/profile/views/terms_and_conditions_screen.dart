@@ -189,9 +189,8 @@ class TermsAndConditionsScreen extends StatelessWidget {
             ),
 
             _paragraph(
-              'COOKmate may use third-party services to provide certain '
-              'features, including authentication, storage, and recipe '
-              'data. Your use of those services may also be subject to '
+              'COOKmate may use third-party API services to provide recipe '
+              'and culinary data. Your use of those services may also be subject to '
               'their respective terms and policies.',
               primaryTextColor,
             ),

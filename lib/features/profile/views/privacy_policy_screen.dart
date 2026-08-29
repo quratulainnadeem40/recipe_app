@@ -181,10 +181,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
               _paragraph(
                 context,
-                'COOKmate may use third-party services such as Firebase '
-                'to provide authentication and application services. '
-                'Those services may process information according to '
-                'their own privacy policies.',
+                'COOKmate stores your preferences and bookmarks locally on '
+                'your device to deliver a fast and private recipe experience.',
               ),
 
               // =================================================

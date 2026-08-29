@@ -1,5 +1,3 @@
-// اگر آپ کا UserModel یہ ہے تو ٹھیک ہے:
-
 class UserModel {
   final String uid;
   final String name;
@@ -11,7 +9,6 @@ class UserModel {
     required this.email,
   });
 
-  // یہ method اضافی ہے - ضروری نہیں (ہم نے استعمال نہیں کیا)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       uid: json['uid'] ?? '',
@@ -20,7 +17,6 @@ class UserModel {
     );
   }
 
-  // JSON میں convert کرنے کے لیے
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,

@@ -103,33 +103,6 @@ class AccountSettingsScreen extends GetView<ProfileController> {
           const SizedBox(height: 24),
 
           // =====================================================
-          // SECURITY
-          // =====================================================
-
-          _sectionTitle(
-            'Security',
-            primaryColor,
-          ),
-
-          const SizedBox(height: 10),
-
-          _settingsTile(
-            context: context,
-            surfaceColor: surfaceColor,
-            borderColor: borderColor,
-            titleColor: primaryTextColor,
-            subtitleColor: secondaryTextColor,
-            icon: Icons.lock_outline_rounded,
-            title: 'Change Password',
-            subtitle: 'Update your account password',
-            onTap: () {
-              Get.toNamed('/change-password');
-            },
-          ),
-
-          const SizedBox(height: 24),
-
-          // =====================================================
           // NOTIFICATIONS
           // =====================================================
 
@@ -152,11 +125,11 @@ class AccountSettingsScreen extends GetView<ProfileController> {
           const SizedBox(height: 24),
 
           // =====================================================
-          // ACCOUNT ACTIONS
+          // DATA MANAGEMENT
           // =====================================================
 
           _sectionTitle(
-            'Account Actions',
+            'Data Management',
             primaryColor,
           ),
 
@@ -168,11 +141,11 @@ class AccountSettingsScreen extends GetView<ProfileController> {
             borderColor: borderColor,
             titleColor: primaryTextColor,
             subtitleColor: secondaryTextColor,
-            icon: Icons.delete_outline_rounded,
-            title: 'Delete Account',
-            subtitle: 'Permanently delete your account',
+            icon: Icons.refresh_rounded,
+            title: 'Reset App Data',
+            subtitle: 'Clear favorites and local preferences',
             iconColor: AppColors.error,
-            onTap: controller.deleteAccount,
+            onTap: controller.resetLocalData,
           ),
 
           const SizedBox(height: 20),

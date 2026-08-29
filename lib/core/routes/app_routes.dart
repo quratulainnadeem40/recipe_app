@@ -1,13 +1,8 @@
 abstract class AppRoutes {
   AppRoutes._();
 
-  // AUTH & ONBOARDING
+  // APP ENTRY
   static const String splash = '/splash';
-  static const String onboarding = '/onboarding';
-  static const String login = '/login';
-  static const String signup = '/signup';
-  static const String forgotPassword = '/forgot-password';
-  static const String verifyEmail = '/verify-email';
 
   // MAIN NAVIGATION & FEATURES
   static const String home = '/home';
@@ -21,7 +16,6 @@ abstract class AppRoutes {
   // PROFILE & SETTINGS
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
-  static const String changePassword = '/change-password';
   static const String accountSettings = '/account-settings';
   static const String privacyPolicy = '/privacy-policy';
   static const String termsAndConditions = '/terms-and-conditions';

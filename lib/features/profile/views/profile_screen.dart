@@ -235,11 +235,11 @@ return Scaffold(
           const SizedBox(height: 22),
 
           // ====================================================
-          // ACCOUNT ACTIONS
+          // DATA MANAGEMENT
           // ====================================================
 
           _sectionTitle(
-            'Account Actions',
+            'Data Management',
             primaryText,
           ),
 
@@ -252,27 +252,11 @@ return Scaffold(
             primaryText: primaryText,
             secondaryText: secondaryText,
             softPrimaryColor: softPrimaryColor,
-            icon: Icons.delete_outline_rounded,
-            title: 'Delete Account',
-            subtitle: 'Permanently delete your account',
+            icon: Icons.refresh_rounded,
+            title: 'Reset App Data',
+            subtitle: 'Clear favorites and local cache',
             iconColor: AppColors.error,
-            onTap: controller.deleteAccount,
-          ),
-
-          const SizedBox(height: 8),
-
-          _buildProfileOption(
-            context,
-            surfaceColor: surfaceColor,
-            borderColor: borderColor,
-            primaryText: primaryText,
-            secondaryText: secondaryText,
-            softPrimaryColor: softPrimaryColor,
-            icon: Icons.logout_rounded,
-            title: 'Logout',
-            subtitle: 'Sign out from your account',
-            iconColor: AppColors.primary,
-            onTap: controller.logout,
+            onTap: controller.resetLocalData,
           ),
 
           const SizedBox(height: 30),

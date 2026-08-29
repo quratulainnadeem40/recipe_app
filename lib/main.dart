@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -9,14 +8,9 @@ import 'package:recipe_app/features/notifications/controllers/notifications_cont
 
 import 'core/routes/app_pages.dart';
 import 'core/routes/app_routes.dart';
-import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
   await GetStorage.init();
 
@@ -47,6 +41,7 @@ class CookmateApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light,
       initialRoute: AppRoutes.splash,
+      unknownRoute: AppPages.pages.first,
       // Global binding to instantiate tab dependencies on app startup
       initialBinding: NavigationsBinding(),
       getPages: AppPages.pages,

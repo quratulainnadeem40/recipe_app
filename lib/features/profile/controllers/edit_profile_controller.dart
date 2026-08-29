@@ -1,41 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../auth/repositories/auth_repository.dart';
-import 'package:recipe_app/features/profile/controllers/profile_controller.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:recipe_app/features/home/controllers/home_controller.dart';
+import 'package:recipe_app/features/profile/controllers/profile_controller.dart';
 
 class EditProfileController extends GetxController {
-  final AuthRepository _authRepository = AuthRepository();
   final GetStorage _storage = GetStorage();
 
-  // ==========================================
-  // FORM
-  // ==========================================
-
   final nameController = TextEditingController();
-
+  final emailController = TextEditingController();
   final isLoading = false.obs;
-
-  // ==========================================
-  // INITIALIZE USER DATA
-  // ==========================================
 
   @override
   void onInit() {
     super.onInit();
 
-    final user = _authRepository.currentUser;
+    final String savedName = _storage.read<String>('userName') ?? 'COOKmate Chef';
+    final String savedEmail = _storage.read<String>('userEmail') ?? 'cookmate@app.com';
 
-    nameController.text = user?.displayName ?? '';
+    nameController.text = savedName;
+    emailController.text = savedEmail;
   }
-
-  // ==========================================
-  // UPDATE PROFILE - ✅ UPDATED
-  // ==========================================
 
   Future<void> updateProfile() async {
     final name = nameController.text.trim();
+    final email = emailController.text.trim();
 
     if (name.isEmpty) {
       Get.snackbar(
@@ -49,31 +38,25 @@ class EditProfileController extends GetxController {
     try {
       isLoading.value = true;
 
-      final user = _authRepository.currentUser;
-
-      if (user == null) {
-        throw Exception('No user is currently signed in.');
+      await _storage.write('userName', name);
+      if (email.isNotEmpty) {
+        await _storage.write('userEmail', email);
       }
 
-      // ✅ صحیح method - uid دے رہے ہیں
-      await _authRepository.updateUserProfile(
-        uid: user.uid,
-        name: name,
-      );
+      // Sync ProfileController
+      if (Get.isRegistered<ProfileController>()) {
+        final profileController = Get.find<ProfileController>();
+        await profileController.loadUser();
+      }
 
-      // Firebase کو update کریں
-      await user.updateDisplayName(name);
-
-      // ProfileController reload کریں
-      final profileController = Get.find<ProfileController>();
-      await profileController.loadUser();
-
-      // Storage میں بھی update کریں
-      await _storage.write('userName', name);
+      // Sync HomeController
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().loadUserName();
+      }
 
       Get.snackbar(
         'Profile Updated',
-        'Your name has been updated successfully.',
+        'Your profile has been updated successfully.',
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
@@ -82,9 +65,8 @@ class EditProfileController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Update Failed',
-        e.toString().replaceFirst('Exception: ', ''),
+        e.toString(),
         snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 4),
       );
     } finally {
       isLoading.value = false;
@@ -94,6 +76,7 @@ class EditProfileController extends GetxController {
   @override
   void onClose() {
     nameController.dispose();
+    emailController.dispose();
     super.onClose();
   }
 }

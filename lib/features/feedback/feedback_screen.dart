@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/core/theme/app_text_styles.dart';
@@ -51,17 +51,12 @@ class FeedbackScreen extends GetView<FeedbackController> {
         : AppColors.border;
 
     // =========================================================
-    // FIREBASE USER
+    // LOCAL USER INFO
     // =========================================================
 
-    final User? user = FirebaseAuth.instance.currentUser;
-
-    final String userId = user?.uid ?? '';
-
-    final String userName =
-        user?.displayName?.trim().isNotEmpty == true
-            ? user!.displayName!.trim()
-            : 'User';
+    final storage = GetStorage();
+    final String userId = 'local_user';
+    final String userName = storage.read<String>('userName') ?? 'COOKmate User';
 
     // =========================================================
     // SCREEN

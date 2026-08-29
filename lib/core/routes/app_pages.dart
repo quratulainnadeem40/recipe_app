@@ -1,13 +1,6 @@
 import 'package:get/get.dart';
 
-// ============================================================
-// AUTH
-// ============================================================
 
-import 'package:recipe_app/features/auth/bindings/auth_binding.dart';
-import 'package:recipe_app/features/auth/views/forgot_password_screen.dart';
-import 'package:recipe_app/features/auth/views/login_screen.dart';
-import 'package:recipe_app/features/auth/views/signup_screen.dart';
 
 // ============================================================
 // FAVORITES
@@ -45,12 +38,7 @@ import 'package:recipe_app/features/navigation/views/main_navigation.dart';
 import 'package:recipe_app/features/notifications/bindings/notifications_binding.dart';
 import 'package:recipe_app/features/notifications/views/notifications_screen.dart';
 
-// ============================================================
-// ONBOARDING
-// ============================================================
 
-import 'package:recipe_app/features/on_boarding/bindings/onboarding_binding.dart';
-import 'package:recipe_app/features/on_boarding/views/onboarding_screen/onboarding_screen_main.dart';
 
 // ============================================================
 // PROFILE
@@ -59,7 +47,6 @@ import 'package:recipe_app/features/on_boarding/views/onboarding_screen/onboardi
 import 'package:recipe_app/features/profile/bindings/edit_profile_binding.dart';
 import 'package:recipe_app/features/profile/bindings/profile_binding.dart';
 import 'package:recipe_app/features/profile/views/account_settings_screen.dart';
-import 'package:recipe_app/features/profile/views/change_password_screen.dart';
 import 'package:recipe_app/features/profile/views/edit_profile_screen.dart';
 import 'package:recipe_app/features/profile/views/privacy_policy_screen.dart';
 import 'package:recipe_app/features/profile/views/profile_screen.dart';
@@ -101,42 +88,17 @@ class AppPages {
     // ==========================================================
 
     GetPage(
+      name: '/',
+      page: () => const SplashScreen(),
+      binding: SplashBinding(),
+    ),
+
+    GetPage(
       name: AppRoutes.splash,
       page: () => const SplashScreen(),
       binding: SplashBinding(),
     ),
 
-    // ==========================================================
-    // ONBOARDING
-    // ==========================================================
-
-    GetPage(
-      name: AppRoutes.onboarding,
-      page: () => const OnboardingScreen(),
-      binding: OnboardingBinding(),
-    ),
-
-    // ==========================================================
-    // AUTHENTICATION
-    // ==========================================================
-
-    GetPage(
-      name: AppRoutes.login,
-      page: () => const LoginScreen(),
-      binding: AuthBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.signup,
-      page: () => const SignupScreen(),
-      binding: AuthBinding(),
-    ),
-
-    GetPage(
-      name: AppRoutes.forgotPassword,
-      page: () => const ForgotPasswordScreen(),
-      binding: AuthBinding(),
-    ),
 
     // ==========================================================
     // MAIN HOME / NAVIGATION
@@ -232,15 +194,6 @@ class AppPages {
       binding: EditProfileBinding(),
     ),
 
-    // ==========================================================
-    // CHANGE PASSWORD
-    // ==========================================================
-
-    GetPage(
-      name: AppRoutes.changePassword,
-      page: () => const ChangePasswordScreen(),
-      binding: ProfileBinding(),
-    ),
 
     // ==========================================================
     // ACCOUNT SETTINGS

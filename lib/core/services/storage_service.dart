@@ -9,7 +9,6 @@ class StorageService {
   static const String _userTokenKey = 'user_token';
   static const String _userDataKey = 'user_data';
   static const String _isLoggedInKey = 'is_logged_in';
-  static const String _onboardingCompleteKey = 'onboarding_complete';
 
   // =========================================================
   // INITIALIZE SERVICE (Call this in main.dart: await GetStorage.init())
@@ -73,16 +72,6 @@ class StorageService {
     }
   }
 
-  // =========================================================
-  // APP PREFERENCES
-  // =========================================================
-
-  static Future<void> setOnboardingComplete(bool completed) async {
-    await _storage.write(_onboardingCompleteKey, completed);
-  }
-
-  static bool get isOnboardingComplete =>
-      _storage.read<bool>(_onboardingCompleteKey) ?? false;
 
   // =========================================================
   // CLEAR DATA & LOGOUT
