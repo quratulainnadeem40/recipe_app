@@ -1269,12 +1269,12 @@ class RecipeDetailScreen extends GetView<RecipeController> {
           ),
           decoration: BoxDecoration(
             color:
-                Colors.amber.withOpacity(0.12),
+                Colors.amber.withValues(alpha: 0.12),
             borderRadius:
                 BorderRadius.circular(12),
             border: Border.all(
               color:
-                  Colors.amber.withOpacity(0.2),
+                  Colors.amber.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
@@ -1303,20 +1303,25 @@ class RecipeDetailScreen extends GetView<RecipeController> {
 
         const SizedBox(width: 12),
 
-        Text(
-          '•  ${recipe.reviews} Verified Reviews',
-          style: TextStyle(
-            color: isDark
-                ? Colors.grey.shade400
-                : Colors.grey.shade600,
-            fontSize: 14,
-            fontWeight:
-                FontWeight.w600,
+        Expanded(
+          child: Text(
+            '•  ${recipe.reviews} Verified Reviews',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: isDark
+                  ? Colors.grey.shade400
+                  : Colors.grey.shade600,
+              fontSize: 14,
+              fontWeight:
+                  FontWeight.w600,
+            ),
           ),
         ),
       ],
     );
   }
+
 
   // ==========================================
   // RECIPE INFO

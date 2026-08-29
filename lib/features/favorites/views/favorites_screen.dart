@@ -151,7 +151,9 @@ class FavoritesScreen extends GetView<FavoritesController> {
             builder: (context, constraints) {
               final width = constraints.maxWidth;
               final crossAxisCount = width < 680 ? 1 : width < 1100 ? 2 : 3;
-              final childAspectRatio = width < 680 ? 3.1 : 2.8;
+              final childAspectRatio =
+                  width < 680 ? 2.50 : (width < 1100 ? 2.25 : 2.45);
+
 
               return Center(
                 child: ConstrainedBox(

@@ -194,21 +194,26 @@ class FavoriteRecipeCard extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Icon(
                             Icons.restaurant_menu_rounded,
                             size: 13,
                             color: secondaryTextColor,
                           ),
                           const SizedBox(width: 3),
-                          Text(
-                            'View Details',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
+                          Flexible(
+                            child: Text(
+                              'View Details',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
+
                         ],
                       ),
                     ],

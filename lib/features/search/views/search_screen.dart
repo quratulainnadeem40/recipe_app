@@ -529,16 +529,21 @@ class SearchScreen extends StatelessWidget {
                             color: secondaryText,
                           ),
                           const SizedBox(width: 3),
-                          Text(
-                            'View Details',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
+                          Flexible(
+                            child: Text(
+                              'View Details',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
                       ),
+
                     ],
                   ),
                 ),

@@ -270,16 +270,22 @@ class RecipeCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text(
-                      'View Recipe →',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        'View Recipe →',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
                 ),
+
               ],
             ),
           ),
@@ -474,16 +480,22 @@ class RecipeCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text(
-                      'View Details →',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        'View Details →',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
                 ),
+
               ],
             ),
           ),

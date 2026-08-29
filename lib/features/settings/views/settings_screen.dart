@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:recipe_app/core/routes/app_routes.dart';
-import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
-
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../controllers/settings_controller.dart';
@@ -94,31 +92,7 @@ class SettingsScreen extends GetView<SettingsController> {
                   const SizedBox(height: 26),
 
                   // ====================================================
-                  // 2. RECIPES & SHORTCUTS
-                  // ====================================================
-                  _sectionHeader(
-                    icon: Icons.bookmark_border_rounded,
-                    title: 'My Collection',
-                  ),
-                  const SizedBox(height: 10),
-
-                  SettingsOptionTile(
-                    icon: Icons.favorite_rounded,
-                    title: 'Saved Favorites',
-                    subtitle: 'Quickly access your bookmarked recipes',
-                    onTap: () {
-                      if (Get.isRegistered<NavigationController>()) {
-                        Get.find<NavigationController>().changePage(2);
-                      } else {
-                        Get.toNamed(AppRoutes.favorites);
-                      }
-                    },
-                  ),
-
-                  const SizedBox(height: 26),
-
-                  // ====================================================
-                  // 3. SUPPORT & LEGAL
+                  // 2. SUPPORT & LEGAL
                   // ====================================================
                   _sectionHeader(
                     icon: Icons.shield_outlined,
@@ -136,20 +110,12 @@ class SettingsScreen extends GetView<SettingsController> {
                   const SizedBox(height: 10),
 
                   SettingsOptionTile(
-                    icon: Icons.description_outlined,
-                    title: 'Terms & Conditions',
-                    subtitle: 'Review terms and service agreement',
-                    onTap: () => Get.toNamed(AppRoutes.termsAndConditions),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  SettingsOptionTile(
                     icon: Icons.info_outline_rounded,
                     title: 'About COOKmate',
                     subtitle: 'Version 1.0.0 • Recipe Explorer App',
                     onTap: () => _showAboutDialog(context),
                   ),
+
 
                   const SizedBox(height: 26),
 
