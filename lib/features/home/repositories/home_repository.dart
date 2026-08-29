@@ -15,64 +15,70 @@ class HomeRepository {
   Future<List<RecipeModel>> getTrendingRecipes() async {
     try {
       final data = await apiService.fetchTrending();
-
       return _parseRecipes(data);
     } catch (e) {
-      throw Exception(
-        'Failed to load trending recipes',
-      );
+      return [];
     }
   }
-    // ============================================================
-  // ALL RECIPES
-  // ============================================================
 
-  
   // ============================================================
-  // ALL RECIPES
+  // ALL RECIPES (PARALLEL & RESILIENT)
   // ============================================================
 
   Future<List<RecipeModel>> getAllRecipes() async {
+    final searches = [
+      'chicken',
+      'pasta',
+      'salad',
+      'beef',
+      'soup',
+    ];
+
+    List<RecipeModel> allRecipes = [];
+
     try {
-      // App start par different dishes load hongi
-      final searches = [
-        'biryani',
-        'pasta',
-        'salad',
-        'chicken',
-        'pizza',
-      ];
-
-      List<RecipeModel> allRecipes = [];
-
-      for (final search in searches) {
-        final data = await apiService.searchRecipes(
-          Uri.encodeComponent(search),
-        );
-
-        final recipes = _parseRecipes(data);
-        allRecipes.addAll(recipes);
-      }
-
-      // Duplicate recipes remove
-      final uniqueRecipes = <String, RecipeModel>{};
-
-      for (final recipe in allRecipes) {
-        uniqueRecipes[recipe.id] = recipe;
-      }
-
-      return uniqueRecipes.values.toList();
-    } catch (e) {
-      throw Exception(
-        'Failed to load all recipes',
+      final results = await Future.wait(
+        searches.map((search) async {
+          try {
+            final data = await apiService.searchRecipes(
+              Uri.encodeComponent(search),
+            );
+            return _parseRecipes(data);
+          } catch (_) {
+            return <RecipeModel>[];
+          }
+        }),
       );
-    }
-  }
-  // ============================================================
-  // SEARCH
-  // ============================================================
 
-    // ============================================================
+      for (final list in results) {
+        allRecipes.addAll(list);
+      }
+
+      // Deduplicate by ID
+      final uniqueRecipes = <String, RecipeModel>{};
+      for (final recipe in allRecipes) {
+        if (recipe.id.isNotEmpty) {
+          uniqueRecipes[recipe.id] = recipe;
+        }
+      }
+
+      if (uniqueRecipes.isNotEmpty) {
+        return uniqueRecipes.values.toList();
+      }
+    } catch (_) {}
+
+    // Fallback to trending recipes
+    try {
+      final trending = await getTrendingRecipes();
+      if (trending.isNotEmpty) {
+        return trending;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  // ============================================================
   // SEARCH
   // ============================================================
 
@@ -81,7 +87,6 @@ class HomeRepository {
   ) async {
     final value = query.trim();
 
-    // Empty query ho to all recipes return karo
     if (value.isEmpty) {
       return await getAllRecipes();
     }
@@ -93,9 +98,7 @@ class HomeRepository {
 
       return _parseRecipes(data);
     } catch (e) {
-      throw Exception(
-        'Failed to search recipes',
-      );
+      return [];
     }
   }
 
@@ -133,9 +136,7 @@ class HomeRepository {
           )
           .toList();
     } catch (e) {
-      throw Exception(
-        'Failed to load $value recipes',
-      );
+      return [];
     }
   }
 
@@ -173,9 +174,7 @@ class HomeRepository {
           )
           .toList();
     } catch (e) {
-      throw Exception(
-        'Failed to load $value recipes',
-      );
+      return [];
     }
   }
 
@@ -193,8 +192,7 @@ class HomeRepository {
     }
 
     try {
-      final data =
-          await apiService.fetchRecipeDetails(
+      final data = await apiService.fetchRecipeDetails(
         Uri.encodeComponent(value),
       );
 
@@ -218,9 +216,7 @@ class HomeRepository {
         firstMeal,
       );
     } catch (e) {
-      throw Exception(
-        'Failed to load recipe details',
-      );
+      return null;
     }
   }
 

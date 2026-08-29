@@ -41,12 +41,15 @@ class HomeHeader extends StatelessWidget {
           // =====================================================
           Positioned(
             left: 24,
-            top: 36,
+            top: 30,
+            right: 24,
+            bottom: 20,
             child: Obx(() {
               final displayName =
                   homeController.userName.value.trim().isEmpty
                       ? 'Chef'
                       : homeController.userName.value.trim();
+
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

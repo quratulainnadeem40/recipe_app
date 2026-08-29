@@ -812,44 +812,10 @@ class RecipeDetailScreen extends GetView<RecipeController> {
             ),
           ),
 
-          // =====================================================
-          // ❤️ FAVORITE BUTTON
-          // =====================================================
-
-          actions: [
-            Obx(() {
-              final String effectiveId = recipe.id.trim().isNotEmpty
-                  ? recipe.id.trim()
-                  : recipe.name.trim().hashCode.toString();
-
-              final bool isFavorite =
-                  favoritesController.isFavorite(effectiveId);
-
-              return _buildPremiumBlurButton(
-                icon: isFavorite
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
-                iconColor: isFavorite
-                    ? Colors.redAccent
-                    : Colors.white,
-                size: 22,
-                onTap: () {
-                  final favoriteRecipe = FavoriteRecipeModel(
-                    id: effectiveId,
-                    name: recipe.name.trim().isNotEmpty
-                        ? recipe.name
-                        : 'Delicious Recipe',
-                    image: recipe.imageUrl.trim(),
-                  );
-
-                  favoritesController.toggleFavorite(favoriteRecipe);
-                  favoritesController.update();
-                },
-              );
-            }),
-
-            const SizedBox(width: 14),
+          actions: const [
+            SizedBox(width: 8),
           ],
+
 
 
           flexibleSpace: FlexibleSpaceBar(
@@ -916,60 +882,150 @@ class RecipeDetailScreen extends GetView<RecipeController> {
                       ),
 
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
+                  // Category & Cuisine Header Row
                   Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              recipe.name,
-                              maxLines: 3,
-                              overflow:
-                                  TextOverflow.ellipsis,
-                              softWrap: true,
-                              style: TextStyle(
-                                fontSize: 26,
-                                fontWeight:
-                                    FontWeight.w900,
-                                letterSpacing: -0.5,
-                                height: 1.2,
+                      _buildCategoryBadge(recipe.displayCategory),
+                      if (recipe.cuisine.isNotEmpty) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : Colors.grey.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.public_rounded,
+                                size: 13,
                                 color: isDark
-                                    ? Colors.white
-                                    : Colors.black87,
+                                    ? Colors.grey.shade300
+                                    : Colors.grey.shade700,
                               ),
-                            ),
-
-                            if (recipe.cuisine
-                                .isNotEmpty) ...[
-                              const SizedBox(height: 4),
-
+                              const SizedBox(width: 4),
                               Text(
                                 recipe.cuisine,
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
                                   color: isDark
-                                      ? Colors.grey.shade400
-                                      : Colors.grey.shade600,
-                                  fontWeight:
-                                      FontWeight.w600,
+                                      ? Colors.grey.shade300
+                                      : Colors.grey.shade700,
                                 ),
                               ),
                             ],
-                          ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Title Row with Favorite Button
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          recipe.name,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                            height: 1.2,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
                         ),
                       ),
 
-                      _buildCategoryBadge(
-                        recipe.displayCategory,
-                      ),
+                      const SizedBox(width: 14),
+
+                      // ❤️ FAVORITE BUTTON NEXT TO TITLE
+                      Obx(() {
+                        final String effectiveId = recipe.id.trim().isNotEmpty
+                            ? recipe.id.trim()
+                            : recipe.name.trim().hashCode.toString();
+
+                        final bool isFavorite =
+                            favoritesController.isFavorite(effectiveId);
+
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              final favoriteRecipe = FavoriteRecipeModel(
+                                id: effectiveId,
+                                name: recipe.name.trim().isNotEmpty
+                                    ? recipe.name
+                                    : 'Delicious Recipe',
+                                image: recipe.imageUrl.trim(),
+                              );
+                              favoritesController.toggleFavorite(favoriteRecipe);
+                              favoritesController.update();
+                            },
+                            borderRadius: BorderRadius.circular(30),
+                            child: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isFavorite
+                                    ? Colors.red.withValues(alpha: isDark ? 0.22 : 0.12)
+                                    : (isDark
+                                        ? Colors.white.withValues(alpha: 0.08)
+                                        : Colors.grey.withValues(alpha: 0.10)),
+                                border: Border.all(
+                                  color: isFavorite
+                                      ? Colors.redAccent.withValues(alpha: 0.45)
+                                      : (isDark
+                                          ? Colors.white.withValues(alpha: 0.15)
+                                          : Colors.black.withValues(alpha: 0.08)),
+                                  width: 1.2,
+                                ),
+                                boxShadow: isFavorite
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.redAccent
+                                              .withValues(alpha: 0.25),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  isFavorite
+                                      ? Icons.favorite_rounded
+                                      : Icons.favorite_border_rounded,
+                                  color: isFavorite
+                                      ? Colors.redAccent
+                                      : (isDark
+                                          ? Colors.white70
+                                          : Colors.black54),
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
                     ],
                   ),
+
 
                   const SizedBox(height: 16),
 
