@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 import 'package:recipe_app/features/favorites/models/favorite_recipe_model.dart';
-import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
 
 class FavoritesController extends GetxController {
   final GetStorage _storage = GetStorage();
@@ -11,18 +10,6 @@ class FavoritesController extends GetxController {
 
   final RxList<FavoriteRecipeModel> favorites =
       <FavoriteRecipeModel>[].obs;
-
-  // =========================================================
-  // NOTIFICATION CONTROLLER
-  // =========================================================
-
-  NotificationController get notificationController {
-    if (Get.isRegistered<NotificationController>()) {
-      return Get.find<NotificationController>();
-    }
-
-    return Get.put(NotificationController());
-  }
 
   // =========================================================
   // INIT
@@ -68,44 +55,23 @@ class FavoritesController extends GetxController {
     // -------------------------------------------------------
     // REMOVE
     // -------------------------------------------------------
-
     if (existingIndex != -1) {
-      final FavoriteRecipeModel removedRecipe =
-          favorites[existingIndex];
-
       favorites.removeAt(existingIndex);
-
       _saveToStorage();
-
-      notificationController.addNotification(
-        title: 'Removed from Favorites 💔',
-        message:
-            '${removedRecipe.name} removed from favorites.',
-      );
-
       return;
     }
 
     // -------------------------------------------------------
     // ADD
     // -------------------------------------------------------
-
-    final FavoriteRecipeModel cleanRecipe =
-        FavoriteRecipeModel(
+    final FavoriteRecipeModel cleanRecipe = FavoriteRecipeModel(
       id: cleanId,
       name: recipe.name.trim(),
       image: recipe.image.trim(),
     );
 
     favorites.add(cleanRecipe);
-
     _saveToStorage();
-
-    notificationController.addNotification(
-      title: 'Added to Favorites ❤️',
-      message:
-          '${cleanRecipe.name} added to favorites.',
-    );
   }
 
   // =========================================================
@@ -119,37 +85,25 @@ class FavoritesController extends GetxController {
       return;
     }
 
-    // Already favorite
     if (isFavorite(cleanId)) {
       return;
     }
 
-    final FavoriteRecipeModel cleanRecipe =
-        FavoriteRecipeModel(
+    final FavoriteRecipeModel cleanRecipe = FavoriteRecipeModel(
       id: cleanId,
       name: recipe.name.trim(),
       image: recipe.image.trim(),
     );
 
     favorites.add(cleanRecipe);
-
     _saveToStorage();
-
-    notificationController.addNotification(
-      title: 'Added to Favorites ❤️',
-      message:
-          '${cleanRecipe.name} added to favorites.',
-    );
   }
 
   // =========================================================
   // REMOVE FAVORITE
   // =========================================================
 
-  void removeFavorite(
-    String recipeId, {
-    bool showNotification = true,
-  }) {
+  void removeFavorite(String recipeId) {
     final String cleanId = recipeId.trim();
 
     if (cleanId.isEmpty) {
@@ -164,20 +118,8 @@ class FavoritesController extends GetxController {
       return;
     }
 
-    final FavoriteRecipeModel removedRecipe =
-        favorites[index];
-
     favorites.removeAt(index);
-
     _saveToStorage();
-
-    if (showNotification) {
-      notificationController.addNotification(
-        title: 'Removed from Favorites 💔',
-        message:
-            '${removedRecipe.name} removed from favorites.',
-      );
-    }
   }
 
   // =========================================================
@@ -190,7 +132,6 @@ class FavoritesController extends GetxController {
     }
 
     favorites.clear();
-
     _saveToStorage();
   }
 
@@ -201,20 +142,11 @@ class FavoritesController extends GetxController {
   void _saveToStorage() {
     try {
       final List<Map<String, dynamic>> rawList =
-          favorites
-              .map(
-                (item) => item.toMap(),
-              )
-              .toList();
+          favorites.map((item) => item.toMap()).toList();
 
-      _storage.write(
-        _favStorageKey,
-        rawList,
-      );
+      _storage.write(_favStorageKey, rawList);
     } catch (e) {
-      Get.log(
-        'Error saving favorites: $e',
-      );
+      Get.log('Error saving favorites: $e');
     }
   }
 
@@ -224,41 +156,26 @@ class FavoritesController extends GetxController {
 
   void loadFavorites() {
     try {
-      final dynamic rawData =
-          _storage.read(_favStorageKey);
+      final dynamic rawData = _storage.read(_favStorageKey);
 
-      if (rawData == null) {
+      if (rawData == null || rawData is! List) {
         favorites.clear();
         return;
       }
 
-      if (rawData is! List) {
-        favorites.clear();
-        return;
-      }
-
-      final List<FavoriteRecipeModel> loadedFavorites =
-          [];
+      final List<FavoriteRecipeModel> loadedFavorites = [];
 
       for (final item in rawData) {
         try {
           if (item is Map) {
-            final recipe =
-                FavoriteRecipeModel.fromMap(
+            final recipe = FavoriteRecipeModel.fromMap(
               Map<String, dynamic>.from(item),
             );
 
-            // Skip invalid/empty IDs
-            if (recipe.id.trim().isEmpty) {
-              continue;
-            }
+            if (recipe.id.trim().isEmpty) continue;
 
-            // Prevent duplicate IDs
-            final alreadyExists =
-                loadedFavorites.any(
-              (existing) =>
-                  existing.id.trim() ==
-                  recipe.id.trim(),
+            final alreadyExists = loadedFavorites.any(
+              (existing) => existing.id.trim() == recipe.id.trim(),
             );
 
             if (!alreadyExists) {
@@ -266,21 +183,14 @@ class FavoritesController extends GetxController {
             }
           }
         } catch (e) {
-          Get.log(
-            'Skipping invalid favorite item: $e',
-          );
+          Get.log('Skipping invalid favorite item: $e');
         }
       }
 
-      favorites.assignAll(
-        loadedFavorites,
-      );
+      favorites.assignAll(loadedFavorites);
     } catch (e) {
       favorites.clear();
-
-      Get.log(
-        'Error loading favorites: $e',
-      );
+      Get.log('Error loading favorites: $e');
     }
   }
 
@@ -296,9 +206,7 @@ class FavoritesController extends GetxController {
   // GET FAVORITE BY ID
   // =========================================================
 
-  FavoriteRecipeModel? getFavoriteById(
-    String recipeId,
-  ) {
+  FavoriteRecipeModel? getFavoriteById(String recipeId) {
     final String cleanId = recipeId.trim();
 
     if (cleanId.isEmpty) {

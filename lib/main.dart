@@ -4,7 +4,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:recipe_app/core/services/api_service.dart';
 import 'package:recipe_app/core/theme/app_themes.dart';
 import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart';
-import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
 
 import 'core/routes/app_pages.dart';
 import 'core/routes/app_routes.dart';
@@ -14,20 +13,15 @@ Future<void> main() async {
 
   await GetStorage.init();
 
-  // Global ApiService (Fixes "ApiService not found" error)
+  // Global ApiService
   Get.put<ApiService>(
     ApiService(),
     permanent: true,
   );
 
-  // Global Notification Controller
-  Get.put<NotificationController>(
-    NotificationController(),
-    permanent: true,
-  );
-
   runApp(const CookmateApp());
 }
+
 
 class CookmateApp extends StatelessWidget {
   const CookmateApp({super.key});

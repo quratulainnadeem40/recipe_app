@@ -4,8 +4,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
+
 import 'package:recipe_app/features/favorites/models/favorite_recipe_model.dart';
 import 'package:recipe_app/features/recipe_details/controllers/recipe_details_controller.dart';
 import 'package:recipe_app/features/recipe_details/model/recipe_detail_model.dart';
@@ -762,8 +764,9 @@ class RecipeDetailScreen extends GetView<RecipeController> {
         Theme.of(context).brightness ==
             Brightness.dark;
 
-    final favoritesController =
-        Get.find<FavoritesController>();
+    final favoritesController = Get.isRegistered<FavoritesController>()
+        ? Get.find<FavoritesController>()
+        : Get.put(FavoritesController());
 
     // DOUBLE-SAFETY FALLBACK
     final cleanIngredients =
@@ -787,24 +790,40 @@ class RecipeDetailScreen extends GetView<RecipeController> {
           expandedHeight: 320,
           pinned: true,
           elevation: 0,
-          backgroundColor: Colors.transparent,
+          backgroundColor:
+              isDark ? const Color(0xFF121212) : AppColors.background,
+          surfaceTintColor: Colors.transparent,
+          leadingWidth: 62,
 
-          leading: _buildPremiumBlurButton(
-            icon: Icons.arrow_back_ios_new_rounded,
-            onTap: () => Get.back(),
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 14),
+            child: Center(
+              child: _buildPremiumBlurButton(
+                icon: Icons.arrow_back_ios_new_rounded,
+                size: 18,
+                onTap: () {
+                  if (Navigator.of(context).canPop()) {
+                    Get.back();
+                  } else {
+                    Get.offAllNamed(AppRoutes.home);
+                  }
+                },
+              ),
+            ),
           ),
 
           // =====================================================
           // ❤️ FAVORITE BUTTON
-          // UI SAME — FUNCTIONALITY UPDATED
           // =====================================================
 
           actions: [
             Obx(() {
+              final String effectiveId = recipe.id.trim().isNotEmpty
+                  ? recipe.id.trim()
+                  : recipe.name.trim().hashCode.toString();
+
               final bool isFavorite =
-                  favoritesController.isFavorite(
-                recipe.id,
-              );
+                  favoritesController.isFavorite(effectiveId);
 
               return _buildPremiumBlurButton(
                 icon: isFavorite
@@ -813,29 +832,25 @@ class RecipeDetailScreen extends GetView<RecipeController> {
                 iconColor: isFavorite
                     ? Colors.redAccent
                     : Colors.white,
+                size: 22,
                 onTap: () {
-                  // Empty ID protection
-                  if (recipe.id.trim().isEmpty) {
-                    return;
-                  }
-
-                  final favoriteRecipe =
-                      FavoriteRecipeModel(
-                    id: recipe.id,
-                    name: recipe.name,
-                    image: recipe.imageUrl,
+                  final favoriteRecipe = FavoriteRecipeModel(
+                    id: effectiveId,
+                    name: recipe.name.trim().isNotEmpty
+                        ? recipe.name
+                        : 'Delicious Recipe',
+                    image: recipe.imageUrl.trim(),
                   );
 
-                  // Actual favorite storage
-                  favoritesController.toggleFavorite(
-                    favoriteRecipe,
-                  );
+                  favoritesController.toggleFavorite(favoriteRecipe);
+                  favoritesController.update();
                 },
               );
             }),
 
-            const SizedBox(width: 8),
+            const SizedBox(width: 14),
           ],
+
 
           flexibleSpace: FlexibleSpaceBar(
             background: Stack(
@@ -1024,32 +1039,45 @@ class RecipeDetailScreen extends GetView<RecipeController> {
   Widget _buildPremiumBlurButton({
     required IconData icon,
     Color iconColor = Colors.white,
+    double size = 20,
     required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: 12.0,
-            sigmaY: 12.0,
+    return ClipOval(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: 14.0,
+          sigmaY: 14.0,
+        ),
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black.withValues(alpha: 0.40),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.22),
+              width: 1,
+            ),
           ),
-          child: Container(
-            color:
-                Colors.black.withOpacity(0.35),
-            child: IconButton(
-              icon: Icon(
-                icon,
-                color: iconColor,
-                size: 20,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: onTap,
+              child: Center(
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: size,
+                ),
               ),
-              onPressed: onTap,
             ),
           ),
         ),
       ),
     );
   }
+
 
   // ==========================================
   // VOICE ASSISTANT

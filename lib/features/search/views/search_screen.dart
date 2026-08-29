@@ -329,57 +329,103 @@ class SearchScreen extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+
         onTap: () {
           Get.toNamed(
             AppRoutes.recipeDetails,
-            arguments: recipe,
+            arguments: recipe.id.isNotEmpty ? recipe.id : recipe,
           );
         },
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         splashColor: AppColors.primary.withValues(alpha: 0.08),
         child: Container(
           decoration: BoxDecoration(
             color: surfaceColor,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: borderColor),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                blurRadius: 10,
+                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
+                blurRadius: 12,
                 offset: const Offset(0, 4),
+              ),
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: isDark ? 0.06 : 0.03),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+                spreadRadius: -2,
               ),
             ],
           ),
           child: Row(
             children: [
-              // Recipe Thumbnail
+              // Recipe Thumbnail with Star Badge
               ClipRRect(
                 borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(17),
+                  left: Radius.circular(19),
                 ),
-                child: SizedBox(
-                  width: 100,
-                  height: double.infinity,
-                  child: recipe.image.isNotEmpty
-                      ? Image.network(
-                          recipe.image,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            child: const Icon(
-                              Icons.restaurant_menu_rounded,
-                              color: AppColors.primary,
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      width: 108,
+                      height: 108,
+                      child: recipe.image.isNotEmpty
+                          ? Image.network(
+                              recipe.image,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                color: AppColors.primaryLight,
+                                child: const Icon(
+                                  Icons.restaurant_menu_rounded,
+                                  color: AppColors.primary,
+                                  size: 32,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              color: AppColors.primaryLight,
+                              child: const Icon(
+                                Icons.restaurant_menu_rounded,
+                                color: AppColors.primary,
+                                size: 32,
+                              ),
                             ),
-                          ),
-                        )
-                      : Container(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          child: const Icon(
-                            Icons.restaurant_menu_rounded,
-                            color: AppColors.primary,
-                          ),
+                    ),
+                    Positioned(
+                      bottom: 6,
+                      left: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 2,
                         ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.65),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.star_rounded,
+                              size: 11,
+                              color: Colors.amber,
+                            ),
+                            SizedBox(width: 2),
+                            Text(
+                              '4.8',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -397,26 +443,25 @@ class SearchScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Category Tag
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          recipe.category.isNotEmpty
-                              ? recipe.category
-                              : 'Recipe',
-                          style: const TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
+                      if (recipe.category.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            recipe.category,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
                           ),
                         ),
-                      ),
 
                       const SizedBox(height: 5),
 
@@ -424,50 +469,49 @@ class SearchScreen extends StatelessWidget {
                       Text(
                         recipe.name,
                         style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w800,
                           color: primaryText,
+                          height: 1.2,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 5),
 
-                      // Cuisine & Category
+                      // Cuisine & Duration
                       Row(
                         children: [
                           Icon(
                             Icons.public_rounded,
-                            size: 13,
+                            size: 12,
                             color: secondaryText,
                           ),
                           const SizedBox(width: 3),
                           Text(
                             recipe.area.isNotEmpty ? recipe.area : 'Global Cuisine',
                             style: TextStyle(
-                              fontSize: 11.5,
+                              fontSize: 11,
                               color: secondaryText,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          if (recipe.category.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.restaurant_rounded,
-                              size: 13,
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.timer_outlined,
+                            size: 12,
+                            color: secondaryText,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            '25m',
+                            style: TextStyle(
+                              fontSize: 11,
                               color: secondaryText,
+                              fontWeight: FontWeight.w500,
                             ),
-                            const SizedBox(width: 3),
-                            Text(
-                              recipe.category,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                color: secondaryText,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                          ),
                         ],
                       ),
                     ],
@@ -481,7 +525,7 @@ class SearchScreen extends StatelessWidget {
                 size: 14,
                 color: secondaryText.withValues(alpha: 0.5),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
             ],
           ),
         ),
@@ -497,6 +541,7 @@ class SearchScreen extends StatelessWidget {
 
     final primaryText =
         isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+
 
     Widget optionsWidget = const SizedBox();
 

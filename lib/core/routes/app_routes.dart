@@ -10,8 +10,8 @@ abstract class AppRoutes {
   static const String search = '/search';
   static const String recipeDetails = '/recipe-details';
   static const String favorites = '/favorites';
-  static const String notifications = '/notifications';
   static const String feedback = '/feedback';
+
 
   // SETTINGS & PERSONALIZATION
   static const String settings = '/settings';

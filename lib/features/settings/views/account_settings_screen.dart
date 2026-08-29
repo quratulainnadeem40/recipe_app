@@ -73,18 +73,8 @@ class AccountSettingsScreen extends GetView<SettingsController> {
             ),
           ),
           const SizedBox(height: 24),
-          _sectionTitle('Notifications', primaryColor),
-          const SizedBox(height: 10),
-          _notificationTile(
-            context: context,
-            surfaceColor: surfaceColor,
-            borderColor: borderColor,
-            titleColor: primaryTextColor,
-            subtitleColor: secondaryTextColor,
-            primaryColor: primaryColor,
-          ),
-          const SizedBox(height: 24),
           _sectionTitle('Data Management', primaryColor),
+
           const SizedBox(height: 10),
           _settingsTile(
             context: context,
@@ -202,87 +192,8 @@ class AccountSettingsScreen extends GetView<SettingsController> {
     );
   }
 
-  Widget _notificationTile({
-    required BuildContext context,
-    required Color surfaceColor,
-    required Color borderColor,
-    required Color titleColor,
-    required Color subtitleColor,
-    required Color primaryColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 10,
-      ),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor),
-      ),
-      child: Obx(
-        () => Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.10),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.notifications_none_rounded,
-                color: primaryColor,
-                size: 21,
-              ),
-            ),
-            const SizedBox(width: 13),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Notifications',
-                    style: TextStyle(
-                      color: titleColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Receive notifications about your recipes and tips',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: subtitleColor,
-                      fontSize: 12.5,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Switch(
-              value: controller.isNotificationsEnabled.value,
-              onChanged: controller.toggleNotifications,
-              activeThumbColor: Colors.white,
-              activeTrackColor: primaryColor,
-              inactiveThumbColor: isDarkMode(context)
-                  ? AppColors.darkTextSecondary
-                  : AppColors.surface,
-              inactiveTrackColor: isDarkMode(context)
-                  ? AppColors.darkBorder
-                  : AppColors.border,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   bool isDarkMode(BuildContext context) {
+
     return Theme.of(context).brightness == Brightness.dark;
   }
 }

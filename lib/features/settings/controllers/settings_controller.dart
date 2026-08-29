@@ -30,7 +30,6 @@ class SettingsController extends GetxController {
   // PREFERENCES
   // =========================================================
 
-  final isNotificationsEnabled = true.obs;
   final isDarkMode = false.obs;
 
   // =========================================================
@@ -43,18 +42,6 @@ class SettingsController extends GetxController {
 
     loadUser();
     loadProfileImage();
-
-    isNotificationsEnabled.value =
-        _storage.read('notifications_enabled') ?? true;
-  }
-
-  // =========================================================
-  // NOTIFICATIONS
-  // =========================================================
-
-  void toggleNotifications(bool value) {
-    isNotificationsEnabled.value = value;
-    _storage.write('notifications_enabled', value);
   }
 
   // =========================================================

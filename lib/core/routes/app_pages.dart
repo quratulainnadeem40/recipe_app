@@ -28,20 +28,11 @@ import 'package:recipe_app/features/home/views/home_screen.dart';
 // ============================================================
 
 import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart';
-
 import 'package:recipe_app/features/navigation/views/main_navigation.dart';
 
 // ============================================================
-// NOTIFICATIONS
-// ============================================================
-
-import 'package:recipe_app/features/notifications/bindings/notifications_binding.dart';
-import 'package:recipe_app/features/notifications/views/notifications_screen.dart';
-
-
-
-// ============================================================
 // SETTINGS
+
 // ============================================================
 
 import 'package:recipe_app/features/settings/bindings/edit_profile_binding.dart';
@@ -155,17 +146,8 @@ class AppPages {
     ),
 
     // ==========================================================
-    // NOTIFICATIONS
-    // ==========================================================
-
-    GetPage(
-      name: AppRoutes.notifications,
-      page: () => const NotificationsScreen(),
-      binding: NotificationBinding(),
-    ),
-
-    // ==========================================================
     // FEEDBACK
+
     // ==========================================================
 
     GetPage(

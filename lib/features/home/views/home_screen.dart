@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:recipe_app/core/routes/app_routes.dart';
 import 'package:recipe_app/core/theme/app_colors.dart';
+
 import 'package:recipe_app/features/home/controllers/home_controller.dart';
 import 'package:recipe_app/features/home/data/country_data.dart';
 import 'package:recipe_app/features/home/views/widgets/category_item.dart';
@@ -231,13 +231,8 @@ class HomeScreen extends GetView<HomeController> {
                             // HEADER
                             // =================================================
 
-                            HomeHeader(
-                              onNotificationTap: () {
-                                Get.toNamed(
-                                  AppRoutes.notifications,
-                                );
-                              },
-                            ),
+                            const HomeHeader(),
+
 
                             const SizedBox(height: 16),
 
