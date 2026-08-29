@@ -508,42 +508,40 @@ class RecipeCard extends StatelessWidget {
   // FAVORITE BUTTON
   // ============================================================
   Widget _favoriteButton() {
-    return GetBuilder<FavoritesController>(
-      init: Get.isRegistered<FavoritesController>()
-          ? null
-          : FavoritesController(),
-      builder: (controller) {
-        final isFavorite = controller.isFavorite(recipe.id);
+    final controller = Get.isRegistered<FavoritesController>()
+        ? Get.find<FavoritesController>()
+        : Get.put(FavoritesController());
 
-        return Material(
-          color: Colors.black.withValues(alpha: 0.45),
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: () {
-              final favoriteRecipe = FavoriteRecipeModel(
-                id: recipe.id,
-                name: recipe.name,
-                image: recipe.image,
-              );
+    return Obx(() {
+      final isFavorite = controller.isFavorite(recipe.id);
 
-              controller.toggleFavorite(favoriteRecipe);
-              controller.update();
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child: Icon(
-                isFavorite
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
-                color: isFavorite ? Colors.redAccent : Colors.white,
-                size: 18,
-              ),
+      return Material(
+        color: Colors.black.withValues(alpha: 0.45),
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () {
+            final favoriteRecipe = FavoriteRecipeModel(
+              id: recipe.id,
+              name: recipe.name,
+              image: recipe.image,
+            );
+
+            controller.toggleFavorite(favoriteRecipe);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Icon(
+              isFavorite
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              color: isFavorite ? Colors.redAccent : Colors.white,
+              size: 18,
             ),
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 
   // ============================================================

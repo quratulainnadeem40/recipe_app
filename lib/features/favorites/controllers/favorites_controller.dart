@@ -58,6 +58,7 @@ class FavoritesController extends GetxController {
     if (existingIndex != -1) {
       favorites.removeAt(existingIndex);
       _saveToStorage();
+      update();
       return;
     }
 
@@ -72,6 +73,7 @@ class FavoritesController extends GetxController {
 
     favorites.add(cleanRecipe);
     _saveToStorage();
+    update();
   }
 
   // =========================================================
@@ -97,6 +99,7 @@ class FavoritesController extends GetxController {
 
     favorites.add(cleanRecipe);
     _saveToStorage();
+    update();
   }
 
   // =========================================================
@@ -120,6 +123,7 @@ class FavoritesController extends GetxController {
 
     favorites.removeAt(index);
     _saveToStorage();
+    update();
   }
 
   // =========================================================
@@ -133,7 +137,9 @@ class FavoritesController extends GetxController {
 
     favorites.clear();
     _saveToStorage();
+    update();
   }
+
 
   // =========================================================
   // SAVE TO GET STORAGE

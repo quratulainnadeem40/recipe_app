@@ -556,47 +556,46 @@ class SearchScreen extends StatelessWidget {
               // Favorite Action Button
               Padding(
                 padding: const EdgeInsets.only(right: 12),
-                child: GetBuilder<FavoritesController>(
-                  init: Get.isRegistered<FavoritesController>()
-                      ? null
-                      : FavoritesController(),
-                  builder: (favCtrl) {
-                    final isFav = favCtrl.isFavorite(recipe.id);
+                child: Obx(() {
+                  final favCtrl = Get.isRegistered<FavoritesController>()
+                      ? Get.find<FavoritesController>()
+                      : Get.put(FavoritesController());
 
-                    return Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          final favRecipe = FavoriteRecipeModel(
-                            id: recipe.id,
-                            name: recipe.name,
-                            image: recipe.image,
-                          );
-                          favCtrl.toggleFavorite(favRecipe);
-                          favCtrl.update();
-                        },
-                        borderRadius: BorderRadius.circular(30),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: isFav
-                                ? Colors.red.withValues(alpha: 0.10)
-                                : Colors.grey.withValues(alpha: 0.10),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isFav
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: isFav ? Colors.redAccent : secondaryText,
-                            size: 20,
-                          ),
+                  final isFav = favCtrl.isFavorite(recipe.id);
+
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        final favRecipe = FavoriteRecipeModel(
+                          id: recipe.id,
+                          name: recipe.name,
+                          image: recipe.image,
+                        );
+                        favCtrl.toggleFavorite(favRecipe);
+                      },
+                      borderRadius: BorderRadius.circular(30),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isFav
+                              ? Colors.red.withValues(alpha: 0.10)
+                              : Colors.grey.withValues(alpha: 0.10),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isFav
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
+                          color: isFav ? Colors.redAccent : secondaryText,
+                          size: 20,
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                }),
               ),
+
             ],
           ),
         ),

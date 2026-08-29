@@ -3,10 +3,12 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:recipe_app/core/services/api_service.dart';
 import 'package:recipe_app/core/theme/app_themes.dart';
+import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
 import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart';
 
 import 'core/routes/app_pages.dart';
 import 'core/routes/app_routes.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +21,14 @@ Future<void> main() async {
     permanent: true,
   );
 
+  // Global Favorites Controller
+  Get.put<FavoritesController>(
+    FavoritesController(),
+    permanent: true,
+  );
+
   runApp(const CookmateApp());
+
 }
 
 
