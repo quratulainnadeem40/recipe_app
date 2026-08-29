@@ -5,6 +5,7 @@ class RecipeModel {
   final String category;
   final String area;
   final String shortInfo;
+  final int? prepTime;
 
   const RecipeModel({
     required this.id,
@@ -13,6 +14,7 @@ class RecipeModel {
     this.category = '',
     this.area = '',
     this.shortInfo = '',
+    this.prepTime,
   });
 
   factory RecipeModel.fromJson(
@@ -39,6 +41,9 @@ class RecipeModel {
         json['shortInfo'] ??
         ''
       ).toString(),
+      prepTime: int.tryParse(
+        (json['prepTime'] ?? '').toString(),
+      ),
     );
   }
 
@@ -49,6 +54,7 @@ class RecipeModel {
     String? category,
     String? area,
     String? shortInfo,
+    int? prepTime,
   }) {
     return RecipeModel(
       id: id ?? this.id,
@@ -57,6 +63,7 @@ class RecipeModel {
       category: category ?? this.category,
       area: area ?? this.area,
       shortInfo: shortInfo ?? this.shortInfo,
+      prepTime: prepTime ?? this.prepTime,
     );
   }
 
@@ -65,13 +72,99 @@ class RecipeModel {
   // ============================================================
 
   String get difficulty {
-    final hash = id.hashCode.abs();
-    if (hash % 3 == 0) return 'Easy';
-    if (hash % 3 == 1) return 'Medium';
+    final time = estimatedTimeMinutes;
+    if (time <= 20) return 'Easy';
+    if (time <= 40) return 'Medium';
     return 'Hard';
   }
 
   int get estimatedTimeMinutes {
+    if (prepTime != null && prepTime! > 0) {
+      return prepTime!;
+    }
+    final cat = category.toLowerCase();
+    final nm = name.toLowerCase();
+
+    // 15 Mins: Quick meals, Snacks, Salads, Dips, Breakfast, Drinks
+    if (cat == 'breakfast' ||
+        cat == 'starter' ||
+        cat == 'side' ||
+        nm.contains('salad') ||
+        nm.contains('snack') ||
+        nm.contains('shake') ||
+        nm.contains('sandwich') ||
+        nm.contains('toast') ||
+        nm.contains('omelette') ||
+        nm.contains('egg') ||
+        nm.contains('chaat') ||
+        nm.contains('raita') ||
+        nm.contains('jalebi') ||
+        nm.contains('tea') ||
+        nm.contains('chai') ||
+        nm.contains('falooda')) {
+      return 15;
+    }
+
+    // 25 Mins: Desserts, Seafood, Quick Daal, Fast Stir-fry, Tikkas, Kababs
+    if (cat == 'dessert' ||
+        cat == 'seafood' ||
+        cat == 'pasta' ||
+        nm.contains('fish') ||
+        nm.contains('prawn') ||
+        nm.contains('shrimp') ||
+        nm.contains('soup') ||
+        nm.contains('halwa') ||
+        nm.contains('kheer') ||
+        nm.contains('gulab jamun') ||
+        nm.contains('bhindi') ||
+        nm.contains('paneer') ||
+        nm.contains('daal') ||
+        nm.contains('fry') ||
+        nm.contains('stir fry') ||
+        nm.contains('seekh') ||
+        nm.contains('boti') ||
+        nm.contains('tikka') ||
+        nm.contains('chapli') ||
+        nm.contains('burger') ||
+        nm.contains('samosa') ||
+        nm.contains('roll') ||
+        nm.contains('paratha')) {
+      return 25;
+    }
+
+    // 40 Mins: Chicken curries, Karahi, Handi, Qorma, Rice, Pulao
+    if (cat == 'chicken' ||
+        nm.contains('chicken') ||
+        nm.contains('karahi') ||
+        nm.contains('handi') ||
+        nm.contains('korma') ||
+        nm.contains('pulao') ||
+        nm.contains('rice') ||
+        nm.contains('biryani') ||
+        nm.contains('curry') ||
+        nm.contains('saag') ||
+        nm.contains('kofta')) {
+      return 40;
+    }
+
+    // 55 Mins: Beef, Lamb, Nihari, Haleem, Paye, Kunna, Slow cooked roasts
+    if (cat == 'beef' ||
+        cat == 'lamb' ||
+        cat == 'goat' ||
+        nm.contains('beef') ||
+        nm.contains('mutton') ||
+        nm.contains('nihari') ||
+        nm.contains('haleem') ||
+        nm.contains('paye') ||
+        nm.contains('kunna') ||
+        nm.contains('roast') ||
+        nm.contains('chargha') ||
+        nm.contains('sajji') ||
+        nm.contains('dum pukht') ||
+        nm.contains('raan')) {
+      return 55;
+    }
+
     final hash = id.hashCode.abs();
     final rem = hash % 4;
     if (rem == 0) return 15;
@@ -79,6 +172,7 @@ class RecipeModel {
     if (rem == 2) return 40;
     return 55;
   }
+
 
   bool get isVegetarian {
     final cat = category.toLowerCase();

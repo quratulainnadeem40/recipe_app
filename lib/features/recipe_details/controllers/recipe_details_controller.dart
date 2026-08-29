@@ -85,6 +85,13 @@ class RecipeController extends GetxController {
   // =========================================================
 
   void _initTts() {
+    try {
+      _flutterTts.setLanguage('en-US');
+      _flutterTts.setSpeechRate(0.5);
+      _flutterTts.setVolume(1.0);
+      _flutterTts.setPitch(1.0);
+    } catch (_) {}
+
     _flutterTts.setStartHandler(() {
       isSpeaking.value = true;
       isPaused.value = false;
@@ -100,10 +107,17 @@ class RecipeController extends GetxController {
     });
 
     _flutterTts.setErrorHandler((msg) {
+      final str = msg.toString().toLowerCase();
+      // 'interrupted' and 'canceled' are standard browser events when changing speech steps
+      if (str.contains('interrupted') || str.contains('canceled')) {
+        return;
+      }
       debugPrint('TTS Error: $msg');
-      stopSpeaking();
+      isSpeaking.value = false;
+      isPaused.value = false;
     });
   }
+
 
   // =========================================================
   // VOICE GETTERS
@@ -394,8 +408,7 @@ class RecipeController extends GetxController {
   // =========================================================
 
   Future<void> _speakCurrentStep() async {
-    if (_stepsToSpeak.isEmpty &&
-        recipe.value != null) {
+    if (_stepsToSpeak.isEmpty && recipe.value != null) {
       _stepsToSpeak = recipe.value!.steps;
     }
 
@@ -403,21 +416,26 @@ class RecipeController extends GetxController {
       return;
     }
 
-    if (currentStep.value <
-        _stepsToSpeak.length) {
-      final String textToSpeak =
-          _stepsToSpeak[currentStep.value];
+    if (currentStep.value < _stepsToSpeak.length) {
+      final String textToSpeak = _stepsToSpeak[currentStep.value];
 
-      currentInstruction.value =
-          textToSpeak;
+      currentInstruction.value = textToSpeak;
 
-      await _flutterTts.speak(
-        'Step ${currentStep.value + 1}: $textToSpeak',
-      );
+      try {
+        await _flutterTts.stop();
+        isSpeaking.value = true;
+        isPaused.value = false;
+        await _flutterTts.speak(
+          'Step ${currentStep.value + 1}: $textToSpeak',
+        );
+      } catch (e) {
+        debugPrint('TTS speak error: $e');
+      }
     } else {
       await stopSpeaking();
     }
   }
+
 
   // =========================================================
   // AUTO NEXT STEP

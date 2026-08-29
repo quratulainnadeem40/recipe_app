@@ -747,13 +747,14 @@ class SearchScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            '25m',
+                            '${recipe.estimatedTimeMinutes}m',
                             style: TextStyle(
                               fontSize: 11.5,
                               color: secondaryText,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
+
                           const SizedBox(width: 8),
                           Icon(
                             Icons.restaurant_menu_rounded,
