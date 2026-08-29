@@ -216,15 +216,13 @@ class SearchScreen extends StatelessWidget {
                       return LayoutBuilder(
                         builder: (context, constraints) {
                           final width = constraints.maxWidth;
-                          final crossAxisCount = width < 650
+                          final crossAxisCount = width < 720
                               ? 1
-                              : width < 1000
+                              : width < 1150
                                   ? 2
-                                  : width < 1350
+                                  : width < 1500
                                       ? 3
                                       : 4;
-
-                          final childAspectRatio = width < 650 ? 3.0 : 2.7;
 
                           return GridView.builder(
                             itemCount: recipes.length,
@@ -235,8 +233,9 @@ class SearchScreen extends StatelessWidget {
                               crossAxisCount: crossAxisCount,
                               crossAxisSpacing: 14,
                               mainAxisSpacing: 14,
-                              childAspectRatio: childAspectRatio,
+                              mainAxisExtent: 128,
                             ),
+
                             itemBuilder: (context, index) {
                               final recipe = recipes[index];
                               return _buildRecipeCard(recipe);
@@ -459,43 +458,41 @@ class SearchScreen extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 12.0,
+                    vertical: 10.0,
                     horizontal: 4.0,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Category & Area Pill Tag
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2.5,
+                          horizontal: 7,
+                          vertical: 2,
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(
                           '$categoryText • $areaText',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 10,
+                            fontSize: 9.5,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 6),
-
                       // Recipe Name
                       Text(
                         recipe.name,
                         style: TextStyle(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
                           color: primaryText,
                           height: 1.25,
                         ),
@@ -503,7 +500,7 @@ class SearchScreen extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                      const SizedBox(height: 5),
+
 
                       // Duration & View Details
                       Row(
@@ -515,7 +512,7 @@ class SearchScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            '25-30m',
+                            '25m',
                             style: TextStyle(
                               fontSize: 11.5,
                               color: secondaryText,
@@ -531,7 +528,7 @@ class SearchScreen extends StatelessWidget {
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(
-                              'View Details',
+                              'Details',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -543,6 +540,7 @@ class SearchScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+
 
                     ],
                   ),

@@ -136,33 +136,33 @@ class FavoriteRecipeCard extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 12,
+                    vertical: 10,
                     horizontal: 4,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2.5,
+                          horizontal: 7,
+                          vertical: 2,
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(5),
                         ),
                         child: const Text(
                           'Bookmarked Recipe',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: AppColors.primary,
-                            fontSize: 10,
+                            fontSize: 9.5,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: 6),
 
                       Text(
                         recipe.name,
@@ -170,13 +170,12 @@ class FavoriteRecipeCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: primaryTextColor,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
                           height: 1.25,
                         ),
                       ),
 
-                      const SizedBox(height: 5),
 
                       Row(
                         children: [
@@ -187,10 +186,10 @@ class FavoriteRecipeCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            '25-30 mins',
+                            '25m',
                             style: TextStyle(
                               color: secondaryTextColor,
-                              fontSize: 11.5,
+                              fontSize: 11,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -203,23 +202,23 @@ class FavoriteRecipeCard extends StatelessWidget {
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(
-                              'View Details',
+                              'Details',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: AppColors.primary,
-                                fontSize: 11.5,
+                                fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-
                         ],
                       ),
                     ],
                   ),
                 ),
               ),
+
 
               // =======================================================
               // REMOVE FAVORITE BUTTON

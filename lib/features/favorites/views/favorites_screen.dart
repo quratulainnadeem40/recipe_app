@@ -150,10 +150,8 @@ class FavoritesScreen extends GetView<FavoritesController> {
           return LayoutBuilder(
             builder: (context, constraints) {
               final width = constraints.maxWidth;
-              final crossAxisCount = width < 680 ? 1 : width < 1100 ? 2 : 3;
-              final childAspectRatio =
-                  width < 680 ? 2.50 : (width < 1100 ? 2.25 : 2.45);
-
+              final crossAxisCount =
+                  width < 720 ? 1 : (width < 1150 ? 2 : 3);
 
               return Center(
                 child: ConstrainedBox(
@@ -168,11 +166,12 @@ class FavoritesScreen extends GetView<FavoritesController> {
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      childAspectRatio: childAspectRatio,
+                      mainAxisExtent: 128,
                     ),
                     itemCount: controller.favorites.length,
                     itemBuilder: (context, index) {
                       final recipe = controller.favorites[index];
+
 
                       return FavoriteRecipeCard(
                         recipe: recipe,
