@@ -65,9 +65,10 @@ class FavoriteRecipeCard extends StatelessWidget {
                 child: Stack(
                   children: [
                     SizedBox(
-                      width: 115,
-                      height: 115,
+                      width: 118,
+                      height: double.infinity,
                       child: recipe.image.isNotEmpty
+
                           ? Image.network(
                               recipe.image,
                               fit: BoxFit.cover,
@@ -136,33 +137,35 @@ class FavoriteRecipeCard extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 10,
+                    vertical: 8,
                     horizontal: 4,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 2,
+                          horizontal: 8,
+                          vertical: 2.5,
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(5),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
-                          'Bookmarked Recipe',
+                          'Saved Recipe',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: AppColors.primary,
-                            fontSize: 9.5,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 5),
 
                       Text(
                         recipe.name,
@@ -171,17 +174,18 @@ class FavoriteRecipeCard extends StatelessWidget {
                         style: TextStyle(
                           color: primaryTextColor,
                           fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                          fontSize: 14,
                           height: 1.25,
                         ),
                       ),
 
+                      const SizedBox(height: 6),
 
                       Row(
                         children: [
                           Icon(
                             Icons.timer_outlined,
-                            size: 13,
+                            size: 13.5,
                             color: secondaryTextColor,
                           ),
                           const SizedBox(width: 3),
@@ -189,25 +193,25 @@ class FavoriteRecipeCard extends StatelessWidget {
                             '25m',
                             style: TextStyle(
                               color: secondaryTextColor,
-                              fontSize: 11,
+                              fontSize: 11.5,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(width: 8),
                           Icon(
                             Icons.restaurant_menu_rounded,
-                            size: 13,
+                            size: 13.5,
                             color: secondaryTextColor,
                           ),
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(
-                              'Details',
+                              'View Recipe',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: AppColors.primary,
-                                fontSize: 11,
+                                fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -218,6 +222,7 @@ class FavoriteRecipeCard extends StatelessWidget {
                   ),
                 ),
               ),
+
 
 
               // =======================================================

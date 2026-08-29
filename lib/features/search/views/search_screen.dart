@@ -233,8 +233,9 @@ class SearchScreen extends StatelessWidget {
                               crossAxisCount: crossAxisCount,
                               crossAxisSpacing: 14,
                               mainAxisSpacing: 14,
-                              mainAxisExtent: 128,
+                              mainAxisExtent: 114,
                             ),
+
 
                             itemBuilder: (context, index) {
                               final recipe = recipes[index];
@@ -313,22 +314,22 @@ class SearchScreen extends StatelessWidget {
     );
   }
 
+  // ================================================================
+  // RECIPE CARD WIDGET
+  // ================================================================
   Widget _buildRecipeCard(RecipeModel recipe) {
-    final isDark = Get.isDarkMode;
 
-    final surfaceColor =
-        isDark ? AppColors.darkSurface : AppColors.surface;
-
+    final isDark = Theme.of(Get.context!).brightness == Brightness.dark;
     final primaryText =
         isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-
     final secondaryText =
         isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
-
+    final surfaceColor =
+        isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor =
         isDark ? AppColors.darkBorder : AppColors.border;
 
-    final categoryText = recipe.category.isNotEmpty ? recipe.category : 'Chef Choice';
+    final categoryText = recipe.category.isNotEmpty ? recipe.category : 'General';
     final areaText = recipe.area.isNotEmpty ? recipe.area : 'Global';
 
     return Material(
@@ -337,7 +338,7 @@ class SearchScreen extends StatelessWidget {
         onTap: () {
           Get.toNamed(
             AppRoutes.recipeDetails,
-            arguments: recipe.id.isNotEmpty ? recipe.id : recipe,
+            arguments: recipe.id,
           );
         },
         borderRadius: BorderRadius.circular(22),
@@ -347,7 +348,10 @@ class SearchScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: surfaceColor,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: borderColor),
+            border: Border.all(
+              color: borderColor,
+              width: 1,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
@@ -372,8 +376,8 @@ class SearchScreen extends StatelessWidget {
                 child: Stack(
                   children: [
                     SizedBox(
-                      width: 115,
-                      height: 115,
+                      width: 118,
+                      height: double.infinity,
                       child: recipe.image.isNotEmpty
                           ? Image.network(
                               recipe.image,
@@ -454,44 +458,48 @@ class SearchScreen extends StatelessWidget {
                 ),
               ),
 
+              const SizedBox(width: 14),
+
               // Recipe Details
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
+                    vertical: 8.0,
                     horizontal: 4.0,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Category & Area Pill Tag
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 2,
+                          horizontal: 8,
+                          vertical: 2.5,
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(5),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           '$categoryText • $areaText',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 9.5,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
                           ),
                         ),
                       ),
 
+                      const SizedBox(height: 5),
+
                       // Recipe Name
                       Text(
                         recipe.name,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: primaryText,
                           height: 1.25,
@@ -500,14 +508,14 @@ class SearchScreen extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
 
-
+                      const SizedBox(height: 6),
 
                       // Duration & View Details
                       Row(
                         children: [
                           Icon(
                             Icons.timer_outlined,
-                            size: 13,
+                            size: 13.5,
                             color: secondaryText,
                           ),
                           const SizedBox(width: 3),
@@ -522,13 +530,13 @@ class SearchScreen extends StatelessWidget {
                           const SizedBox(width: 8),
                           Icon(
                             Icons.restaurant_menu_rounded,
-                            size: 13,
+                            size: 13.5,
                             color: secondaryText,
                           ),
                           const SizedBox(width: 3),
                           Flexible(
                             child: Text(
-                              'Details',
+                              'View Recipe',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -540,8 +548,6 @@ class SearchScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-
-
                     ],
                   ),
                 ),

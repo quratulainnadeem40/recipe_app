@@ -165,9 +165,10 @@ class FavoritesScreen extends GetView<FavoritesController> {
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      mainAxisExtent: 128,
+                      mainAxisSpacing: 14,
+                      mainAxisExtent: 114,
                     ),
+
                     itemCount: controller.favorites.length,
                     itemBuilder: (context, index) {
                       final recipe = controller.favorites[index];
