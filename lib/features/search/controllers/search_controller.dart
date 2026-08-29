@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recipe_app/features/home/models/recipe_models.dart'; // [5]
 import 'package:recipe_app/features/home/repositories/home_repository.dart'; // [5]
-import 'package:recipe_app/features/home/repositories/home_repository.dart';
 import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
 
 // Class name badal kar RecipeSearchController kiya taake Flutter SDK se clash na ho

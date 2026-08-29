@@ -13,7 +13,8 @@ abstract class AppRoutes {
   static const String notifications = '/notifications';
   static const String feedback = '/feedback';
 
-  // PROFILE & SETTINGS
+  // SETTINGS & PERSONALIZATION
+  static const String settings = '/settings';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
   static const String accountSettings = '/account-settings';

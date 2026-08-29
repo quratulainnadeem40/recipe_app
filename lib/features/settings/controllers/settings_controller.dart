@@ -10,14 +10,15 @@ import 'package:recipe_app/features/favorites/controllers/favorites_controller.d
 import 'package:recipe_app/features/home/controllers/home_controller.dart';
 import '../models/user_model.dart';
 
-class ProfileController extends GetxController {
+class SettingsController extends GetxController {
   final GetStorage _storage = GetStorage();
 
   // =========================================================
-  // USER
+  // USER / CHEF NAME
   // =========================================================
 
   final user = Rxn<UserModel>();
+  final RxString chefName = 'COOKmate Chef'.obs;
 
   // =========================================================
   // PROFILE IMAGE
@@ -57,18 +58,31 @@ class ProfileController extends GetxController {
   }
 
   // =========================================================
-  // LOAD USER
+  // LOAD USER / CHEF
   // =========================================================
 
   Future<void> loadUser() async {
     final String name = _storage.read<String>('userName') ?? 'COOKmate Chef';
-    final String email = _storage.read<String>('userEmail') ?? 'cookmate@app.com';
+    chefName.value = name;
 
     user.value = UserModel(
       uid: 'local_user',
       name: name,
-      email: email,
+      email: '',
     );
+  }
+
+  Future<void> updateChefName(String newName) async {
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty) return;
+
+    await _storage.write('userName', trimmed);
+    chefName.value = trimmed;
+    await loadUser();
+
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().loadUserName();
+    }
   }
 
   // =========================================================
@@ -121,15 +135,16 @@ class ProfileController extends GetxController {
   }
 
   // =========================================================
-  // RESET LOCAL DATA
+  // CLEAR FAVORITES
   // =========================================================
 
-  Future<void> resetLocalData() async {
-    final shouldReset = await Get.dialog<bool>(
+  Future<void> clearFavorites() async {
+    final shouldClear = await Get.dialog<bool>(
       AlertDialog(
-        title: const Text('Reset App Data'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('Clear Favorites'),
         content: const Text(
-          'Are you sure you want to clear your saved favorites and local settings?',
+          'Are you sure you want to remove all saved favorite recipes?',
         ),
         actions: [
           TextButton(
@@ -139,8 +154,50 @@ class ProfileController extends GetxController {
           TextButton(
             onPressed: () => Get.back(result: true),
             child: const Text(
-              'Reset',
-              style: TextStyle(color: Colors.red),
+              'Clear All',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldClear != true) return;
+
+    if (Get.isRegistered<FavoritesController>()) {
+      Get.find<FavoritesController>().clearFavorites();
+    }
+
+    Get.snackbar(
+      'Favorites Cleared',
+      'All favorite recipes have been removed.',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+    );
+  }
+
+  // =========================================================
+  // RESET ALL LOCAL DATA
+  // =========================================================
+
+  Future<void> resetLocalData() async {
+    final shouldReset = await Get.dialog<bool>(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('Reset All Data'),
+        content: const Text(
+          'This will clear all saved recipes, custom chef name, profile picture, and restore default app settings. Continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: const Text(
+              'Reset Everything',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -157,6 +214,7 @@ class ProfileController extends GetxController {
       }
 
       await removeProfileImage();
+      await _storage.erase();
       await _storage.write('userName', 'COOKmate Chef');
       await loadUser();
 
@@ -165,8 +223,8 @@ class ProfileController extends GetxController {
       }
 
       Get.snackbar(
-        'Data Reset',
-        'Your local app data has been reset successfully.',
+        'App Reset Complete',
+        'All settings and saved data have been restored to defaults.',
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );

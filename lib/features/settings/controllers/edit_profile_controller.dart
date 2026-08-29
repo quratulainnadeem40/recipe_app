@@ -2,34 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:recipe_app/features/home/controllers/home_controller.dart';
-import 'package:recipe_app/features/profile/controllers/profile_controller.dart';
+import 'package:recipe_app/features/settings/controllers/settings_controller.dart';
 
 class EditProfileController extends GetxController {
   final GetStorage _storage = GetStorage();
 
   final nameController = TextEditingController();
-  final emailController = TextEditingController();
   final isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
 
-    final String savedName = _storage.read<String>('userName') ?? 'COOKmate Chef';
-    final String savedEmail = _storage.read<String>('userEmail') ?? 'cookmate@app.com';
-
+    final String savedName =
+        _storage.read<String>('userName') ?? 'COOKmate Chef';
     nameController.text = savedName;
-    emailController.text = savedEmail;
   }
 
   Future<void> updateProfile() async {
     final name = nameController.text.trim();
-    final email = emailController.text.trim();
 
     if (name.isEmpty) {
       Get.snackbar(
         'Name Required',
-        'Please enter your name.',
+        'Please enter your chef name.',
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
@@ -39,14 +35,11 @@ class EditProfileController extends GetxController {
       isLoading.value = true;
 
       await _storage.write('userName', name);
-      if (email.isNotEmpty) {
-        await _storage.write('userEmail', email);
-      }
 
-      // Sync ProfileController
-      if (Get.isRegistered<ProfileController>()) {
-        final profileController = Get.find<ProfileController>();
-        await profileController.loadUser();
+      // Sync SettingsController
+      if (Get.isRegistered<SettingsController>()) {
+        final settingsController = Get.find<SettingsController>();
+        await settingsController.loadUser();
       }
 
       // Sync HomeController
@@ -56,7 +49,7 @@ class EditProfileController extends GetxController {
 
       Get.snackbar(
         'Profile Updated',
-        'Your profile has been updated successfully.',
+        'Your chef profile has been updated successfully.',
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
@@ -76,7 +69,6 @@ class EditProfileController extends GetxController {
   @override
   void onClose() {
     nameController.dispose();
-    emailController.dispose();
     super.onClose();
   }
 }

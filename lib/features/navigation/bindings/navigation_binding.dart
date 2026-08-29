@@ -5,7 +5,7 @@ import 'package:recipe_app/features/favorites/controllers/favorites_controller.d
 import 'package:recipe_app/features/home/controllers/home_controller.dart';
 import 'package:recipe_app/features/home/repositories/home_repository.dart';
 import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
-import 'package:recipe_app/features/profile/controllers/profile_controller.dart';
+import 'package:recipe_app/features/settings/controllers/settings_controller.dart';
 import 'package:recipe_app/features/search/controllers/search_controller.dart';
 
 class NavigationsBinding extends Bindings {
@@ -72,12 +72,12 @@ class NavigationsBinding extends Bindings {
     );
 
     // ============================================================
-    // PROFILE
+    // SETTINGS
     // ============================================================
 
-    Get.lazyPut<ProfileController>(
-      () => ProfileController(),
+    Get.lazyPut<SettingsController>(
+      () => SettingsController(),
       fenix: true,
     );
   }
-}
+}

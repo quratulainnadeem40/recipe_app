@@ -72,11 +72,11 @@ class CustomBottomNavBar extends StatelessWidget {
         ),
 
         BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline_rounded),
-          activeIcon: Icon(Icons.person_rounded),
-          label: 'Profile',
+          icon: Icon(Icons.settings_outlined),
+          activeIcon: Icon(Icons.settings_rounded),
+          label: 'Settings',
         ),
       ],
     );
   }
-}
+}

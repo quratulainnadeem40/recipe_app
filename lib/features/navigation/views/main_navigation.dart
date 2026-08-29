@@ -39,9 +39,9 @@ import 'package:recipe_app/core/widgets/custom_bottom_nav_bar.dart';
 // Controllers and Screens Imports
 import '../controllers/navigation_controller.dart';
 import '../../home/views/home_screen.dart';
-import '../../search/views/search_screen.dart'; // Adjust path according to your structure
-import '../../favorites/views/favorites_screen.dart'; // Adjust path
-import '../../profile/views/profile_screen.dart'; // Adjust path// Adjust path
+import '../../search/views/search_screen.dart';
+import '../../favorites/views/favorites_screen.dart';
+import '../../settings/views/settings_screen.dart';
 
 class MainNavigation extends GetView<NavigationController> {
   const MainNavigation({super.key});
@@ -56,7 +56,7 @@ class MainNavigation extends GetView<NavigationController> {
             HomeScreen(),
             SearchScreen(),
             FavoritesScreen(),
-            ProfileScreen(),
+            SettingsScreen(),
           ],
         ),
         bottomNavigationBar: CustomBottomNavBar(
@@ -66,4 +66,4 @@ class MainNavigation extends GetView<NavigationController> {
       ),
     );
   }
-}
+}

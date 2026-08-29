@@ -41,16 +41,16 @@ import 'package:recipe_app/features/notifications/views/notifications_screen.dar
 
 
 // ============================================================
-// PROFILE
+// SETTINGS
 // ============================================================
 
-import 'package:recipe_app/features/profile/bindings/edit_profile_binding.dart';
-import 'package:recipe_app/features/profile/bindings/profile_binding.dart';
-import 'package:recipe_app/features/profile/views/account_settings_screen.dart';
-import 'package:recipe_app/features/profile/views/edit_profile_screen.dart';
-import 'package:recipe_app/features/profile/views/privacy_policy_screen.dart';
-import 'package:recipe_app/features/profile/views/profile_screen.dart';
-import 'package:recipe_app/features/profile/views/terms_and_conditions_screen.dart';
+import 'package:recipe_app/features/settings/bindings/edit_profile_binding.dart';
+import 'package:recipe_app/features/settings/bindings/settings_binding.dart';
+import 'package:recipe_app/features/settings/views/account_settings_screen.dart';
+import 'package:recipe_app/features/settings/views/edit_profile_screen.dart';
+import 'package:recipe_app/features/settings/views/privacy_policy_screen.dart';
+import 'package:recipe_app/features/settings/views/settings_screen.dart';
+import 'package:recipe_app/features/settings/views/terms_and_conditions_screen.dart';
 
 // ============================================================
 // RECIPE DETAILS
@@ -175,13 +175,19 @@ class AppPages {
     ),
 
     // ==========================================================
-    // PROFILE
+    // SETTINGS / PROFILE
     // ==========================================================
 
     GetPage(
+      name: AppRoutes.settings,
+      page: () => const SettingsScreen(),
+      binding: SettingsBinding(),
+    ),
+
+    GetPage(
       name: AppRoutes.profile,
-      page: () => const ProfileScreen(),
-      binding: ProfileBinding(),
+      page: () => const SettingsScreen(),
+      binding: SettingsBinding(),
     ),
 
     // ==========================================================
