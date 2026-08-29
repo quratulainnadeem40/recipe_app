@@ -75,7 +75,7 @@ class RecipeHorizontalList extends StatelessWidget {
     // ============================================================
 
     return SizedBox(
-      height: 235,
+      height: 250,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -84,10 +84,11 @@ class RecipeHorizontalList extends StatelessWidget {
           final recipe = recipes[index];
 
           return Container(
-            width: 175,
+            width: 195,
             margin: const EdgeInsets.only(
               right: 14,
             ),
+
 
 
             child: RecipeCard(

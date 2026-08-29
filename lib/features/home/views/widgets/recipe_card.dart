@@ -31,13 +31,13 @@ class RecipeCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         splashColor: AppColors.primary.withValues(alpha: 0.1),
         highlightColor: AppColors.primary.withValues(alpha: 0.05),
         child: Container(
           decoration: BoxDecoration(
             color: cardColor,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: borderColor,
               width: 1,
@@ -45,12 +45,12 @@ class RecipeCard extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                blurRadius: 12,
+                blurRadius: 14,
                 offset: const Offset(0, 4),
               ),
               BoxShadow(
                 color: AppColors.primary.withValues(alpha: isDark ? 0.08 : 0.03),
-                blurRadius: 16,
+                blurRadius: 18,
                 offset: const Offset(0, 6),
                 spreadRadius: -2,
               ),
@@ -65,13 +65,21 @@ class RecipeCard extends StatelessWidget {
   }
 
   // ============================================================
-  // VERTICAL CARD (USED IN CATEGORY & SEARCH GRIDS)
+  // VERTICAL CARD (CATEGORY GRIDS & FULL LISTS)
   // ============================================================
   Widget _buildVerticalCard(
     Color textPrimary,
     Color textSecondary,
     bool isDark,
   ) {
+    final categoryText = recipe.category.trim().isNotEmpty
+        ? recipe.category
+        : 'Chef Special';
+
+    final areaText = recipe.area.trim().isNotEmpty
+        ? recipe.area
+        : 'Global';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -79,10 +87,10 @@ class RecipeCard extends StatelessWidget {
         Stack(
           children: [
             AspectRatio(
-              aspectRatio: 1.22,
+              aspectRatio: 1.25,
               child: _buildImage(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(19),
+                  top: Radius.circular(21),
                 ),
               ),
             ),
@@ -92,14 +100,14 @@ class RecipeCard extends StatelessWidget {
               left: 0,
               right: 0,
               bottom: 0,
-              height: 40,
+              height: 44,
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.45),
+                      Colors.black.withValues(alpha: 0.55),
                       Colors.transparent,
                     ],
                   ),
@@ -107,11 +115,46 @@ class RecipeCard extends StatelessWidget {
               ),
             ),
 
+            // Rating Pill (Bottom-Left on image)
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 2.5,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.70),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.star_rounded,
+                      size: 12,
+                      color: Colors.amber,
+                    ),
+                    SizedBox(width: 2.5),
+                    Text(
+                      '4.8',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             // Cuisine/Area Badge (Top-Left)
             if (recipe.area.trim().isNotEmpty)
               Positioned(
-                top: 9,
-                left: 9,
+                top: 8,
+                left: 8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 7,
@@ -119,7 +162,7 @@ class RecipeCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(7),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.2),
                       width: 0.8,
@@ -159,83 +202,64 @@ class RecipeCard extends StatelessWidget {
         // Info Section
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 9),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Title & Category
+                // Top Tag Pill & Recipe Title
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '$categoryText • $areaText',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
                     Text(
                       recipe.name.trim().isNotEmpty
                           ? recipe.name
-                          : 'Unknown Recipe',
+                          : 'Delicious Recipe',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                         fontSize: 13.5,
-                        height: 1.2,
+                        height: 1.25,
                         color: textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    if (recipe.category.trim().isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          recipe.category,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
 
-                // Rating & Prep Time Bar
+                // Cooking Stats & View Details Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          size: 14,
-                          color: Colors.amber,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          '4.8',
-                          style: TextStyle(
-                            color: textPrimary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
                         Icon(
                           Icons.timer_outlined,
-                          size: 12,
+                          size: 12.5,
                           color: textSecondary,
                         ),
-                        const SizedBox(width: 2),
+                        const SizedBox(width: 3),
                         Text(
                           '25m',
                           style: TextStyle(
@@ -245,6 +269,14 @@ class RecipeCard extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
+                    Text(
+                      'View Recipe →',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -257,13 +289,17 @@ class RecipeCard extends StatelessWidget {
   }
 
   // ============================================================
-  // HORIZONTAL CARD (USED IN HOME TRENDING CAROUSEL)
+  // HORIZONTAL CARD (HOME TRENDING CAROUSEL)
   // ============================================================
   Widget _buildHorizontalCard(
     Color textPrimary,
     Color textSecondary,
     bool isDark,
   ) {
+    final categoryText = recipe.category.trim().isNotEmpty
+        ? recipe.category
+        : 'Trending';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -271,10 +307,10 @@ class RecipeCard extends StatelessWidget {
         Stack(
           children: [
             AspectRatio(
-              aspectRatio: 1.25,
+              aspectRatio: 1.30,
               child: _buildImage(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(19),
+                  top: Radius.circular(21),
                 ),
               ),
             ),
@@ -284,14 +320,14 @@ class RecipeCard extends StatelessWidget {
               left: 0,
               right: 0,
               bottom: 0,
-              height: 40,
+              height: 44,
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.45),
+                      Colors.black.withValues(alpha: 0.55),
                       Colors.transparent,
                     ],
                   ),
@@ -299,34 +335,68 @@ class RecipeCard extends StatelessWidget {
               ),
             ),
 
+            // Rating Pill (Bottom-Left)
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 2.5,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.70),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.star_rounded,
+                      size: 12,
+                      color: Colors.amber,
+                    ),
+                    SizedBox(width: 2.5),
+                    Text(
+                      '4.9',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             // Category Pill (Top-Left)
-            if (recipe.category.trim().isNotEmpty)
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 2.5,
+            Positioned(
+              top: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 7,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.65),
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    width: 0.8,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 0.8,
-                    ),
-                  ),
-                  child: Text(
-                    recipe.category,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
+                ),
+                child: Text(
+                  '🔥 $categoryText',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
+            ),
 
             // Favorite Button (Top-Right)
             Positioned(
@@ -340,23 +410,47 @@ class RecipeCard extends StatelessWidget {
         // Info Section
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 9),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  recipe.name.trim().isNotEmpty
-                      ? recipe.name
-                      : 'Unknown Recipe',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13.5,
-                    height: 1.2,
-                    color: textPrimary,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'Chef Recommendation',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      recipe.name.trim().isNotEmpty
+                          ? recipe.name
+                          : 'Delicious Recipe',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13.5,
+                        height: 1.25,
+                        color: textPrimary,
+                      ),
+                    ),
+                  ],
                 ),
 
                 Row(
@@ -364,27 +458,27 @@ class RecipeCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(
-                          Icons.star_rounded,
-                          size: 14,
-                          color: Colors.amber,
+                        Icon(
+                          Icons.timer_outlined,
+                          size: 12.5,
+                          color: textSecondary,
                         ),
-                        const SizedBox(width: 2),
+                        const SizedBox(width: 3),
                         Text(
-                          '4.8',
+                          '25-30m',
                           style: TextStyle(
-                            color: textPrimary,
+                            color: textSecondary,
                             fontSize: 11,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
                     Text(
-                      'Trending 🔥',
+                      'View Details →',
                       style: TextStyle(
                         color: AppColors.primary,
-                        fontSize: 10.5,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -431,7 +525,7 @@ class RecipeCard extends StatelessWidget {
                     ? Icons.favorite_rounded
                     : Icons.favorite_border_rounded,
                 color: isFavorite ? Colors.redAccent : Colors.white,
-                size: 17,
+                size: 18,
               ),
             ),
           ),

@@ -133,7 +133,8 @@ class _CategoryRecipesScreenState
                           ? 4
                           : 5;
 
-              final childAspectRatio = width < 600 ? 0.68 : 0.72;
+              final childAspectRatio = width < 600 ? 0.65 : 0.70;
+
 
               return Center(
                 child: ConstrainedBox(

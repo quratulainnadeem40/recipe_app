@@ -4,9 +4,12 @@ import 'package:recipe_app/core/routes/app_routes.dart';
 
 import 'package:recipe_app/core/theme/app_colors.dart';
 import 'package:recipe_app/core/theme/app_text_styles.dart';
+import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
+import 'package:recipe_app/features/favorites/models/favorite_recipe_model.dart';
 import 'package:recipe_app/features/home/models/recipe_models.dart';
 import 'package:recipe_app/features/home/repositories/home_repository.dart';
 import 'package:recipe_app/features/search/controllers/search_controller.dart';
+
 
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
@@ -326,32 +329,35 @@ class SearchScreen extends StatelessWidget {
     final borderColor =
         isDark ? AppColors.darkBorder : AppColors.border;
 
+    final categoryText = recipe.category.isNotEmpty ? recipe.category : 'Chef Choice';
+    final areaText = recipe.area.isNotEmpty ? recipe.area : 'Global';
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-
         onTap: () {
           Get.toNamed(
             AppRoutes.recipeDetails,
             arguments: recipe.id.isNotEmpty ? recipe.id : recipe,
           );
         },
-        borderRadius: BorderRadius.circular(20),
-        splashColor: AppColors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(22),
+        splashColor: AppColors.primary.withValues(alpha: 0.1),
+        highlightColor: AppColors.primary.withValues(alpha: 0.05),
         child: Container(
           decoration: BoxDecoration(
             color: surfaceColor,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(22),
             border: Border.all(color: borderColor),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
-                blurRadius: 12,
+                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
+                blurRadius: 14,
                 offset: const Offset(0, 4),
               ),
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: isDark ? 0.06 : 0.03),
-                blurRadius: 16,
+                color: AppColors.primary.withValues(alpha: isDark ? 0.08 : 0.03),
+                blurRadius: 18,
                 offset: const Offset(0, 6),
                 spreadRadius: -2,
               ),
@@ -359,16 +365,16 @@ class SearchScreen extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Recipe Thumbnail with Star Badge
+              // Recipe Thumbnail with Star Rating Overlay
               ClipRRect(
                 borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(19),
+                  left: Radius.circular(21),
                 ),
                 child: Stack(
                   children: [
                     SizedBox(
-                      width: 108,
-                      height: 108,
+                      width: 115,
+                      height: 115,
                       child: recipe.image.isNotEmpty
                           ? Image.network(
                               recipe.image,
@@ -376,19 +382,39 @@ class SearchScreen extends StatelessWidget {
                               errorBuilder: (context, error, stackTrace) =>
                                   Container(
                                 color: AppColors.primaryLight,
-                                child: const Icon(
-                                  Icons.restaurant_menu_rounded,
-                                  color: AppColors.primary,
-                                  size: 32,
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.restaurant_menu_rounded,
+                                    color: AppColors.primary,
+                                    size: 34,
+                                  ),
                                 ),
                               ),
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: AppColors.primaryLight,
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.primary,
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             )
                           : Container(
                               color: AppColors.primaryLight,
-                              child: const Icon(
-                                Icons.restaurant_menu_rounded,
-                                color: AppColors.primary,
-                                size: 32,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.restaurant_menu_rounded,
+                                  color: AppColors.primary,
+                                  size: 34,
+                                ),
                               ),
                             ),
                     ),
@@ -397,12 +423,12 @@ class SearchScreen extends StatelessWidget {
                       left: 6,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
+                          horizontal: 6,
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.65),
-                          borderRadius: BorderRadius.circular(5),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
@@ -429,41 +455,40 @@ class SearchScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 12),
-
               // Recipe Details
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
+                    vertical: 12.0,
                     horizontal: 4.0,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Category Tag
-                      if (recipe.category.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            recipe.category,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
-                            ),
+                      // Category & Area Pill Tag
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2.5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '$categoryText • $areaText',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
                           ),
                         ),
+                      ),
 
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 6),
 
                       // Recipe Name
                       Text(
@@ -472,7 +497,7 @@ class SearchScreen extends StatelessWidget {
                           fontSize: 14.5,
                           fontWeight: FontWeight.w800,
                           color: primaryText,
-                          height: 1.2,
+                          height: 1.25,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -480,36 +505,36 @@ class SearchScreen extends StatelessWidget {
 
                       const SizedBox(height: 5),
 
-                      // Cuisine & Duration
+                      // Duration & View Details
                       Row(
                         children: [
                           Icon(
-                            Icons.public_rounded,
-                            size: 12,
+                            Icons.timer_outlined,
+                            size: 13,
                             color: secondaryText,
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            recipe.area.isNotEmpty ? recipe.area : 'Global Cuisine',
+                            '25-30m',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 11.5,
                               color: secondaryText,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(width: 8),
                           Icon(
-                            Icons.timer_outlined,
-                            size: 12,
+                            Icons.restaurant_menu_rounded,
+                            size: 13,
                             color: secondaryText,
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            '25m',
+                            'View Details',
                             style: TextStyle(
-                              fontSize: 11,
-                              color: secondaryText,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 11.5,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -519,13 +544,50 @@ class SearchScreen extends StatelessWidget {
                 ),
               ),
 
+              // Favorite Action Button
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: GetBuilder<FavoritesController>(
+                  init: Get.isRegistered<FavoritesController>()
+                      ? null
+                      : FavoritesController(),
+                  builder: (favCtrl) {
+                    final isFav = favCtrl.isFavorite(recipe.id);
 
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14,
-                color: secondaryText.withValues(alpha: 0.5),
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          final favRecipe = FavoriteRecipeModel(
+                            id: recipe.id,
+                            name: recipe.name,
+                            image: recipe.image,
+                          );
+                          favCtrl.toggleFavorite(favRecipe);
+                          favCtrl.update();
+                        },
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isFav
+                                ? Colors.red.withValues(alpha: 0.10)
+                                : Colors.grey.withValues(alpha: 0.10),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isFav
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            color: isFav ? Colors.redAccent : secondaryText,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-              const SizedBox(width: 14),
             ],
           ),
         ),
