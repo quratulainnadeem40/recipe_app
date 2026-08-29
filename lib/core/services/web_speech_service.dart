@@ -1,9 +1,7 @@
 import 'dart:js_interop';
 
-@JS('window.speechSynthesis')
-external JSObject get _speechSynthesis;
-
 @JS('SpeechSynthesisUtterance')
+
 external JSObject _createUtterance(JSString text);
 
 @JS('speechSynthesis.speak')

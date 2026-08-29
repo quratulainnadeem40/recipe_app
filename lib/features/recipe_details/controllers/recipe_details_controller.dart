@@ -4,9 +4,9 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:recipe_app/features/favorites/controllers/favorites_controller.dart';
 import 'package:recipe_app/features/favorites/models/favorite_recipe_model.dart';
-import 'package:recipe_app/features/notifications/controllers/notifications_controller.dart';
 
 import '../model/recipe_detail_model.dart';
+
 
 import 'package:recipe_app/features/recipe_details/repositories/recipe_detail_repository.dart';
 

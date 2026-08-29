@@ -119,52 +119,62 @@ class _CategoryRecipesScreenState
           }
 
           // ======================================================
-          // RECIPES
+          // RECIPES RESPONSIVE GRID
           // ======================================================
 
-          return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              30,
-            ),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final crossAxisCount = width < 600
+                  ? 2
+                  : width < 950
+                      ? 3
+                      : width < 1300
+                          ? 4
+                          : 5;
 
-            physics: const BouncingScrollPhysics(),
+              final childAspectRatio = width < 600 ? 0.68 : 0.72;
 
-            gridDelegate:
-                const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 16,
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1400),
+                  child: GridView.builder(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: width < 600 ? 16 : 24,
+                      vertical: 16,
+                    ),
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: childAspectRatio,
+                    ),
+                    itemCount: controller.categoryRecipes.length,
+                    itemBuilder: (context, index) {
+                      final recipe = controller.categoryRecipes[index];
 
-              // Slightly taller card to prevent overflow.
-              childAspectRatio: 0.68,
-            ),
+                      return RecipeCard(
+                        recipe: recipe,
+                        horizontal: false,
+                        onTap: () {
+                          if (recipe.id.trim().isEmpty) {
+                            return;
+                          }
 
-            itemCount:
-                controller.categoryRecipes.length,
-
-            itemBuilder: (context, index) {
-              final recipe =
-                  controller.categoryRecipes[index];
-
-              return RecipeCard(
-                recipe: recipe,
-                horizontal: false,
-                onTap: () {
-                  if (recipe.id.trim().isEmpty) {
-                    return;
-                  }
-
-                  Get.toNamed(
-                    AppRoutes.recipeDetails,
-                    arguments: recipe.id,
-                  );
-                },
+                          Get.toNamed(
+                            AppRoutes.recipeDetails,
+                            arguments: recipe.id,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
               );
             },
           );
+
         },
       ),
     );

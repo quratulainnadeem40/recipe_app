@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:recipe_app/core/theme/app_colors.dart';
 
-class _InfoCard extends StatelessWidget {
+class InfoCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String value;
 
-  const _InfoCard({
+  const InfoCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.value,
   });
+
 
   @override
   Widget build(BuildContext context) {

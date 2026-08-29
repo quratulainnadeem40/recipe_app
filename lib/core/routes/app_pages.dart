@@ -27,8 +27,8 @@ import 'package:recipe_app/features/home/views/home_screen.dart';
 // NAVIGATION
 // ============================================================
 
-import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart'
-    hide NavigationBinding;
+import 'package:recipe_app/features/navigation/bindings/navigation_binding.dart';
+
 import 'package:recipe_app/features/navigation/views/main_navigation.dart';
 
 // ============================================================

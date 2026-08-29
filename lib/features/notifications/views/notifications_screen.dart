@@ -29,7 +29,7 @@ class NotificationsScreen extends GetView<NotificationController> {
         isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
     final borderColor =
-        isDark ? Colors.white.withOpacity(0.10) : AppColors.border;
+        isDark ? Colors.white.withValues(alpha: 0.10) : AppColors.border;
 
     final iconBackgroundColor =
         isDark ? const Color(0xFF2A2A2A) : AppColors.darkBackground;
@@ -37,8 +37,9 @@ class NotificationsScreen extends GetView<NotificationController> {
     final popupColor = surfaceColor;
 
     final shadowColor = isDark
-        ? Colors.black.withOpacity(0.35)
+        ? Colors.black.withValues(alpha: 0.35)
         : AppColors.shadow;
+
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -152,41 +153,40 @@ class NotificationsScreen extends GetView<NotificationController> {
           );
         }
 
-        return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            24,
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 780),
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                8,
+                16,
+                24,
+              ),
+              itemCount: controller.notifications.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final notification =
+                    controller.notifications[index];
+
+                return _buildNotificationItem(
+                  context: context,
+                  notification: notification,
+                  surfaceColor: surfaceColor,
+                  primaryTextColor: primaryTextColor,
+                  secondaryTextColor: secondaryTextColor,
+                  borderColor: borderColor,
+                  iconBackgroundColor: iconBackgroundColor,
+                  shadowColor: shadowColor,
+                );
+              },
+            ),
           ),
-
-          itemCount: controller.notifications.length,
-
-          separatorBuilder: (_, __) {
-            return const SizedBox(
-              height: 10,
-            );
-          },
-
-          itemBuilder: (context, index) {
-            final notification =
-                controller.notifications[index];
-
-            return _buildNotificationItem(
-              context: context,
-              notification: notification,
-              surfaceColor: surfaceColor,
-              primaryTextColor: primaryTextColor,
-              secondaryTextColor: secondaryTextColor,
-              borderColor: borderColor,
-              iconBackgroundColor: iconBackgroundColor,
-              shadowColor: shadowColor,
-            );
-          },
         );
       }),
     );
   }
+
 
   // ==================================================
   // EMPTY STATE
@@ -309,8 +309,9 @@ class NotificationsScreen extends GetView<NotificationController> {
           color: isRead
               ? borderColor
               : (Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.primary.withOpacity(0.35)
+                  ? AppColors.primary.withValues(alpha: 0.35)
                   : AppColors.primaryLight),
+
           width: 1,
         ),
       ),

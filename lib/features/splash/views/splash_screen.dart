@@ -83,7 +83,8 @@ class SplashScreen extends GetView<SplashController> {
 
                         color: AppColors.primary,
 
-                        backgroundColor: Colors.white.withOpacity(0.25),
+                        backgroundColor: Colors.white.withValues(alpha: 0.25),
+
                       ),
                     ),
                   ),

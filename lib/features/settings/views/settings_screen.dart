@@ -66,12 +66,16 @@ class SettingsScreen extends GetView<SettingsController> {
             horizontal: 20,
             vertical: 14,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ====================================================
-              // 1. PREFERENCES (APPEARANCE & NOTIFICATIONS)
-              // ====================================================
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 780),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ====================================================
+                  // 1. PREFERENCES (APPEARANCE & NOTIFICATIONS)
+                  // ====================================================
+
               _sectionTitle('Preferences'),
               const SizedBox(height: 10),
 
@@ -208,7 +212,10 @@ class SettingsScreen extends GetView<SettingsController> {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
+
   }
 
   // ================================================================

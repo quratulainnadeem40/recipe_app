@@ -730,11 +730,12 @@ class RecipeDetailScreen extends GetView<RecipeController> {
         dynamic foundModel;
 
         for (var r in homeController.trendingRecipes) {
-          if ((r.id ?? '').toString() == targetId) {
+          if (r.id.toString() == targetId) {
             foundModel = r;
             break;
           }
         }
+
 
         if (foundModel != null) {
           return _convertToRecipe(foundModel);
@@ -870,47 +871,35 @@ class RecipeDetailScreen extends GetView<RecipeController> {
 
         SliverToBoxAdapter(
           child: Container(
-            transform:
-                Matrix4.translationValues(
-              0,
-              -28,
-              0,
-            ),
+            transform: Matrix4.translationValues(0, -28, 0),
             decoration: BoxDecoration(
-              color: isDark
-                  ? const Color(0xFF121212)
-                  : AppColors.background,
-              borderRadius:
-                  const BorderRadius.vertical(
-                top: Radius.circular(32),
-              ),
+              color: isDark ? const Color(0xFF121212) : AppColors.background,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             ),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 24,
-              ),
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 45,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color:
-                            Colors.grey.withOpacity(
-                          0.3,
-                        ),
-                        borderRadius:
-                            BorderRadius.circular(
-                          10,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1000),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 45,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : Colors.grey.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+
 
                   const SizedBox(height: 20),
 
@@ -1021,8 +1010,11 @@ class RecipeDetailScreen extends GetView<RecipeController> {
             ),
           ),
         ),
-      ],
-    );
+      ),
+    ),
+  ],
+);
+
   }
 
   // ==========================================

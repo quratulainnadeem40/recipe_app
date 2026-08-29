@@ -113,7 +113,8 @@ class HomeHeader extends StatelessWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: notificationBackground.withOpacity(0.92),
+                    color: notificationBackground.withValues(alpha: 0.92),
+
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: notificationBorder,

@@ -8,7 +8,6 @@ import 'package:recipe_app/features/home/data/country_data.dart';
 import 'package:recipe_app/features/home/views/widgets/category_item.dart';
 import 'package:recipe_app/features/home/views/widgets/country_item.dart';
 import 'package:recipe_app/features/home/views/widgets/home_header.dart';
-import 'package:recipe_app/features/home/views/widgets/home_searchbar.dart';
 import 'package:recipe_app/features/home/views/widgets/recipe_horizontal_list.dart';
 import 'package:recipe_app/features/navigation/controllers/navigation_controller.dart';
 
@@ -46,13 +45,10 @@ class HomeScreen extends GetView<HomeController> {
         ? AppColors.darkBorder
         : AppColors.border;
 
-    final iconColor = isDark
-        ? AppColors.darkTextPrimary
-        : AppColors.primary;
-
     final shadowColor = isDark
-        ? Colors.black.withOpacity(0.35)
+        ? Colors.black.withValues(alpha: 0.35)
         : AppColors.shadow;
+
 
     // ============================================================
     // CATEGORIES
@@ -640,8 +636,9 @@ class HomeScreen extends GetView<HomeController> {
                     BoxDecoration(
                   color: isDark
                       ? AppColors.primary
-                          .withOpacity(0.18)
+                          .withValues(alpha: 0.18)
                       : AppColors.primaryLight,
+
 
                   shape: BoxShape.circle,
                 ),
