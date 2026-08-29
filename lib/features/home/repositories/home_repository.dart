@@ -32,7 +32,14 @@ class HomeRepository {
       'salad',
       'beef',
       'soup',
+      'rice',
+      'seafood',
+      'curry',
+      'cake',
+      'pie',
+      'egg',
     ];
+
 
     List<RecipeModel> allRecipes = [];
 

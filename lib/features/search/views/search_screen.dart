@@ -872,42 +872,50 @@ class SearchScreen extends StatelessWidget {
 
 
   Widget _buildDifficultyOptions() {
-    return Wrap(
-      spacing: 8,
-      children: ['Easy', 'Medium', 'Hard'].map((difficulty) {
-        return Obx(() {
-          final selected =
-              controller.activeFilters.contains(difficulty);
+    return Obx(() {
+      final difficulties = controller.availableDifficulties;
+
+      if (difficulties.isEmpty) {
+        return const Text('No difficulty options available');
+      }
+
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: difficulties.map((difficulty) {
+          final selected = controller.activeFilters.contains(difficulty);
+          final count = controller.getRecipeCountForDifficulty(difficulty);
 
           return FilterChip(
-            label: Text(difficulty),
+            label: Text('$difficulty ($count)'),
             selected: selected,
             onSelected: (value) => value
                 ? controller.addFilter(difficulty)
                 : controller.removeFilter(difficulty),
             selectedColor: AppColors.primary.withValues(alpha: 0.2),
           );
-        });
-      }).toList(),
-    );
+        }).toList(),
+      );
+    });
   }
 
   Widget _buildCuisineOptions() {
-    final cuisines = controller.areas;
+    return Obx(() {
+      final cuisines = controller.availableAreas;
 
-    if (cuisines.isEmpty) {
-      return const Text('Loading cuisines...');
-    }
+      if (cuisines.isEmpty) {
+        return const Text('Loading cuisines...');
+      }
 
-    return Obx(
-      () => Wrap(
+      return Wrap(
         spacing: 8,
         runSpacing: 8,
         children: cuisines.map((cuisine) {
           final isSelected = controller.activeFilters.contains(cuisine);
+          final count = controller.getRecipeCountForArea(cuisine);
 
           return FilterChip(
-            label: Text(cuisine),
+            label: Text('$cuisine ($count)'),
             selected: isSelected,
             onSelected: (value) => value
                 ? controller.addFilter(cuisine)
@@ -915,59 +923,66 @@ class SearchScreen extends StatelessWidget {
             selectedColor: AppColors.primary.withValues(alpha: 0.2),
           );
         }).toList(),
-      ),
-    );
+      );
+    });
   }
 
-
   Widget _buildTimeOptions() {
-    return Wrap(
-      spacing: 8,
-      children: [
-        'Under 15 mins',
-        'Under 30 mins',
-        'Under 45 mins',
-        'Under 60 mins'
-      ].map((time) {
-        return Obx(() {
+    return Obx(() {
+      final times = controller.availableTimes;
+
+      if (times.isEmpty) {
+        return const Text('No prep time options available');
+      }
+
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: times.map((time) {
           final isSelected = controller.activeFilters.contains(time);
+          final count = controller.getRecipeCountForTime(time);
 
           return FilterChip(
-            label: Text(time),
+            label: Text('$time ($count)'),
             selected: isSelected,
             onSelected: (value) => value
                 ? controller.addFilter(time)
                 : controller.removeFilter(time),
             selectedColor: AppColors.primary.withValues(alpha: 0.2),
           );
-        });
-      }).toList(),
-    );
+        }).toList(),
+      );
+    });
   }
 
   Widget _buildDietOptions() {
-    return Wrap(
-      spacing: 8,
-      children: [
-        'Vegetarian',
-        'Vegan',
-        'Healthy'
-      ].map((diet) {
-        return Obx(() {
+    return Obx(() {
+      final diets = controller.availableDiets;
+
+      if (diets.isEmpty) {
+        return const Text('No dietary options available');
+      }
+
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: diets.map((diet) {
           final isSelected = controller.activeFilters.contains(diet);
+          final count = controller.getRecipeCountForDiet(diet);
 
           return FilterChip(
-            label: Text(diet),
+            label: Text('$diet ($count)'),
             selected: isSelected,
             onSelected: (value) => value
                 ? controller.addFilter(diet)
                 : controller.removeFilter(diet),
             selectedColor: AppColors.primary.withValues(alpha: 0.2),
           );
-        });
-      }).toList(),
-    );
+        }).toList(),
+      );
+    });
   }
+
 
   void _showFilterModal(BuildContext context) {
     final isDark =

@@ -40,7 +40,7 @@ class RecipeSearchController extends GetxController {
   // UI List View Getter
   List<RecipeModel> get displayedResults => filteredResults;
 
-  // Dropdown lists for UI [6, 7]
+  // Master lists for fallback
   final List<String> categories = const [
     'Beef', 'Breakfast', 'Chicken', 'Dessert', 'Goat', 'Lamb', 
     'Miscellaneous', 'Pasta', 'Pork', 'Seafood', 'Side', 'Starter', 'Vegan', 'Vegetarian',
@@ -53,6 +53,93 @@ class RecipeSearchController extends GetxController {
     'Pakistani', 'Polish', 'Portuguese', 'Russian', 'Spanish', 'Thai', 
     'Tunisian', 'Turkish', 'Ukrainian', 'Uruguayan', 'Vietnamese',
   ];
+
+  // ============================================================
+  // DYNAMIC FILTER LISTS (ONLY OPTIONS WITH AVAILABLE RECIPES)
+  // ============================================================
+
+  List<String> get availableAreas {
+    final Map<String, int> counts = {};
+    for (final r in allRecipes) {
+      final area = r.area.trim();
+      if (area.isNotEmpty) {
+        counts[area] = (counts[area] ?? 0) + 1;
+      }
+    }
+    final list = counts.keys.toList()..sort();
+    return list;
+  }
+
+  int getRecipeCountForArea(String area) {
+    return allRecipes
+        .where((r) => r.area.toLowerCase() == area.toLowerCase())
+        .length;
+  }
+
+  List<String> get availableCategories {
+    final Map<String, int> counts = {};
+    for (final r in allRecipes) {
+      final cat = r.category.trim();
+      if (cat.isNotEmpty) {
+        counts[cat] = (counts[cat] ?? 0) + 1;
+      }
+    }
+    final list = counts.keys.toList()..sort();
+    return list;
+  }
+
+  int getRecipeCountForCategory(String category) {
+    return allRecipes
+        .where((r) => r.category.toLowerCase() == category.toLowerCase())
+        .length;
+  }
+
+  List<String> get availableDifficulties {
+    final list = ['Easy', 'Medium', 'Hard'];
+    return list
+        .where((d) => getRecipeCountForDifficulty(d) > 0)
+        .toList();
+  }
+
+  int getRecipeCountForDifficulty(String diff) {
+    return allRecipes.where((r) => r.difficulty == diff).length;
+  }
+
+  List<String> get availableTimes {
+    final times = [
+      'Under 15 mins',
+      'Under 30 mins',
+      'Under 45 mins',
+      'Under 60 mins',
+    ];
+    return times.where((t) => getRecipeCountForTime(t) > 0).toList();
+  }
+
+  int getRecipeCountForTime(String timeFilter) {
+    return allRecipes.where((r) {
+      final time = r.estimatedTimeMinutes;
+      if (timeFilter.contains('15') && time <= 15) return true;
+      if (timeFilter.contains('30') && time <= 30) return true;
+      if (timeFilter.contains('45') && time <= 45) return true;
+      if (timeFilter.contains('60') && time <= 60) return true;
+      return false;
+    }).length;
+  }
+
+  List<String> get availableDiets {
+    final diets = ['Vegetarian', 'Vegan', 'Healthy'];
+    return diets.where((d) => getRecipeCountForDiet(d) > 0).toList();
+  }
+
+  int getRecipeCountForDiet(String diet) {
+    return allRecipes.where((r) {
+      if (diet == 'Vegetarian' && r.isVegetarian) return true;
+      if (diet == 'Vegan' && r.isVegan) return true;
+      if (diet == 'Healthy' && r.isHealthy) return true;
+      return false;
+    }).length;
+  }
+
 
 @override
 void onInit() {
