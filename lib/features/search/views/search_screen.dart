@@ -799,13 +799,16 @@ class SearchScreen extends StatelessWidget {
     }
 
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(Get.context!).size.height * 0.75,
+      ),
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(24),
         ),
       ),
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.fromLTRB(22, 18, 22, 22),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -830,9 +833,17 @@ class SearchScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          Flexible(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: optionsWidget,
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
-          optionsWidget,
-          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             height: 48,
@@ -858,6 +869,7 @@ class SearchScreen extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _buildDifficultyOptions() {
     return Wrap(
@@ -971,137 +983,140 @@ class SearchScreen extends StatelessWidget {
 
     Get.bottomSheet(
       Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(24),
           ),
         ),
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Filter Recipes',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: primaryText,
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Filter Recipes',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: primaryText,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: primaryText,
+                  ),
+                  onPressed: () => Get.back(),
+                ),
+              ],
+            ),
+            Divider(
+              color: isDark
+                  ? AppColors.darkBorder
+                  : AppColors.border,
+            ),
+            const SizedBox(height: 6),
+            Flexible(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Difficulty',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: primaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildDifficultyOptions(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Cuisine (Dynamic Areas)',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: primaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildCuisineOptions(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Prep Time',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: primaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildTimeOptions(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Dietary Preferences',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: primaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildDietOptions(),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      controller.clearAllFilters();
+                      Get.back();
+                    },
+                    child: Text(
+                      'Clear All',
+                      style: TextStyle(
+                        color: primaryText,
+                      ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.close_rounded,
-                      color: primaryText,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
                     ),
                     onPressed: () => Get.back(),
-                  ),
-                ],
-              ),
-              Divider(
-                color: isDark
-                    ? AppColors.darkBorder
-                    : AppColors.border,
-              ),
-              const SizedBox(height: 8),
-
-              Text(
-                'Difficulty',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: primaryText,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildDifficultyOptions(),
-
-              const SizedBox(height: 16),
-
-              Text(
-                'Cuisine (Dynamic Areas)',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: primaryText,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildCuisineOptions(),
-
-              const SizedBox(height: 16),
-
-              Text(
-                'Prep Time',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: primaryText,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildTimeOptions(),
-
-              const SizedBox(height: 16),
-
-              Text(
-                'Dietary Preferences',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: primaryText,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildDietOptions(),
-
-              const SizedBox(height: 24),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        controller.clearAllFilters();
-                        Get.back();
-                      },
-                      child: Text(
-                        'Clear All',
-                        style: TextStyle(
-                          color: primaryText,
-                        ),
+                    child: const Text(
+                      'Apply Filters',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () => Get.back(),
-                      child: const Text(
-                        'Apply Filters',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
       isScrollControlled: true,
     );
   }
 }
+
