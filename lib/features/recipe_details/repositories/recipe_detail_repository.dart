@@ -1,3 +1,4 @@
+import 'package:recipe_app/core/data/pakistani_recipes_data.dart';
 import 'package:recipe_app/core/services/api_service.dart';
 import 'package:recipe_app/features/recipe_details/model/recipe_detail_model.dart';
 
@@ -47,6 +48,12 @@ class RecipeRepository {
       throw Exception('Recipe ID cannot be empty');
     }
 
+    // Check Pakistani Recipes first
+    final pakRecipe = PakistaniRecipesData.getRecipeDetailById(recipeId);
+    if (pakRecipe != null) {
+      return pakRecipe;
+    }
+
     final responseData =
         await apiService.getData(
       'lookup.php?i=$recipeId',
@@ -71,4 +78,4 @@ class RecipeRepository {
 
     return Recipe.fromJson(meal);
   }
-}
+}
