@@ -204,40 +204,8 @@ class SearchScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
 
-                            // Selected Area Badge (if from explore)
-                            if (controller.selectedArea.value != null &&
-                                controller.selectedArea.value!.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: _buildActiveTagChip(
-                                  controller.selectedArea.value!,
-                                  () {
-                                    controller.selectedArea.value = null;
-                                    controller.searchRecipes(
-                                      controller.searchQuery.value,
-                                    );
-                                  },
-                                ),
-                              ),
-
-                            // Selected Category Badge (if from explore)
-                            if (controller.selectedCategory.value != null &&
-                                controller.selectedCategory.value!.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: _buildActiveTagChip(
-                                  controller.selectedCategory.value!,
-                                  () {
-                                    controller.selectedCategory.value = null;
-                                    controller.searchRecipes(
-                                      controller.searchQuery.value,
-                                    );
-                                  },
-                                ),
-                              ),
-
-                            // Active Filter Chips
-                            ...controller.activeFilters.map(
+                            // Active Filter Chips (Deduplicated)
+                            ...controller.activeFilters.toSet().map(
                               (filter) => Padding(
                                 padding: const EdgeInsets.only(right: 8),
                                 child: _buildActiveTagChip(
@@ -251,6 +219,7 @@ class SearchScreen extends StatelessWidget {
                       ),
                     );
                   }),
+
 
 
                   const SizedBox(height: 16),

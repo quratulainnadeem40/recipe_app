@@ -21,12 +21,13 @@ class NavigationController extends GetxController {
     String category = '',
     String query = '',
   }) {
-    exploreType.value = type;
     exploreArea.value = area;
     exploreCategory.value = category;
     exploreQuery.value = query;
+    exploreType.value = '';
+    exploreType.value = type;
 
     // Explore is index 1
     selectedIndex.value = 1;
   }
-}
+}

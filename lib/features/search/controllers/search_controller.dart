@@ -165,12 +165,16 @@ void onInit() {
   );
 }
 
-void _handleExploreNavigation(
+Future<void> _handleExploreNavigation(
   NavigationController navigationController,
-) {
+) async {
   final type = navigationController.exploreType.value;
+  if (type.isEmpty) return;
 
-  if (type == 'allCountries') {
+  if (type == 'allCountries' ||
+      type == 'allCategories' ||
+      type == 'trending') {
+    activeFilters.clear();
     selectedArea.value = null;
     selectedCategory.value = null;
     searchTextController.clear();
@@ -178,64 +182,99 @@ void _handleExploreNavigation(
 
     searchResults.assignAll(allRecipes);
     _applyFilters();
-  }
-
-  if (type == 'allCategories') {
-    selectedArea.value = null;
-    selectedCategory.value = null;
-    searchTextController.clear();
-    searchQuery.value = '';
-
-    searchResults.assignAll(allRecipes);
-    _applyFilters();
-  }
-
-  if (type == 'trending') {
-    selectedArea.value = null;
-    selectedCategory.value = null;
-    searchTextController.clear();
-    searchQuery.value = '';
-
-    searchResults.assignAll(allRecipes);
-    _applyFilters();
+    return;
   }
 
   if (type == 'country') {
+    final area = navigationController.exploreArea.value.trim();
+    activeFilters.clear();
     selectedCategory.value = null;
-    selectedArea.value =
-        navigationController.exploreArea.value;
+    selectedArea.value = area.isNotEmpty ? area : null;
+
+    if (area.isNotEmpty && !activeFilters.contains(area)) {
+      activeFilters.add(area);
+    }
 
     searchTextController.clear();
     searchQuery.value = '';
 
+    // Immediately filter current recipes
     searchResults.assignAll(allRecipes);
     _applyFilters();
+
+    // Also fetch all country recipes from API to guarantee full coverage
+    if (area.isNotEmpty) {
+      try {
+        isLoading.value = true;
+        final countryRecipes = await repository.getRecipesByCountry(area);
+        if (countryRecipes.isNotEmpty) {
+          for (final r in countryRecipes) {
+            if (!allRecipes.any((existing) => existing.id == r.id)) {
+              allRecipes.add(r);
+            }
+          }
+          searchResults.assignAll(allRecipes);
+          _applyFilters();
+        }
+      } catch (_) {
+      } finally {
+        isLoading.value = false;
+      }
+    }
+    return;
   }
 
   if (type == 'category') {
+    final category = navigationController.exploreCategory.value.trim();
+    activeFilters.clear();
     selectedArea.value = null;
-    selectedCategory.value =
-        navigationController.exploreCategory.value;
+    selectedCategory.value = category.isNotEmpty ? category : null;
+
+    if (category.isNotEmpty && !activeFilters.contains(category)) {
+      activeFilters.add(category);
+    }
 
     searchTextController.clear();
     searchQuery.value = '';
 
+    // Immediately filter current recipes
     searchResults.assignAll(allRecipes);
     _applyFilters();
+
+    // Also fetch all category recipes from API to guarantee full coverage
+    if (category.isNotEmpty) {
+      try {
+        isLoading.value = true;
+        final catRecipes = await repository.getRecipesByCategory(category);
+        if (catRecipes.isNotEmpty) {
+          for (final r in catRecipes) {
+            if (!allRecipes.any((existing) => existing.id == r.id)) {
+              allRecipes.add(r);
+            }
+          }
+          searchResults.assignAll(allRecipes);
+          _applyFilters();
+        }
+      } catch (_) {
+      } finally {
+        isLoading.value = false;
+      }
+    }
+    return;
   }
 
   if (type == 'query') {
+    activeFilters.clear();
     selectedArea.value = null;
     selectedCategory.value = null;
 
-    final query =
-        navigationController.exploreQuery.value;
-
+    final query = navigationController.exploreQuery.value.trim();
     searchTextController.text = query;
-
     searchRecipes(query);
+    return;
   }
 }
+
   Future<void> loadInitialRecipes() async {
     try {
       isLoading.value = true;
@@ -303,20 +342,28 @@ void _handleExploreNavigation(
   }
 
   void removeFilter(String filter) {
+    if (selectedArea.value != null &&
+        selectedArea.value!.toLowerCase() == filter.toLowerCase()) {
+      selectedArea.value = null;
+    }
+    if (selectedCategory.value != null &&
+        selectedCategory.value!.toLowerCase() == filter.toLowerCase()) {
+      selectedCategory.value = null;
+    }
     if (activeFilters.contains(filter)) {
       activeFilters.remove(filter);
-      _applyFilters();
     }
+    _applyFilters();
   }
 
   void toggleFilter(String filter) {
     if (activeFilters.contains(filter)) {
-      activeFilters.remove(filter);
+      removeFilter(filter);
     } else {
-      activeFilters.add(filter);
+      addFilter(filter);
     }
-    _applyFilters();
   }
+
 
   // Filter computation logic across all categories
   void _applyFilters() {
