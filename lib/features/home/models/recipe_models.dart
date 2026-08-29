@@ -83,46 +83,109 @@ class RecipeModel {
   bool get isVegetarian {
     final cat = category.toLowerCase();
     final nm = name.toLowerCase();
-    return cat.contains('vegetarian') ||
-        cat.contains('vegan') ||
-        cat.contains('dessert') ||
+    if (cat == 'vegetarian' || cat == 'vegan') return true;
+    final nonVegWords = [
+      'chicken',
+      'beef',
+      'pork',
+      'lamb',
+      'goat',
+      'fish',
+      'salmon',
+      'tuna',
+      'shrimp',
+      'prawn',
+      'meat',
+      'bacon',
+      'turkey',
+      'duck',
+      'clam',
+      'mussel'
+    ];
+    for (final word in nonVegWords) {
+      if (cat.contains(word) || nm.contains(word)) return false;
+    }
+    return cat.contains('dessert') ||
         cat.contains('pasta') ||
+        cat.contains('side') ||
         nm.contains('salad') ||
         nm.contains('soup') ||
-        nm.contains('vegetable') ||
+        nm.contains('veg') ||
+        nm.contains('cheese') ||
+        nm.contains('potato') ||
+        nm.contains('bread') ||
+        nm.contains('cake') ||
+        nm.contains('pie') ||
         nm.contains('paneer') ||
-        nm.contains('dal') ||
-        nm.contains('curry') ||
-        (!cat.contains('beef') &&
-            !cat.contains('chicken') &&
-            !cat.contains('pork') &&
-            !cat.contains('lamb') &&
-            !cat.contains('goat') &&
-            !cat.contains('seafood'));
+        nm.contains('dal');
   }
 
   bool get isVegan {
     final cat = category.toLowerCase();
     final nm = name.toLowerCase();
-    return cat.contains('vegan') ||
-        nm.contains('vegan') ||
+    if (cat == 'vegan') return true;
+    final nonVeganWords = [
+      'chicken',
+      'beef',
+      'pork',
+      'lamb',
+      'goat',
+      'fish',
+      'salmon',
+      'shrimp',
+      'meat',
+      'egg',
+      'cheese',
+      'butter',
+      'milk',
+      'cream',
+      'bacon'
+    ];
+    for (final word in nonVeganWords) {
+      if (cat.contains(word) || nm.contains(word)) return false;
+    }
+    return nm.contains('vegan') ||
         nm.contains('tofu') ||
+        nm.contains('plant') ||
+        nm.contains('avocado') ||
         nm.contains('salad') ||
-        nm.contains('plant');
+        nm.contains('hummus') ||
+        nm.contains('spinach') ||
+        nm.contains('lentil') ||
+        nm.contains('bean');
   }
 
   bool get isHealthy {
     final cat = category.toLowerCase();
     final nm = name.toLowerCase();
-    return cat.contains('vegan') ||
-        cat.contains('vegetarian') ||
-        cat.contains('seafood') ||
-        cat.contains('starter') ||
+    final unHealthyWords = [
+      'cake',
+      'pie',
+      'pudding',
+      'fudge',
+      'cookie',
+      'sweet',
+      'chocolate',
+      'fried',
+      'sugar',
+      'pork',
+      'tart'
+    ];
+    for (final word in unHealthyWords) {
+      if (cat.contains(word) || nm.contains(word)) return false;
+    }
+    return cat == 'vegan' ||
+        cat == 'vegetarian' ||
+        cat == 'seafood' ||
+        cat == 'starter' ||
         nm.contains('salad') ||
         nm.contains('soup') ||
         nm.contains('grilled') ||
         nm.contains('fresh') ||
         nm.contains('lemon') ||
-        nm.contains('fish');
+        nm.contains('fish') ||
+        nm.contains('boiled') ||
+        nm.contains('steam');
   }
-}
+}
+

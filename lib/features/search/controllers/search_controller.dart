@@ -320,7 +320,9 @@ void _handleExploreNavigation(
 
   // Filter computation logic across all categories
   void _applyFilters() {
-    List<RecipeModel> temp = List.from(searchResults);
+    List<RecipeModel> temp = searchQuery.value.trim().isEmpty
+        ? List.from(allRecipes)
+        : List.from(searchResults);
 
     // 1. Text Query Filter (if active)
     final query = searchQuery.value.trim().toLowerCase();
@@ -334,31 +336,41 @@ void _handleExploreNavigation(
     }
 
     // 2. Category Filter (selectedCategory or from activeFilters)
-    final activeCategoryFilters =
-        activeFilters.where((f) => categories.contains(f)).toList();
-    final effectiveCategory = selectedCategory.value ??
-        (activeCategoryFilters.isNotEmpty
-            ? activeCategoryFilters.first
-            : null);
+    final activeCategoryFilters = activeFilters
+        .where((f) =>
+            availableCategories.contains(f) || categories.contains(f))
+        .toList();
 
-    if (effectiveCategory != null && effectiveCategory.isNotEmpty) {
+    if (selectedCategory.value != null &&
+        selectedCategory.value!.isNotEmpty &&
+        !activeCategoryFilters.contains(selectedCategory.value)) {
+      activeCategoryFilters.add(selectedCategory.value!);
+    }
+
+    if (activeCategoryFilters.isNotEmpty) {
       temp = temp.where((recipe) {
-        return recipe.category.toLowerCase() ==
-            effectiveCategory.toLowerCase();
+        return activeCategoryFilters.any(
+          (c) => c.toLowerCase() == recipe.category.toLowerCase(),
+        );
       }).toList();
     }
 
     // 3. Area / Cuisine Filter (selectedArea or from activeFilters)
-    final activeCuisineFilters =
-        activeFilters.where((f) => areas.contains(f)).toList();
-    final effectiveArea = selectedArea.value ??
-        (activeCuisineFilters.isNotEmpty
-            ? activeCuisineFilters.first
-            : null);
+    final activeCuisineFilters = activeFilters
+        .where((f) => availableAreas.contains(f) || areas.contains(f))
+        .toList();
 
-    if (effectiveArea != null && effectiveArea.isNotEmpty) {
+    if (selectedArea.value != null &&
+        selectedArea.value!.isNotEmpty &&
+        !activeCuisineFilters.contains(selectedArea.value)) {
+      activeCuisineFilters.add(selectedArea.value!);
+    }
+
+    if (activeCuisineFilters.isNotEmpty) {
       temp = temp.where((recipe) {
-        return recipe.area.toLowerCase() == effectiveArea.toLowerCase();
+        return activeCuisineFilters.any(
+          (c) => c.toLowerCase() == recipe.area.toLowerCase(),
+        );
       }).toList();
     }
 
@@ -408,6 +420,7 @@ void _handleExploreNavigation(
 
     filteredResults.assignAll(temp);
   }
+
 
   void clearAllFilters() {
     activeFilters.clear();
